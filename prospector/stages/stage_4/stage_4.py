@@ -105,7 +105,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                         )
 
                         # Then we fetch the 10 prot areas with the
-                        # shortest distances and store to new gdf
+                        # shortest distances and store to a new gdf
                         sd_gdf = sd_gdf.head(10)
                         sd_gdf = sd_gdf.drop(columns=["distance"], axis=1)
 
@@ -115,28 +115,29 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                             sd_gdf = sd_gdf.drop(columns=["index_right"], axis=1)
 
                         # With the new gdf we make again spatial join,
-                        # but this time with the original geometry and
+                        # but this time with the original polygon and
                         # not just the centroid. That way we will limit the
-                        # initial processing time and will apply the hardcore
-                        # processing to only the ten closest areas.
+                        # initial processing time and will apply the expensive
+                        # processing only to the ten closest areas.
 
                         # Make new gdf with the true geometry
                         geom_gdf = gpd.GeoDataFrame(
                             [row["geometry"]], columns=["geometry"], geometry="geometry"
                         )
 
+                        # Make spatial join
                         final_distance_gdf = gpd.sjoin_nearest(
                             geom_gdf,
                             sd_gdf,
                             distance_col="distance",
                             how="right",
-                            # 'right' provides the whole prot_area gdf
+                            # With 'right' it returns the whole prot_area gdf
                             # with distance values.
                         )
 
                         # Sort by distance ascending
                         final_distance_gdf = final_distance_gdf.sort_values(
-                            columns=["distance"], ascending=True
+                            by=["distance"], ascending=True
                         )
 
                         # We extract the distance value, which already is
