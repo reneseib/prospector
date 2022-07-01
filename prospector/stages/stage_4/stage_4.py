@@ -134,11 +134,16 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                             # with distance values.
                         )
 
+                        final_distance_gdf = final_distance_gdf.sort_values(
+                            columns=["distance"]
+                        )
+
                         # We extract the distance value, which already is
                         # in meters. Divide by 1000 to get distance in km.
                         pa_distance = final_distance_gdf.iloc[0]["distance"] / 1000
 
-                        # We add the distance to the row in GDF
+                        # We add the distance to the nearest protected area
+                        # to a new row in the GDF
                         gdf.loc[i, f"nearest_{pa_abbr}"] = pa_distance
 
             # At last save all to disk
