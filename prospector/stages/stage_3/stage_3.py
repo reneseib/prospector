@@ -67,7 +67,7 @@ def intersect_wrapper(regio, stage, gdf, overlap_data, i):
     # Save processing results to disk
     stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
     if stage_successfully_saved:
-        print("Stage successfully saved to disk")
+        print("Stage successfully saved to file")
         return True
     else:
         return False
@@ -108,7 +108,7 @@ def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
 
                 if stage_successfully_saved != False:
 
-                    print(f"Intersections added and saved to disk")
+                    print(f"Intersections added and saved to file")
                     print("")
 
                     return True

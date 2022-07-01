@@ -53,28 +53,28 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
         print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
 
         if len(gdf) > 0:
-            # This is where the magic happens
+            # First, we add some new columns to the GDF by iterating over
+            # all overlap columns.
+            # To make them distinct, we need readable column names.
+            # Then we fill them with 'None'.
+            overlap_cols = list(prot_areas.overlap_data.keys())
+            for column in overlap_cols:
+                pa_abbr = column.split("_")[0]
+                gdf[f"nearest_{pa_abbr}"] = None
+
+            # Iterate over GDF
             for i in range(0, len(gdf)):
 
                 # We iterate over all GDF rows
                 row = gdf.iloc[i]
 
-                # Print status bar
-                Display.status_bar(i, len(gdf))
-
-                # Build a list with all overlap column names
-                overlap_cols = list(prot_areas.overlap_data.keys())
-
-                # We iterate over all column names and get their respective row value
+                # We iterate over all prot area column names and
+                # get their respective boolean value
                 for col in overlap_cols:
 
                     # If the overlay col value is FALSE, we work with this row.
                     # Otherwise, we just pass to the next row
                     if row[col] == False:
-                        print(col)
-                        pa_abbr = col.split("_")[0]
-
-                        # TO DO: Find the nearest protected area
 
                         # We just pass the col name to the overlap_data dict
                         # and key: "data" to get the already loaded
@@ -134,25 +134,29 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                             # with distance values.
                         )
 
+                        # Sort by distance ascending
                         final_distance_gdf = final_distance_gdf.sort_values(
-                            columns=["distance"]
+                            columns=["distance"], ascending=True
                         )
 
                         # We extract the distance value, which already is
                         # in meters. Divide by 1000 to get distance in km.
                         pa_distance = final_distance_gdf.iloc[0]["distance"] / 1000
 
-                        # We add the distance to the nearest protected area
-                        # to a new row in the GDF
+                        # We overwrite the 'distance to the nearest
+                        # protected area' to the new column
                         gdf.loc[i, f"nearest_{pa_abbr}"] = pa_distance
 
-            # At last save all to disk
+                # Finally print status bar for the row iteration
+                Display.status_bar(i, len(gdf))
+
+            # After iterating over all rows, save extended GDF to file
             stage_successfully_saved = util.save_current_stage_to_file(
                 gdf, regio, stage
             )
             if stage_successfully_saved:
                 print("")
-                print(f"Stage 4 for {regio} successfully saved to disk")
+                print(f"Stage 4 for {regio} successfully saved to file")
                 print("")
 
                 return True

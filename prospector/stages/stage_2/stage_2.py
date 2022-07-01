@@ -44,7 +44,7 @@ def f_stage_2(regio, stage="2-added_centroids"):
 
         if stage_successfully_saved != False:
 
-            print("Centroid added and GDF saved to disk")
+            print("Centroid added and GDF saved to file")
             print("")
 
             return True
