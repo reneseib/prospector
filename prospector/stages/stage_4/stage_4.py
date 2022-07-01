@@ -83,30 +83,63 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                         # We then have to make a GDF with a single point - the one we want to find the next prot area for
                         nlist = [wkt.loads(row["centroid"])]
 
-                        geom_gdf = gpd.GeoDataFrame(
+                        centroid_gdf = gpd.GeoDataFrame(
                             nlist, columns=["geometry"], geometry="geometry"
                         )
 
                         # Via spatial join we find the nearest
                         # protected area to that geometry
                         gdf_distance = gpd.sjoin_nearest(
-                            geom_gdf,
+                            centroid_gdf,
                             gdf_prot_area,
                             distance_col="distance",
-                            how="left",
-                            # 'right' provides the index of the result from
-                            # the right df, here gdf_prot_area which would
-                            # allow us to fetch the respective row to store
-                            # additional information on the prot_area
+                            how="right",
+                            # 'right' provides the whole prot_area gdf
+                            # with distance values.
                         )
 
-                        # We extract the distance value, which until now
-                        # is in CRS units.
-                        # Hence, we need to convert it to km - somehow
-                        # print(gdf_distance)
-                        # print(gdf_distance["distance"].min())
-                        # os._exit(3)
-                        pa_distance = gdf_distance["distance"].min()
+                        # We then sort by distance increasing
+                        sd_gdf = gdf_distance.sort_values(
+                            by=["distance"], ascending=True
+                        )
+
+                        # Then we fetch the 10 prot areas with the
+                        # shortest distances and store to new gdf
+                        sd_gdf = sd_gdf.head(10)
+                        sd_gdf = sd_gdf.drop(columns=["distance"], axis=1)
+
+                        if "index_left" in sd_gdf.columns:
+                            sd_gdf = sd_gdf.drop(columns=["index_left"], axis=1)
+                        if "index_right" in sd_gdf.columns:
+                            sd_gdf = sd_gdf.drop(columns=["index_right"], axis=1)
+
+                        # With the new gdf we make again spatial join,
+                        # but this time with the original geometry and
+                        # not just the centroid. That way we will limit the
+                        # initial processing time and will apply the hardcore
+                        # processing to only the ten closest areas.
+
+                        # Make new gdf with the true geometry
+                        geom_gdf = gpd.GeoDataFrame(
+                            [row["geometry"]], columns=["geometry"], geometry="geometry"
+                        )
+
+                        final_distance_gdf = gpd.sjoin_nearest(
+                            geom_gdf,
+                            sd_gdf,
+                            distance_col="distance",
+                            how="right",
+                            # 'right' provides the whole prot_area gdf
+                            # with distance values.
+                        )
+
+                        print(final_distance_gdf)
+
+                        sys.exit()
+
+                        # We extract the distance value, which already is
+                        # in meters. Divide by 1000 to get distance in km.
+                        pa_distance = gdf_distance["distance"].min() / 1000
 
                         # We add the distance to the row in GDF
                         gdf.loc[i, f"nearest_{pa_abbr}"] = pa_distance
