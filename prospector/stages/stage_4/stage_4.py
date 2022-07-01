@@ -71,6 +71,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     # If the overlay col value is FALSE, we work with this row.
                     # Otherwise, we just pass to the next row
                     if row[col] == False:
+                        print(col)
                         pa_abbr = col.split("_")[0]
 
                         # TO DO: Find the nearest protected area
@@ -133,13 +134,9 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                             # with distance values.
                         )
 
-                        print(final_distance_gdf)
-
-                        sys.exit()
-
                         # We extract the distance value, which already is
                         # in meters. Divide by 1000 to get distance in km.
-                        pa_distance = gdf_distance["distance"].min() / 1000
+                        pa_distance = final_distance_gdf.iloc[0]["distance"] / 1000
 
                         # We add the distance to the row in GDF
                         gdf.loc[i, f"nearest_{pa_abbr}"] = pa_distance
