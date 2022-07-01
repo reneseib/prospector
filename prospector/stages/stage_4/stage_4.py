@@ -78,8 +78,9 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
 
                         # TO DO: Find the nearest protected area
 
-                        # We just pass the col name to the overlap_data dict and
-                        # key: "data" to get the already loaded prot area GDF
+                        # We just pass the col name to the overlap_data dict
+                        # and key: "data" to get the already loaded
+                        # prot area GDF
                         gdf_prot_area = prot_areas.overlap_data[col]["data"]
 
                         # We then have to make a GDF with a single point - the one we want to find the next prot area for
@@ -89,15 +90,21 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                             nlist, columns=["geometry"], geometry="geometry"
                         )
 
-                        # Via spatial join we find the nearest protected area to that geometry
+                        # Via spatial join we find the nearest
+                        # protected area to that geometry
                         gdf_distance = gpd.sjoin_nearest(
                             geom_gdf,
                             gdf_prot_area,
                             distance_col="distance",
-                            how="left",  # 'right' provides the index of the result from the right df, here gdf_prot_area which would allow us to fetch the respective row to store additional information on the prot_area
+                            how="left",
+                            # 'right' provides the index of the result from
+                            # the right df, here gdf_prot_area which would
+                            # allow us to fetch the respective row to store
+                            # additional information on the prot_area
                         )
 
-                        # We extract the distance value, which until now is in CRS units.
+                        # We extract the distance value, which until now
+                        # is in CRS units.
                         # Hence, we need to convert it to km - somehow
                         # print(gdf_distance)
                         # print(gdf_distance["distance"].min())
@@ -107,7 +114,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                         # We add the distance to the row in GDF
                         gdf.loc[i, f"nearest_{pa_abbr}"] = pa_distance
 
-            # Then save all to disk
+            # At last save all to disk
             stage_successfully_saved = util.save_current_stage_to_file(
                 gdf, regio, stage
             )
