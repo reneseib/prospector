@@ -22,6 +22,8 @@ for dir in config["init"]["prospector_package_path"]:
 from util import util
 import prot_areas
 
+from display.display import Display
+
 
 for dir in config["init"]["proj_path"]:
     if os.path.isdir(dir):
@@ -46,25 +48,20 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
     if not os.path.isfile(output_file_gpkg):
         print(f"Working on {regio} now:")
 
+        # Load file from previous stage to a GDF
         gdf = util.load_prev_stage_to_gdf(regio, stage)
         print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
 
         if len(gdf) > 0:
-            # THIS IS WHERE THE MAGIC HAPPENS
+            # This is where the magic happens
             for i in range(0, len(gdf)):
 
                 # We iterate over all GDF rows
                 row = gdf.iloc[i]
-                width = int(round(os.get_terminal_size().columns * 0.8, 0))
-                proc = int(round((i / len(gdf)) * width))
-                rest = int(width - proc)
-                print(
-                    f"\t>> Working: |"
-                    + "▉" * proc
-                    + f"{'-'*rest}| {round((i / len(gdf)) * 100, 2)} %",
-                    end="\r",
-                )
-                #
+
+                # Print status bar
+                Display.status_bar(i, len(gdf))
+
                 # Build a list with all overlap column names
                 overlap_cols = list(prot_areas.overlap_data.keys())
 
