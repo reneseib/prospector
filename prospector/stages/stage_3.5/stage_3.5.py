@@ -68,5 +68,47 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 # We iterate over all GDF rows
                 row = gdf.iloc[i]
                 if type(row["geometry"]) == MultiPolygon:
+
                     # Convert to regular polygon!
-                    print("")
+                    apply_concave_hull = False
+                    if apply_concave_hull == True:
+                        new_geometry = []
+                        for i in range(len(gdf)):
+                            row = gdf.iloc[i]
+
+                            if type(row["geometry"]) == MultiPolygon:
+                                try:
+                                    poly_coordinates = [
+                                        list(polygon.exterior.coords)
+                                        for polygon in row["geometry"]
+                                    ]
+
+                                    coordslist = [
+                                        y for x in poly_coordinates for y in x
+                                    ]
+
+                                    for poly in poly_coordinates:
+                                        for val in poly:
+                                            coordslist.append(val)
+
+                                    poly_coordinates = [list(x) for x in coordslist]
+                                    poly_coordinates = np.array(poly_coordinates)
+
+                                    hull = CH.concaveHull(
+                                        poly_coordinates,
+                                        round(len(poly_coordinates) / 5, 0),
+                                    )
+                                    hull = [Point(x[0], x[1]) for x in hull]
+
+                                    new_geometry.append(Polygon(hull))
+                                except:
+                                    new_geometry.append(row["geometry"])
+                                    pass
+
+                            else:
+                                new_geometry.append(row["geometry"])
+
+                        tmp_gdf = gpd.GeoDataFrame(new_geometry, columns=["geometry"])
+
+                        if len(new_geometry) > 0:
+                            gdf["geometry"] = tmp_gdf["geometry"]
