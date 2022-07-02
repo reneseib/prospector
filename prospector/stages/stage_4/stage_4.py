@@ -73,7 +73,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                             [row["geometry"]], columns=["geometry"], geometry="geometry"
                         )
                     except:
-                        print(row["geometry"])
+                        print(row["geometry"].exterior.coords.xy)
                         raise
 
     #
