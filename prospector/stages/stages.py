@@ -21,6 +21,7 @@ for dir in config["init"]["prospector_package_path"]:
 
 # Import Stages functions
 from stage_0.stage_0 import f_stage_0
+from stage_0_5.stage_0_5 import f_stage_0_5
 from stage_1.stage_1 import f_stage_1
 from stage_2.stage_2 import f_stage_2
 from stage_3.stage_3 import f_stage_3

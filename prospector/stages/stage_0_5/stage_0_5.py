@@ -35,7 +35,7 @@ geo_data_dir = os.path.join(src_data_dir, "geo_data")
 results_dir = os.path.join(main_dir, "results")
 
 
-def f_stage_4(regio, stage="4-added_nearest_protected_area"):
+def f_stage_0_5(regio, stage="0_5-convert-multipolygons-to-polygon"):
     output_file_gpkg = os.path.join(
         results_dir,
         "stages",
@@ -44,13 +44,14 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
         "gpkg",
         f"{regio}-{stage}.gpkg",
     )
-    # Before starting the whole process, check if the output file already exists
+    # Before starting the whole process,
+    # check if the output file already exists
     if not os.path.isfile(output_file_gpkg):
         print(f"Working on {regio} now:")
 
         # Load file from previous stage to a GDF
         gdf = util.load_prev_stage_to_gdf(regio, stage)
-        print(f"Stage 3 loaded - starting to iterate over GDF")
+        print(f"Stage 0.5 loaded - starting to iterate over GDF")
 
         if len(gdf) > 0:
             # First, we add some new columns to the GDF by iterating over
@@ -76,6 +77,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     apply_concave_hull = True
                     if apply_concave_hull == True:
                         new_geometry = []
+
                         for i in range(len(gdf)):
                             row = gdf.iloc[i]
 
