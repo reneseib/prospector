@@ -50,7 +50,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
 
         # Load file from previous stage to a GDF
         gdf = util.load_prev_stage_to_gdf(regio, stage)
-        print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
+        print(f"Stage 3 loaded - starting to iterate over GDF")
 
         if len(gdf) > 0:
             # First, we add some new columns to the GDF by iterating over
@@ -70,7 +70,10 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 if type(row["geometry"]) == MultiPolygon:
 
                     # Convert to regular polygon!
-                    apply_concave_hull = False
+
+                    # REFACTOR THIS PROCESS TO MULTIPROCESSING
+
+                    apply_concave_hull = True
                     if apply_concave_hull == True:
                         new_geometry = []
                         for i in range(len(gdf)):
@@ -112,3 +115,16 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
 
                         if len(new_geometry) > 0:
                             gdf["geometry"] = tmp_gdf["geometry"]
+
+                    try:
+                        gdf.to_file(output_file_gpkg, driver="GPKG")
+                        print(
+                            f"Successfully filtered and saved results to\n{output_file_gpkg}\n"
+                        )
+                        return True
+                    except Exception as e:
+                        print("\n")
+                        raise
+                        print("\n")
+                        os._exit(1)
+                        return False

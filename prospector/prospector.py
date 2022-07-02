@@ -40,7 +40,6 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 import geopandas as gpd
 from shapely.geometry import Point, Polygon, MultiPolygon, mapping
 from pyrosm import OSM, get_data
-import numpy as np
 
 import multiprocessing
 

@@ -7,10 +7,9 @@ sys.path.append(
 # Stage 0 Imports
 from pyrosm import OSM, get_data
 import geopandas as gpd
-from shapely.geometry import Point, Polygon, MultiPolygon, mapping
-from shapely import wkt
+from shapely.geometry import Point, Polygon, MultiPolygon
 from pyrosm import OSM, get_data
-import numpy as np
+import multiprocessing
 
 # Custom imports
 from pconfig import config
