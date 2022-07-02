@@ -111,19 +111,22 @@ class Display:
 
     @staticmethod
     def status_bar(current, max_len):
-        width = int(round(os.get_terminal_size().columns - 25, 0))
-        proc = int(round((current / max_len) * width))
+        if sys.stdout.isatty():
+            fullwidth = int(os.get_terminal_size().columns)
+            width = int(fullwidth - 25)
+        else:
+            fullwidth = 75
+            width = 68
+        proc = int(round((i / len(gdf)) * width))
         rest = int(width - proc)
-        print("=" * os.get_terminal_size().columns)
-        print("")
+        # print("\r" * 7)
+        # print("=" * os.get_terminal_size().columns)
+        print(" " * fullwidth, end="\r")
         print(
             f">> Working: |"
             + "▉" * proc
-            + f"{'-'*rest}| {round((current / max_len) * 100, 2)} %",
+            + f"{'-'*rest}| {round((i / len(gdf)) * 100, 2):03.2f} %",
             end="\r",
         )
-        print("")
-        print("")
-        print("=" * os.get_terminal_size().columns)
-        print("")
+        print(" " * fullwidth, end="\r")
         return None
