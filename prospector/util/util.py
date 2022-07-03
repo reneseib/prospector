@@ -93,11 +93,20 @@ def load_file_to_gdf(file_path, src_crs=4326, target_crs=25832):
     return gdf
 
 
-def haversine(lon1, lat1, lon2, lat2):
+def haversine(p1, p2):
     """
     Calculate the great circle distance in kilometers between two points
     on the earth (specified in decimal degrees)
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      IMPORTANT: ONLY WORKS WITH WSG84 / EPSG:4326 coordinates
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     """
+
+    lon1, lat1 = list(p1.coords)[0][::-1]
+    lon2, lat2 = list(p2.coords)[0][::-1]
+
     # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
 

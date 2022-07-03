@@ -101,7 +101,8 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     # If the overlap col value is FALSE, we work with this row.
                     # Otherwise, we don't need the distance
                     if row[col] == False:
-
+                        print(row["geometry"])
+                        os._exit(1)
                         # We just pass the col name to the overlap_data dict
                         # at key: "data" to get the already loaded
                         # prot area GDF
