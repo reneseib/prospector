@@ -4,34 +4,17 @@ from shapely.geometry import Point
 from math import radians, cos, sin, asin, sqrt
 
 
-def haversine(p1, p2):
-    """
-    Calculate the great circle distance in kilometers between two points
-    on the earth (specified in decimal degrees)
-
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPORTANT: ONLY WORKS WITH WSG84 / EPSG:4326 coordinates
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    """
-
-    lon1, lat1 = list(p1.coords)[0][::-1]
-    lon2, lat2 = list(p2.coords)[0][::-1]
-
-    # convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-
-    # haversine formula
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * asin(sqrt(a))
-    r = 6371  # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
-    return c * r
+def flatten(x):
+    if isinstance(x, list):
+        return [a for i in x for a in flatten(i)]
+    else:
+        return [x]
 
 
-p1 = Point(49.1527825978, 3.45377150274)
-p2 = Point(49.1530465065, 3.45400990762)
+list1 = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, [16, 17, 18]]]
+
+r = flatten(list1)
+print(r)
 
 #
 # def lreverse(liste):
@@ -50,9 +33,9 @@ p2 = Point(49.1530465065, 3.45400990762)
 #
 # print("P2")
 # print(lon2, lat2)
-
-print("DISTANCE")
-print(haversine(p1, p2))
+#
+# print("DISTANCE")
+# print(haversine(p1, p2))
 
 
 # import geopandas as gpd

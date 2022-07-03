@@ -103,9 +103,12 @@ def haversine(p1, p2):
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     """
+    # print("P1", p1)
+    # print("P2", p2)
+    # sys.exit()
 
-    lon1, lat1 = list(p1.coords)[0][::-1]
-    lon2, lat2 = list(p2.coords)[0][::-1]
+    lon1, lat1 = p1[::-1]
+    lon2, lat2 = p2[::-1]
 
     # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
@@ -117,3 +120,16 @@ def haversine(p1, p2):
     c = 2 * asin(sqrt(a))
     r = 6371  # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
     return c * r
+
+
+def flatten_polygon(x):
+    if isinstance(x, list):
+        return [a for i in x for a in flatten_polygon(i)]
+    elif isinstance(x, tuple):
+        if len(x) == 2 and type(x[0]) == float:
+            return [x]
+        else:
+            return [a for i in x for a in flatten_polygon(i)]
+    #
+    # else:
+    #     return [x]

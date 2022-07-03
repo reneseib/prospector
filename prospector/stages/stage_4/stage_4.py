@@ -36,22 +36,6 @@ geo_data_dir = os.path.join(src_data_dir, "geo_data")
 results_dir = os.path.join(main_dir, "results")
 
 
-class style:
-    PURPLE = "\033[95m"
-    CYAN = "\033[96m"
-    DARKCYAN = "\033[36m"
-    BLUE = "\033[94m"
-    GREEN = "\033[92m"
-    YELLOW = "\033[93m"
-    RED = "\033[91m"
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
-    END = "\033[0m"
-
-    LINE_UP = "\033[1A"
-    LINE_CLEAR = "\x1b[2K"
-
-
 def f_stage_4(regio, stage="4-added_nearest_protected_area"):
     """
     Stage 4:
@@ -75,13 +59,12 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
         print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
 
         if len(gdf) > 0:
+            all_overlap_cols = list(prot_areas.overlap_data.keys())
+            overlap_cols = [col for col in all_overlap_cols if row[col] == False]
             # First, we add some new columns to the GDF by iterating over
-            # all overlap columns.
-            # To make them distinct, we need readable column names.
-            # Then we fill them with 'None'.
-            overlap_cols = list(prot_areas.overlap_data.keys())
-
-            for column in overlap_cols:
+            # all overlap columns. To make them distinct, we need readable
+            # column names.Then we fill them with 'None'.
+            for column in all_overlap_cols:
                 pa_abbr = column.split("_")[0]
                 gdf[f"nearest_{pa_abbr}"] = None
 
@@ -95,85 +78,96 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 Display.status_bar(i, len(gdf))
 
                 # We iterate over all prot area column names and
-                # get their respective boolean value for this row
+                # get their respective boolean value for this row.
+                # If the overlap column value is FALSE, we work with this row.
+                # Otherwise, we don't need the distance.
+
                 for col in overlap_cols:
 
-                    # If the overlap col value is FALSE, we work with this row.
-                    # Otherwise, we don't need the distance
-                    if row[col] == False:
-                        print(row["geometry"])
-                        os._exit(1)
-                        # We just pass the col name to the overlap_data dict
-                        # at key: "data" to get the already loaded
-                        # prot area GDF
-                        gdf_prot_area = prot_areas.overlap_data[col]["data"]
+                    # We just pass the column name to the overlap_data dict
+                    # with next key: "data" to retrieve the preloaded
+                    # GDF for this prot area.
+                    gdf_prot_area = prot_areas.overlap_data[col]["data"]
 
-                        # We then have to make a GDF with a single point - the one we want to find the next prot area for
-                        nlist = [wkt.loads(row["centroid"])]
+                    ###########################################################
+                    # TESTING:
+                    # Trying to utilize NUMBA and therefore converting
+                    # all geopandas data to numpy data. To utilize NUMBA
+                    # we need to put the processing in separate function that
+                    # gets the @njit decorator.
 
-                        centroid_gdf = gpd.GeoDataFrame(
-                            nlist, columns=["geometry"], geometry="geometry"
-                        )
+                    # Convert GDF to numpy array
+                    gdf_prot_area = gdf_prot_area.to_records()
 
-                        # Via spatial join we find the nearest
-                        # protected area to that geometry
-                        gdf_distance = gpd.sjoin_nearest(
-                            centroid_gdf,
-                            gdf_prot_area,
-                            distance_col="distance",
-                            how="right",
-                            # 'right' provides the whole prot_area gdf
-                            # with distance values.
-                        )
+                    sys.exit()
 
-                        # We then sort by distance increasing
-                        sd_gdf = gdf_distance.sort_values(
-                            by=["distance"], ascending=True
-                        )
+                    # TESTING END
+                    ###########################################################
 
-                        # Then we fetch the 10 prot areas with the
-                        # shortest distances and store to a new gdf
-                        sd_gdf = sd_gdf.head(10)
-                        sd_gdf = sd_gdf.drop(columns=["distance"], axis=1)
+                    # We then have to make a GDF with a single point - the one we want to find the next prot area for
+                    nlist = [wkt.loads(row["centroid"])]
 
-                        if "index_left" in sd_gdf.columns:
-                            sd_gdf = sd_gdf.drop(columns=["index_left"], axis=1)
-                        if "index_right" in sd_gdf.columns:
-                            sd_gdf = sd_gdf.drop(columns=["index_right"], axis=1)
+                    centroid_gdf = gpd.GeoDataFrame(
+                        nlist, columns=["geometry"], geometry="geometry"
+                    )
 
-                        # With the new gdf we make again spatial join,
-                        # but this time with the original polygon and
-                        # not just the centroid. That way we will limit the
-                        # initial processing time and will apply the expensive
-                        # processing only to the ten closest areas.
+                    # Via spatial join we find the distance between
+                    # geometry and all protected areas
+                    gdf_distance = gpd.sjoin_nearest(
+                        centroid_gdf,
+                        gdf_prot_area,
+                        distance_col="distance",
+                        how="right",
+                        # how='right' provides the whole prot_area gdf
+                        # with distance values.
+                    )
 
-                        # Make new gdf with the true geometry
-                        geom_gdf = gpd.GeoDataFrame(
-                            [row["geometry"]], columns=["geometry"], geometry="geometry"
-                        )
+                    # We then sort by ascending distance
+                    sd_gdf = gdf_distance.sort_values(by=["distance"], ascending=True)
 
-                        # Make spatial join
-                        final_distance_gdf = gpd.sjoin_nearest(
-                            geom_gdf,
-                            sd_gdf,
-                            distance_col="distance",
-                            how="right",
-                            # With 'right' it returns the whole prot_area gdf
-                            # with distance values.
-                        )
+                    # Then we fetch the 10 prot areas with the
+                    # shortest distances and store to a new gdf
+                    sd_gdf = sd_gdf.head(10)
+                    sd_gdf = sd_gdf.drop(columns=["distance"], axis=1)
 
-                        # Sort by distance ascending
-                        final_distance_gdf = final_distance_gdf.sort_values(
-                            by=["distance"], ascending=True
-                        )
+                    if "index_left" in sd_gdf.columns:
+                        sd_gdf = sd_gdf.drop(columns=["index_left"], axis=1)
+                    if "index_right" in sd_gdf.columns:
+                        sd_gdf = sd_gdf.drop(columns=["index_right"], axis=1)
 
-                        # We extract the distance value, which already is
-                        # in meters. Divide by 1000 to get distance in km.
-                        pa_distance = final_distance_gdf.iloc[0]["distance"] / 1000
+                    # With the new gdf we make again spatial join,
+                    # but this time with the original polygon and
+                    # not just the centroid. That way we will limit the
+                    # initial processing time and will apply the expensive
+                    # processing only to the ten closest areas.
 
-                        # We overwrite the 'distance to the nearest
-                        # protected area' to the new column
-                        gdf.loc[i, f"nearest_{pa_abbr}"] = pa_distance
+                    # Make new gdf with the true geometry
+                    geom_gdf = gpd.GeoDataFrame(
+                        [row["geometry"]], columns=["geometry"], geometry="geometry"
+                    )
+
+                    # Make spatial join
+                    final_distance_gdf = gpd.sjoin_nearest(
+                        geom_gdf,
+                        sd_gdf,
+                        distance_col="distance",
+                        how="right",
+                        # With 'right' it returns the whole prot_area gdf
+                        # with distance values.
+                    )
+
+                    # Sort by distance ascending
+                    final_distance_gdf = final_distance_gdf.sort_values(
+                        by=["distance"], ascending=True
+                    )
+
+                    # We extract the distance value, which already is
+                    # in meters. Divide by 1000 to get distance in km.
+                    pa_distance = final_distance_gdf.iloc[0]["distance"] / 1000
+
+                    # We write the 'distance to the nearest
+                    # protected area' to the new column
+                    gdf.loc[i, f"nearest_{pa_abbr}"] = pa_distance
 
             # After iterating over all rows, save extended GDF to file
             stage_successfully_saved = util.save_current_stage_to_file(
