@@ -32,5 +32,9 @@ results_dir = os.path.join(main_dir, "results")
 
 
 def f_stage_8(regio, stage="8-added_solar_data"):
+    """
+    Stage 8:
+    Adds lots of solar data of the area
+    """
     print("GREETINGS FROM STAGE 8")
     return None

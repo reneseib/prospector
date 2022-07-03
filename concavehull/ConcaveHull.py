@@ -117,6 +117,10 @@ def removePoint(dataset, point):
 
 def concaveHull(dataset, k):
     assert k >= 3, "k has to be greater or equal to 3."
+
+    if k >= 4000:
+        return False
+
     points = dataset
     # todo: remove duplicate points from dataset
     # todo: check if dataset consists of only 3 or less points
@@ -162,7 +166,7 @@ def concaveHull(dataset, k):
                 )
                 j = j + 1
         if its == True:
-            print("all candidates intersect -- restarting with k = ", k + 1)
+            # print("all candidates intersect -- restarting with k = ", k + 1)
             return concaveHull(dataset, round(k + 1, 0))
 
         prevPoint = currentPoint
@@ -173,11 +177,14 @@ def concaveHull(dataset, k):
         step = step + 1
     # check if all points are inside the hull
     p = Path(hull)
-    pContained = p.contains_points(dataset, radius=0.0000000001)
+    # pContained = p.contains_points(dataset, radius=0.0000000001)
+
+    # Reducing precision by 10% and see if we can obtain satisfiable results
+    pContained = p.contains_points(dataset, radius=0.000000001)
     if not pContained.all():
-        print(
-            "not all points of dataset contained in hull -- restarting with k = ", k + 1
-        )
+        # print(
+        #     "not all points of dataset contained in hull -- restarting with k = ", k + 1
+        # )
         return concaveHull(dataset, k + 1)
 
     # print("finished with k = ", k)

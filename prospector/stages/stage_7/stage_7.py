@@ -32,5 +32,9 @@ results_dir = os.path.join(main_dir, "results")
 
 
 def f_stage_7(regio, stage="7-added_nearest_agrargen"):
-    print("GREETINGS FROM STAGE 7")
+    """
+    Stage 7:
+    Adds the name, details and distance of the area's
+    nearest 'Agrargenossenschaft'
+    """
     return None

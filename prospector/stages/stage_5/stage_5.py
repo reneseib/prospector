@@ -32,5 +32,9 @@ results_dir = os.path.join(main_dir, "results")
 
 
 def f_stage_5(regio, stage="5-added_nearest_substation"):
+    """
+    Stage 5:
+    Adds the distance from the 'area' to the nearest substation.
+    """
     print("GREETINGS FROM STAGE 5")
     return None

@@ -20,7 +20,8 @@ for dir in config["init"]["prospector_package_path"]:
     sys.path.append(dir)
 
 from util import util
-import prot_areas
+
+# import prot_areas
 
 
 for dir in config["init"]["proj_path"]:
@@ -74,6 +75,10 @@ def intersect_wrapper(regio, stage, gdf, overlap_data, i):
 
 
 def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
+    """
+    Stage 3:
+    Checks for intersections with any kind of protected area.
+    """
     print(f"Working on {regio} now:")
     # 1. Get path to all prot_area files
     prot_area_dir_path = os.path.join(src_data_dir, "protected_areas", "gpkg")

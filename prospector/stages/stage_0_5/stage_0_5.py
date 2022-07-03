@@ -1,6 +1,7 @@
 import os
 import sys
 
+
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 
@@ -19,8 +20,8 @@ from pconfig import config
 for dir in config["init"]["prospector_package_path"]:
     sys.path.append(dir)
 
+from concavehull import ConcaveHull as CH
 from util import util
-import prot_areas
 
 from display.display import Display
 
@@ -33,6 +34,50 @@ main_dir = os.path.join(proj_path, list(config["directories"].keys())[0])
 src_data_dir = os.path.join(main_dir, "src_data")
 geo_data_dir = os.path.join(src_data_dir, "geo_data")
 results_dir = os.path.join(main_dir, "results")
+
+# How much is safe and so on - figure this params out!
+sys.setrecursionlimit(5000)
+
+
+def get_concave_hull(row):
+    geom = row["geometry"]
+
+    # Preset the return object `poly` to the input object that is
+    # to be overwritten if a concave hull can be built. On error,
+    # the input geometry will be returned.
+    poly = geom
+
+    if geom.type == MultiPolygon:
+        try:
+            # Make MultiPolygon into a list of lists
+            poly_coordinates = [list(polygon.exterior.coords) for polygon in geom]
+            coordslist = [y for x in poly_coordinates for y in x]
+
+            # Flatten the list
+            for poly in poly_coordinates:
+                for val in poly:
+                    coordslist.append(val)
+
+            poly_coordinates = [list(x) for x in coordslist]
+            poly_coordinates = np.array(poly_coordinates)
+
+            hull = CH.concaveHull(
+                poly_coordinates,
+                round(len(poly_coordinates) / 5, 0),
+            )
+            if hull != False:
+                hull = [Point(x[0], x[1]) for x in hull]
+                poly = Polygon(hull)
+
+            row["geometry"] = poly
+
+            return row
+
+        except:
+            return row
+
+    else:
+        return row
 
 
 def f_stage_0_5(regio, stage="0_5-convert-multipolygons-to-polygon"):
@@ -47,86 +92,50 @@ def f_stage_0_5(regio, stage="0_5-convert-multipolygons-to-polygon"):
     # Before starting the whole process,
     # check if the output file already exists
     if not os.path.isfile(output_file_gpkg):
-        print(f"Working on {regio} now:")
+        print(f"\nWorking on {regio} now:")
 
         # Load file from previous stage to a GDF
         gdf = util.load_prev_stage_to_gdf(regio, stage)
-        print(f"Stage 0.5 loaded - starting to iterate over GDF")
+
+        print(f"Previous stage 0 loaded - starting to iterate over GDF")
 
         if len(gdf) > 0:
-            # First, we add some new columns to the GDF by iterating over
-            # all overlap columns.
-            # To make them distinct, we need readable column names.
-            # Then we fill them with 'None'.
-            overlap_cols = list(prot_areas.overlap_data.keys())
-            for column in overlap_cols:
-                pa_abbr = column.split("_")[0]
-                gdf[f"nearest_{pa_abbr}"] = None
+            # Convert to list of dicts
+            dict_gdf = gdf.to_dict("records")
 
-            # Iterate over GDF
-            for i in range(0, len(gdf)):
+            # Set up a pool for multiprocessing
+            pool = multiprocessing.Pool(os.cpu_count() - 1)
+            i = 0
+            try:
+                # Map all items of dict_gdf to the get_concave_hull function
+                # so MultiPolygons will be converted to single Polygons
+                gdf_polygons_only_results = pool.map(get_concave_hull, dict_gdf)
+                if gdf_polygons_only_results:
+                    gdf = gpd.GeoDataFrame(gdf_polygons_only_results)
+                    print("Converted all MultiPolygons to single Polygons")
+            except:
+                raise
 
-                # We iterate over all GDF rows
-                row = gdf.iloc[i]
-                if type(row["geometry"]) == MultiPolygon:
+            finally:
+                # To make sure processes are closed in the end,
+                # even if errors happen
+                print("Finished")
+                pool.close()
+                pool.join()
 
-                    # Convert to regular polygon!
-
-                    # REFACTOR THIS PROCESS TO MULTIPROCESSING
-
-                    apply_concave_hull = True
-                    if apply_concave_hull == True:
-                        new_geometry = []
-
-                        for i in range(len(gdf)):
-                            row = gdf.iloc[i]
-
-                            if type(row["geometry"]) == MultiPolygon:
-                                try:
-                                    poly_coordinates = [
-                                        list(polygon.exterior.coords)
-                                        for polygon in row["geometry"]
-                                    ]
-
-                                    coordslist = [
-                                        y for x in poly_coordinates for y in x
-                                    ]
-
-                                    for poly in poly_coordinates:
-                                        for val in poly:
-                                            coordslist.append(val)
-
-                                    poly_coordinates = [list(x) for x in coordslist]
-                                    poly_coordinates = np.array(poly_coordinates)
-
-                                    hull = CH.concaveHull(
-                                        poly_coordinates,
-                                        round(len(poly_coordinates) / 5, 0),
-                                    )
-                                    hull = [Point(x[0], x[1]) for x in hull]
-
-                                    new_geometry.append(Polygon(hull))
-                                except:
-                                    new_geometry.append(row["geometry"])
-                                    pass
-
-                            else:
-                                new_geometry.append(row["geometry"])
-
-                        tmp_gdf = gpd.GeoDataFrame(new_geometry, columns=["geometry"])
-
-                        if len(new_geometry) > 0:
-                            gdf["geometry"] = tmp_gdf["geometry"]
-
-                    try:
-                        gdf.to_file(output_file_gpkg, driver="GPKG")
-                        print(
-                            f"Successfully filtered and saved results to\n{output_file_gpkg}\n"
-                        )
-                        return True
-                    except Exception as e:
-                        print("\n")
-                        raise
-                        print("\n")
-                        os._exit(1)
-                        return False
+            try:
+                gdf.to_file(output_file_gpkg, driver="GPKG")
+                print(
+                    f"Successfully filtered and saved results to\n{output_file_gpkg}\n"
+                )
+                return True
+            except Exception as e:
+                print("\n")
+                raise
+                print("\n")
+                os._exit(1)
+                return False
+        else:
+            print("Loaded GDF is len = 0")
+            print("Something went wrong.")
+            sys.exit()

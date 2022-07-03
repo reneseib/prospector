@@ -29,8 +29,10 @@ class Display:
 
             side = int(int(terminal_width - len("PROSPECTOR") - 5) / 2)
 
-            print(style.YELLOW + style.BOLD + "-" * (terminal_width) + style.END)
-            print(
+            sys.stdout.write(
+                style.YELLOW + style.BOLD + "-" * (terminal_width) + style.END
+            )
+            sys.stdout.write(
                 style.BOLD
                 + style.CYAN
                 + ("-" * side)
@@ -40,12 +42,14 @@ class Display:
                 + ("-" * side)
                 + style.END
             )
-            print(style.YELLOW + style.BOLD + "-" * (terminal_width) + style.END)
-            print("")
+            sys.stdout.write(
+                style.YELLOW + style.BOLD + "-" * (terminal_width) + style.END
+            )
+            sys.stdout.write("")
             return None
         else:
 
-            print(
+            sys.stdout.write(
                 style.BOLD
                 + style.CYAN
                 + ("-" * 10)
@@ -55,23 +59,23 @@ class Display:
                 + ("-" * 10)
                 + style.END
             )
-            print("")
+            sys.stdout.write("")
             return None
 
     @staticmethod
     def dir_tree_warning():
-        print(
+        sys.stdout.write(
             style.BOLD
             + style.PURPLE
             + "Mandatory directory tree does not yet exist."
             + style.END
         )
-        print("Prospector will build the directory tree now.")
+        sys.stdout.write("Prospector will build the directory tree now.")
         return None
 
     @staticmethod
     def dir_tree_build_success():
-        print(
+        sys.stdout.write(
             style.BOLD
             + style.GREEN
             + "Successfully built the directory tree"
@@ -81,27 +85,33 @@ class Display:
 
     @staticmethod
     def import_error():
-        print("\n" + style.BOLD, style.RED)
-        print("Error: No pconfig.py found." + style.END)
-        print("Make sure you set up the pconfig.py in your project directory first.")
-        print("\n")
+        sys.stdout.write("\n" + style.BOLD, style.RED)
+        sys.stdout.write("Error: No pconfig.py found." + style.END)
+        sys.stdout.write(
+            "Make sure you set up the pconfig.py in your project directory first."
+        )
+        sys.stdout.write("\n")
         return None
 
     # Stage Displays
     @staticmethod
     def stage_done(stage_formal):
-        print(style.LINE_UP, end=style.LINE_CLEAR)
-        print(style.BOLD + style.PURPLE + f"{stage_formal}:\tAlready done" + style.END)
+        sys.stdout.write(style.LINE_UP, end=style.LINE_CLEAR)
+        sys.stdout.write(
+            style.BOLD + style.PURPLE + f"{stage_formal}:\tAlready done" + style.END
+        )
         return None
 
     @staticmethod
     def stage_finished(stage_formal):
-        print(style.BOLD + style.PURPLE + f"{stage_formal}: Finished" + style.END)
+        sys.stdout.write(
+            style.BOLD + style.PURPLE + f"{stage_formal}: Finished" + style.END
+        )
         return None
 
     @staticmethod
     def stage_proc_error(stage_formal):
-        print(
+        sys.stdout.write(
             style.BOLD
             + style.RED
             + f"{stage_formal}: Some error occured during processing."
@@ -111,22 +121,26 @@ class Display:
 
     @staticmethod
     def status_bar(current, max_len):
+
         if sys.stdout.isatty():
             fullwidth = int(os.get_terminal_size().columns)
             width = int(fullwidth - 25)
         else:
             fullwidth = 75
             width = 68
-        proc = int(round((i / len(gdf)) * width))
+        proc = int(round((current / max_len) * width))
         rest = int(width - proc)
-        # print("\r" * 7)
-        # print("=" * os.get_terminal_size().columns)
-        print(" " * fullwidth, end="\r")
+
+        # print(" " * fullwidth)
+        print(style.LINE_UP + style.LINE_CLEAR)
         print(
-            f">> Working: |"
+            style.LINE_UP
+            + style.LINE_CLEAR
+            + f">> Working: |"
             + "▉" * proc
-            + f"{'-'*rest}| {round((i / len(gdf)) * 100, 2):03.2f} %",
-            end="\r",
+            + f"{'-'*rest}| {round((current/ max_len) * 100, 2):03.2f} %"
+            + "\r"
         )
-        print(" " * fullwidth, end="\r")
+        sys.stdout.flush()
+
         return None

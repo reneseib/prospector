@@ -20,7 +20,8 @@ for dir in config["init"]["prospector_package_path"]:
     sys.path.append(dir)
 
 from util import util
-import prot_areas
+
+# import prot_areas
 
 from display.display import Display
 
@@ -36,6 +37,11 @@ results_dir = os.path.join(main_dir, "results")
 
 
 def f_stage_4(regio, stage="4-added_nearest_protected_area"):
+    """
+    Stage 4:
+    Calculates the distances to the nearest protected areas
+    where 'area' does not intersect a protected area.
+    """
     output_file_gpkg = os.path.join(
         results_dir,
         "stages",
@@ -89,11 +95,11 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 print("")
 
                 # We iterate over all prot area column names and
-                # get their respective boolean value
+                # get their respective boolean value for this row
                 for col in overlap_cols:
 
-                    # If the overlay col value is FALSE, we work with this row.
-                    # Otherwise, we just pass to the next row
+                    # If the overlap col value is FALSE, we work with this row.
+                    # Otherwise, we don't need the distance
                     if row[col] == False:
 
                         # We just pass the col name to the overlap_data dict

@@ -32,6 +32,10 @@ results_dir = os.path.join(main_dir, "results")
 
 
 def f_stage_2(regio, stage="2-added_centroids"):
+    """
+    Stage 2:
+    Adds the centroid of each polygon to the dataset
+    """
     gdf = util.load_prev_stage_to_gdf(regio, stage)
 
     if len(gdf) > 0:

@@ -35,6 +35,7 @@ from stage_8.stage_8 import f_stage_8
 
 stage_funcs = {
     "stage_0": f_stage_0,
+    "stage_0_5": f_stage_0_5,
     "stage_1": f_stage_1,
     "stage_2": f_stage_2,
     "stage_3": f_stage_3,
@@ -47,6 +48,7 @@ stage_funcs = {
 
 stage_names = {
     "stage_0": "0-filtered_by_landuse",
+    "stage_0_5": "0_5-convert-multipolygons-to-polygon",
     "stage_1": "1-filtered_by_size",
     "stage_2": "2-added_centroids",
     "stage_3": "3-filtered_by_intersection_protected_area",
