@@ -5,6 +5,7 @@ from pconfig import config
 import sys
 import os
 import geopandas as gpd
+from math import radians, cos, sin, asin, sqrt
 
 # Custom imports
 from pconfig import config
@@ -15,6 +16,7 @@ for dir in config["init"]["prospector_package_path"]:
 for dir in config["init"]["proj_path"]:
     if os.path.isdir(dir):
         proj_path = dir
+
 
 main_dir = os.path.join(proj_path, list(config["directories"].keys())[0])
 src_data_dir = os.path.join(main_dir, "src_data")
@@ -89,3 +91,20 @@ def load_file_to_gdf(file_path, src_crs=4326, target_crs=25832):
         gdf = gpd.GeoDataFrame(f).to_crs(src_crs)
 
     return gdf
+
+
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance in kilometers between two points
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * asin(sqrt(a))
+    r = 6371  # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
+    return c * r

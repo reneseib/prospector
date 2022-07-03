@@ -21,7 +21,7 @@ for dir in config["init"]["prospector_package_path"]:
 
 from util import util
 
-# import prot_areas
+import prot_areas
 
 
 for dir in config["init"]["proj_path"]:
@@ -52,12 +52,15 @@ def geom_intersects_pa(protected_area, geom, overlap_list):
 
 def intersect_wrapper(regio, stage, gdf, overlap_data, i):
     key = list(overlap_data.keys())[i]
+
     print(f"Working on {key} in {regio}")
+
     overlap_list = []
     protected_area = overlap_data[key]["data"]
 
     print(f"Finding intersections for {key} now...")
 
+    # Original function
     gdf["geometry"].apply(
         lambda geom: geom_intersects_pa(protected_area, geom, overlap_list)
     )
@@ -83,6 +86,7 @@ def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
     # 1. Get path to all prot_area files
     prot_area_dir_path = os.path.join(src_data_dir, "protected_areas", "gpkg")
 
+    # 2. Build output file path
     output_file_gpkg = os.path.join(
         results_dir,
         "stages",
@@ -91,29 +95,35 @@ def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
         "gpkg",
         f"{regio}-{stage}.gpkg",
     )
-    # Before starting the whole process, check if the output file already exists
+    # 3. Before starting the whole process, check if the
+    # output file already exists
     if not os.path.isfile(output_file_gpkg):
 
-        # 2. Check if prot_area_dir exists
+        # 4. Check if prot_area_dir exists
         if os.path.isdir(prot_area_dir_path):
-            # 3. Load previous stage data from file
+
+            # 5. Load previous stage data from file
             gdf = util.load_prev_stage_to_gdf(regio, stage)
 
             if len(gdf) > 0:
                 print(f"Loaded the previous stage data for {regio}")
                 print("Checking for intersections now...")
 
-                # 4. Check for intersections/overlays
+                # 6. Check for intersections/overlaps and
+                # save all interim results
                 overlap_data = prot_areas.overlap_data
+
+                all_stages_successful = []
 
                 for i in range(len(overlap_data.keys())):
                     stage_successfully_saved = intersect_wrapper(
                         regio, stage, gdf, overlap_data, i
                     )
+                    all_stages_successful.append(stage_successfully_saved)
 
-                if stage_successfully_saved != False:
+                if all(all_stages_successful) != False:
 
-                    print(f"Intersections added and saved to file")
+                    print(f"All intersections added and saved to file")
                     print("")
 
                     return True

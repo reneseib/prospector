@@ -40,7 +40,7 @@ def f_stage_2(regio, stage="2-added_centroids"):
 
     if len(gdf) > 0:
         # THIS IS WHERE THE MAGIC HAPPENS
-        print("Adding centroid now...")
+        print(f"Adding centroid to {regio} now...")
         gdf["centroid"] = gdf["geometry"].centroid.apply(lambda x: wkt.dumps(x))
 
         # Save processing results to disk

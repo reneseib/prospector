@@ -37,8 +37,9 @@ def f_stage_1(regio, stage="1-filtered_by_size"):
     # Source CRS depends on the state, Western Germany's state are 25832, Eastern 25833
     src_crs = config["epsg"][regio]
 
-    # Apply the CRS to the GDF
-    gdf = gdf.set_crs(src_crs)
+    if gdf.crs == None:
+        # Apply the CRS to the GDF
+        gdf = gdf.set_crs(src_crs, allow_override=True)
 
     if len(gdf) > 0:
         print("Starting stage processing...")
@@ -47,13 +48,13 @@ def f_stage_1(regio, stage="1-filtered_by_size"):
         trans_gdf = trans_gdf.to_crs(3035)
 
         # 2. Get planar areas in m2
-        trans_gdf["area_m2"] = trans_gdf["geometry"].area / (10 * 1000)
+        trans_gdf["area_m2"] = trans_gdf["geometry"].area
 
         # 3. Divide m2 values by 10.000 in order to get the hectares
-        trans_gdf["area_ha"] = trans_gdf["area_m2"].area / (10 * 1000)
+        trans_gdf["area_ha"] = trans_gdf["area_m2"].apply(lambda x: (x / (10 * 1000)))
 
         # 4. Transform geometry back to original
-        trans_gdf = trans_gdf.to_crs(25832)
+        trans_gdf = trans_gdf.to_crs(src_crs)
 
         # 5. Filter by size - here: greater than 10 hectares
         gdf = trans_gdf[trans_gdf["area_ha"] > 10]

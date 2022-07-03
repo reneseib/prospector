@@ -100,8 +100,9 @@ def f_stage_0_5(regio, stage="0_5-convert-multipolygons-to-polygon"):
         # Source CRS depends on the state, Western Germany's state are 25832, Eastern 25833
         src_crs = config["epsg"][regio]
 
-        # Apply the CRS to the GDF
-        gdf = gdf.set_crs(src_crs)
+        if gdf.crs != src_crs:
+            # Apply the CRS to the GDF
+            gdf = gdf.set_crs(src_crs).to_crs(src_crs)
 
         print(f"Previous stage 0 loaded - starting to iterate over GDF")
 

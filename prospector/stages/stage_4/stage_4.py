@@ -21,7 +21,7 @@ for dir in config["init"]["prospector_package_path"]:
 
 from util import util
 
-# import prot_areas
+import prot_areas
 
 from display.display import Display
 
@@ -34,6 +34,22 @@ main_dir = os.path.join(proj_path, list(config["directories"].keys())[0])
 src_data_dir = os.path.join(main_dir, "src_data")
 geo_data_dir = os.path.join(src_data_dir, "geo_data")
 results_dir = os.path.join(main_dir, "results")
+
+
+class style:
+    PURPLE = "\033[95m"
+    CYAN = "\033[96m"
+    DARKCYAN = "\033[36m"
+    BLUE = "\033[94m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    END = "\033[0m"
+
+    LINE_UP = "\033[1A"
+    LINE_CLEAR = "\x1b[2K"
 
 
 def f_stage_4(regio, stage="4-added_nearest_protected_area"):
@@ -76,23 +92,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 row = gdf.iloc[i]
 
                 # Print status bar for the row iteration
-                if sys.stdout.isatty():
-                    fullwidth = int(os.get_terminal_size().columns)
-                    width = int(fullwidth - 25)
-                else:
-                    fullwidth = 75
-                    width = 68
-                proc = int(round((i / len(gdf)) * width))
-                rest = int(width - proc)
-
-                print(" " * fullwidth, end="\r")
-                print(
-                    f">> Working: |"
-                    + "▉" * proc
-                    + f"{'-'*rest}| {round((i / len(gdf)) * 100, 2):03.2f} %",
-                    end="\r",
-                )
-                print("")
+                Display.status_bar(i, len(gdf))
 
                 # We iterate over all prot area column names and
                 # get their respective boolean value for this row
@@ -103,7 +103,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     if row[col] == False:
 
                         # We just pass the col name to the overlap_data dict
-                        # and key: "data" to get the already loaded
+                        # at key: "data" to get the already loaded
                         # prot area GDF
                         gdf_prot_area = prot_areas.overlap_data[col]["data"]
 
