@@ -96,10 +96,10 @@ class Display:
     # Stage Displays
     @staticmethod
     def stage_done(stage_formal):
-        sys.stdout.write(style.LINE_UP, end=style.LINE_CLEAR)
         sys.stdout.write(
             style.BOLD + style.PURPLE + f"{stage_formal}:\tAlready done" + style.END
         )
+        print("")
         return None
 
     @staticmethod

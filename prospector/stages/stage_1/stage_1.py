@@ -34,24 +34,31 @@ results_dir = os.path.join(main_dir, "results")
 def f_stage_1(regio, stage="1-filtered_by_size"):
     gdf = util.load_prev_stage_to_gdf(regio, stage)
 
+    # Source CRS depends on the state, Western Germany's state are 25832, Eastern 25833
+    src_crs = config["epsg"][regio]
+
+    # Apply the CRS to the GDF
+    gdf = gdf.set_crs(src_crs)
+
     if len(gdf) > 0:
         print("Starting stage processing...")
         # 1. Copy GDF and transform to planar projection
         trans_gdf = gdf.copy()
         trans_gdf = trans_gdf.to_crs(3035)
 
-        # 2. Get planar areas
-        trans_gdf["area"] = trans_gdf["geometry"].area / (
-            10 * 1000
-        )  # Divide by 10.000 in order to get the hectares
+        # 2. Get planar areas in m2
+        trans_gdf["area_m2"] = trans_gdf["geometry"].area / (10 * 1000)
 
-        # 3. Transform geometry back to original
+        # 3. Divide m2 values by 10.000 in order to get the hectares
+        trans_gdf["area_ha"] = trans_gdf["area_m2"].area / (10 * 1000)
+
+        # 4. Transform geometry back to original
         trans_gdf = trans_gdf.to_crs(25832)
 
-        # 4. Filter by size - here: greater than 10 hectares
-        gdf = trans_gdf[trans_gdf["area"] > 10]
+        # 5. Filter by size - here: greater than 10 hectares
+        gdf = trans_gdf[trans_gdf["area_ha"] > 10]
 
-        # 5. Save processing results to disk
+        # 6. Save processing results to disk
         stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
 
         if stage_successfully_saved != False:
