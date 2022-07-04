@@ -92,38 +92,8 @@ gdf["distance"] = gdf["centroid"].apply(
 
 print(gdf["distance"].min())
 print(gdf["distance"].max())
-#
-# for i in range(len(gdf)):
-#     go(arr, point, times)
-# print("NJIT - With fastmath")
-# print(times)
-# print("AVG: ", (sum(times) / len(times)))
-# print("MIN: ", min(times))
-# print("MAX: ", max(times))
-#
-#
-# #
-# # def lreverse(liste):
-# #     return liste[::-1]
-# #
-# #
-# # p_1 = lreverse()
-# # p_2 = lreverse(list(p2.coords)[0])
-# #
-# #
-# # lon1, lat1 = p_1
-# # lon2, lat2 = p_2
-# #
-# # print("P1")
-# # print(lon1, lat1)
-# #
-# # print("P2")
-# # print(lon2, lat2)
-# #
-# # print("DISTANCE")
-# # print(haversine(p1, p2))
-#
-#
+
+
 # # import geopandas as gpd
 # #
 # # maindir = "/common/ecap/prospector_data/results/stages/"
