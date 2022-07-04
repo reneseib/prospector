@@ -130,6 +130,3 @@ def flatten_polygon(x):
             return [x]
         else:
             return [a for i in x for a in flatten_polygon(i)]
-    #
-    # else:
-    #     return [x]
