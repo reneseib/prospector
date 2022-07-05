@@ -32,7 +32,19 @@ get the minimum distance and return it.
 
 
 # Setup
-geo_file = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area/baden_wuerttemberg/gpkg/baden_wuerttemberg-3-filtered_by_intersection_protected_area.gpkg"
+mac = False
+
+if mac != True:
+    geo_file = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area/sachsen/gpkg/sachsen-3-filtered_by_intersection_protected_area.gpkg"
+
+    lsg_file = (
+        "/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
+    )
+else:
+    geo_file = "/Users/shellsquid/dev/osm/prospector_data/results/stages/3-filtered_by_intersection_protected_area/gpkg/sachsen-3-filtered_by_intersection_protected_area.gpkg"
+
+    lsg_file = "/Users/shellsquid/dev/osm/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
+
 
 # ALL GEO DATA
 geo_data = gpd.read_file(geo_file)
@@ -54,10 +66,6 @@ for i in prange(len(centroid_arr)):
 
 print("GEO DATA LOADED")
 # LSG DATA
-lsg_file = (
-    "/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
-)
-
 
 lsg_data = gpd.read_file(lsg_file)
 lsg_gdf = gpd.GeoDataFrame(lsg_data).set_crs(25832, allow_override=True).to_crs(4326)
@@ -185,17 +193,44 @@ def blitz(loops, centroid_arr, pages):
     return None
 
 
-loops = np.array([1000000], dtype=np.int32)
+l = 500000
+loops = np.array([l], dtype=np.int32)
 
 
 ticker = []
-for i in range(1000000):
+r = 2000000
+for i in range(r):
     t1 = timeit.default_timer()
     res = blitz(loops, centroid_arr, pages)
     t2 = timeit.default_timer() - t1
     ticker.append(t2)
 
-
-print("MIN: ", min(ticker) * 1000000, "µs")
-print("MAX: ", max(ticker) * 1000000, "µs")
-print("AVG: ", (sum(ticker) / len(ticker)) * 1000000, "µs")
+print(f"Time for {r * l:,} iterations")
+print(
+    "MIN:\t",
+    round(min(ticker) * 1000000, 9),
+    "µs\t",
+    round(min(ticker) * 1000, 9),
+    "ms\t\t",
+    round(min(ticker), 9),
+    "s",
+)
+print(
+    "MAX:\t",
+    round(0.0, 9),
+    "µs\t\t",
+    round(max(ticker) * 1000, 9),
+    "ms\t",
+    round(max(ticker), 9),
+    "s",
+)
+print(
+    "AVG:\t",
+    round((sum(ticker) / len(ticker)) * 1000000, 9),
+    "µs\t",
+    round((sum(ticker) / len(ticker)) * 1000, 9),
+    "ms\t\t",
+    round((sum(ticker) / len(ticker)), 9),
+    "s",
+)
+print("SUM:\t", round(sum(ticker), 9), "s")
