@@ -32,18 +32,12 @@ get the minimum distance and return it.
 
 
 # Setup
-mac = False
 
-if mac != True:
-    geo_file = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area/sachsen/gpkg/sachsen-3-filtered_by_intersection_protected_area.gpkg"
+geo_file = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area/sachsen/gpkg/sachsen-3-filtered_by_intersection_protected_area.gpkg"
 
-    lsg_file = (
-        "/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
-    )
-else:
-    geo_file = "/Users/shellsquid/dev/osm/prospector_data/results/stages/3-filtered_by_intersection_protected_area/gpkg/sachsen-3-filtered_by_intersection_protected_area.gpkg"
-
-    lsg_file = "/Users/shellsquid/dev/osm/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
+lsg_file = (
+    "/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
+)
 
 
 # ALL GEO DATA
@@ -169,59 +163,60 @@ pages = make_4_boxes(
 
 
 @njit
+def contains(box, point):
+    minx, miny, maxx, maxy = box
+    px, py = point
+
+    if px > minx and px < maxx and py > miny and py < maxy:
+        return True
+    else:
+        return False
+
+
+@njit
 def measure(pages, test_point):
-    def contains(box, point):
-        minx, miny, maxx, maxy = box
-        px, py = point
-
-        if px > minx and px < maxx and py > miny and py < maxy:
-            return True
-        else:
-            return False
-
     for box in pages:
         res = contains(box, test_point)
 
 
 @njit
-def blitz(loops, centroid_arr, pages):
+def blitz(centroid_arr, pages):
 
-    for i in prange(loops[0]):
+    for i in prange(len(centroid_arr)):
         point = centroid_arr[i]
         resval = measure(pages, point)
 
     return None
 
 
-l = 500000
-loops = np.array([l], dtype=np.int32)
-
-
 ticker = []
-r = 2000000
+r = 1000000
 for i in range(r):
     t1 = timeit.default_timer()
-    res = blitz(loops, centroid_arr, pages)
+    res = blitz(centroid_arr, pages)
     t2 = timeit.default_timer() - t1
     ticker.append(t2)
 
-print(f"Time for {r * l:,} iterations")
+print(f"\nTimes for {r:,} loops and {r * len(centroid_arr):,} equationss")
 print(
-    f"\033[4mMIN:    {round(min(ticker) * 1000000, 9):01.9f} µs",
-    f"    {round(min(ticker) * 1000, 9):01.9f} ms",
-    f"    {round(min(ticker), 9):01.9f}",
+    f"MIN:\t\t{round(min(ticker) * 1000000, 9):.9f} µs",
+    f"\t\t{round(min(ticker) * 1000, 9):.9f} ms",
+    f"\t\t{round(min(ticker), 9):.9f}",
     "s",
 )
 print(
-    f"\033[4mMAX:    {round(max(ticker) * 1000000, 9):06.4f} µs",
-    f"    {round(max(ticker) * 1000, 9):03.7f} ms",
-    f"    {round(max(ticker), 9):01.9f}",
+    f"MAX:\t\t{round(max(ticker) * 1000000, 9):.4f} µs",
+    f"\t\t{round(max(ticker) * 1000, 9):.7f} ms",
+    f"\t\t{round(max(ticker), 9):.9f}",
     "s",
 )
 print(
-    f"\033[4mAVG:    {round(sum(ticker) / len(ticker) * 1000000, 9):01.9f} µs",
-    f"    {round(sum(ticker) / len(ticker) * 1000, 9):01.9f} ms",
-    f"    {round(sum(ticker) / len(ticker), 9):01.9f}",
+    f"AVG:\t\t{round(sum(ticker) / len(ticker) * 1000000, 9):.9f} µs",
+    f"\t\t{round(sum(ticker) / len(ticker) * 1000, 9):.9f} ms",
+    f"\t\t{round(sum(ticker) / len(ticker), 9):.9f}",
     "s",
 )
-print(f"SUM:    {round(sum(ticker), 9):01.9f} s")
+print(f"SUM:\t\t{round(sum(ticker), 9):.9f} s")
+print(
+    f"Avg. time per equations {round(sum(ticker) / len(ticker) * 1000000000 / len(centroid_arr), 9)} ns"
+)
