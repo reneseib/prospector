@@ -58,6 +58,7 @@ lsg_file = (
     "/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
 )
 
+
 lsg_data = gpd.read_file(lsg_file)
 lsg_gdf = gpd.GeoDataFrame(lsg_data).set_crs(25832, allow_override=True).to_crs(4326)
 
