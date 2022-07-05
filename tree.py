@@ -207,21 +207,21 @@ for i in range(r):
 
 print(f"Time for {r * l:,} iterations")
 print(
-    f"MIN:\t{round(min(ticker) * 1000000, 9):01.9f}",
-    f"µs\t{round(min(ticker) * 1000, 9):01.9f}",
-    f"ms\t\t{round(min(ticker), 9):01.9f}",
+    f"MIN:    {round(min(ticker) * 1000000, 9):01.9f} µs",
+    f"    {round(min(ticker) * 1000, 9):01.9f}",
+    f"ms        {round(min(ticker), 9):01.9f}",
     "s",
 )
 print(
-    f"MAX:\t -",
-    f"\t\t{round(max(ticker) * 1000, 9):03.7f}",
-    f"ms\t{round(max(ticker), 9):01.9f}",
+    f"MAX:    {round(max(ticker) * 1000000, 9):06.4f} µs",
+    f"    {round(max(ticker) * 1000, 9):03.7f}",
+    f"ms        {round(max(ticker), 9):01.9f}",
     "s",
 )
 print(
-    f"MIN:\t{round(sum(ticker) / len(ticker) * 1000000, 9):01.9f}",
-    f"µs\t{round(sum(ticker) / len(ticker) * 1000, 9):01.9f}",
-    f"ms\t\t{round(sum(ticker) / len(ticker), 9):01.9f}",
+    f"MIN:    {round(sum(ticker) / len(ticker) * 1000000, 9):01.9f} µs",
+    f"    {round(sum(ticker) / len(ticker) * 1000, 9):01.9f}",
+    f"ms        {round(sum(ticker) / len(ticker), 9):01.9f}",
     "s",
 )
-print(f"SUM:\t{round(sum(ticker), 9):01.9f} s")
+print(f"SUM:    {round(sum(ticker), 9):01.9f} s")
