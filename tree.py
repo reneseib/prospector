@@ -1,3 +1,8 @@
+import warnings
+
+warnings.simplefilter("ignore", UserWarning)
+
+import timeit
 import random
 from shapely.geometry import Point, Polygon, MultiPolygon, mapping, MultiPoint, box
 from shapely import wkt
@@ -7,10 +12,8 @@ import os
 import sys
 from math import radians, cos, sin, asin, sqrt
 from numba import njit, prange
-import warnings
-import timeit
+import numba
 
-warnings.simplefilter("ignore")
 
 """
 The general idea to improve computation time for the minimum distance
@@ -27,20 +30,38 @@ Repeat until lowest level and only then calculate the distances,
 get the minimum distance and return it.
 """
 
+
 # Setup
 geo_file = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area/baden_wuerttemberg/gpkg/baden_wuerttemberg-3-filtered_by_intersection_protected_area.gpkg"
 
+# ALL GEO DATA
+geo_data = gpd.read_file(geo_file)
+geo_gdf = gpd.GeoDataFrame(geo_data).set_crs(25832, allow_override=True).to_crs(4326)
+
+gdf_centroid = geo_gdf["geometry"].centroid
+gdf_centroid = gdf_centroid.map(lambda x: np.array(x.xy))
+
+gdf_centroid = gdf_centroid.map(lambda x: np.array([x[0], x[1]], dtype=np.float64))
+
+centroid_arr = np.zeros((len(gdf_centroid), 2), dtype=np.float64)
+
+
+for i in prange(len(centroid_arr)):
+    centroid_arr[i] = gdf_centroid[i].reshape(
+        2,
+    )
+
+
+print("GEO DATA LOADED")
+# LSG DATA
 lsg_file = (
     "/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
 )
 
-geo_data = gpd.read_file(geo_file)
-geo_gdf = gpd.GeoDataFrame(geo_data).set_crs(25832, allow_override=True).to_crs(4326)
-
 lsg_data = gpd.read_file(lsg_file)
 lsg_gdf = gpd.GeoDataFrame(lsg_data).set_crs(25832, allow_override=True).to_crs(4326)
 
-print("DATA LOADED")
+print("LSG DATA LOADED")
 
 # 1.0  Get total bounds of lsg_gdf, returns np.array of minx, miny, maxx, maxy
 global_bounds = np.array(lsg_gdf["geometry"].total_bounds)
@@ -78,16 +99,20 @@ def make_4_boxes(
     lsg_centroid_x,
     lsg_centroid_y,
 ):
-    """
-    Since the syntax for boxes are minx, miny, maxx, maxy the 'left bottom'
-    and 'right top' can be retrieved from the existing coordinates.
-    Left top and right bottom have to be put together since the coordinates
-    can not be taken from the existing ones.
-    """
+    #
+    # Since the syntax for boxes are minx, miny, maxx, maxy the 'left bottom'
+    # and 'right top' can be retrieved from the existing coordinates.
+    # Left top and right bottom have to be put together since the coordinates
+    # can not be taken from the existing ones.
+    #
 
-    p_left_bottom = np.array([global_minx, global_miny, lsg_centroid_x, lsg_centroid_y])
+    p_left_bottom = np.array(
+        [global_minx, global_miny, lsg_centroid_x, lsg_centroid_y], dtype=np.float64
+    )
 
-    p_right_top = np.array([lsg_centroid_x, lsg_centroid_y, global_maxx, global_maxy])
+    p_right_top = np.array(
+        [lsg_centroid_x, lsg_centroid_y, global_maxx, global_maxy], dtype=np.float64
+    )
 
     # Put the coordinates together for 'left top'
     p_left_top_minx = global_minx
@@ -96,7 +121,8 @@ def make_4_boxes(
     p_left_top_maxy = global_maxy
 
     p_left_top = np.array(
-        [p_left_top_minx, p_left_top_miny, p_left_top_maxx, p_left_top_maxy]
+        [p_left_top_minx, p_left_top_miny, p_left_top_maxx, p_left_top_maxy],
+        dtype=np.float64,
     )
 
     # Put the coordinates together for 'right bottom'
@@ -111,10 +137,14 @@ def make_4_boxes(
             p_right_bottom_miny,
             p_right_bottom_maxx,
             p_right_bottom_maxy,
-        ]
+        ],
+        dtype=np.float64,
     )
 
-    pages = np.array([p_left_bottom, p_left_top, p_right_top, p_right_bottom])
+    pages = np.array(
+        [p_left_bottom, p_left_top, p_right_top, p_right_bottom],
+        dtype=np.float64,
+    )
 
     return pages
 
@@ -128,22 +158,8 @@ pages = make_4_boxes(
     lsg_centroid_y,
 )
 
-p_lb = pages[0]
-p_lt = pages[1]
-p_rt = pages[2]
-p_rb = pages[3]
 
-
-gdf_centroid = geo_gdf["geometry"].centroid
-gdf_centroid = gdf_centroid.map(lambda x: x.xy)
-
-gdf_centroid = gdf_centroid.map(lambda x: np.array([x[0][0], x[1][0]]))
-gdf_centroid = np.array(gdf_centroid)
-
-# test_point = np.array([gdf_centroid[0][0][0], gdf_centroid[0][1][0]])
-
-
-@njit(fastmath=True, parallel=True)
+@njit
 def measure(pages, test_point):
     def contains(box, point):
         minx, miny, maxx, maxy = box
@@ -158,24 +174,27 @@ def measure(pages, test_point):
         res = contains(box, test_point)
 
 
-@njit(fastmath=True, parallel=True)
-def go(times, loops, gdf_centroid, pages):
+@njit
+def blitz(loops, centroid_arr, pages):
 
-    for i in prange(loops):
-        t1 = timeit.default_timer()
-        for point in gdf_centroid:
-            res = measure(pages, point)
+    for i in prange(loops[0]):
+        point = centroid_arr[i]
+        resval = measure(pages, point)
 
-        t2 = timeit.default_timer() - t1
-        times[i] = t2
-
-    return times
+    return None
 
 
-loops = 1
-times = np.empty([loops, 2], dtype=np.float64)
-times = go(times, loops, gdf_centroid, pages)
+loops = np.array([1000000], dtype=np.int32)
 
-print("MIN TIME: ", (min(times) * 1000000), "µ sec")
-print("MAX TIME: ", (max(times) * 1000000), "µ sec")
-print("AVG TIME: ", (sum(times) / len(times)) * 1000000, "µ sec")
+
+ticker = []
+for i in range(1000000):
+    t1 = timeit.default_timer()
+    res = blitz(loops, centroid_arr, pages)
+    t2 = timeit.default_timer() - t1
+    ticker.append(t2)
+
+
+print("MIN: ", min(ticker) * 1000000, "µs")
+print("MAX: ", max(ticker) * 1000000, "µs")
+print("AVG: ", (sum(ticker) / len(ticker)) * 1000000, "µs")
