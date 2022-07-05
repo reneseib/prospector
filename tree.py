@@ -207,30 +207,21 @@ for i in range(r):
 
 print(f"Time for {r * l:,} iterations")
 print(
-    "MIN:\t",
-    round(min(ticker) * 1000000, 9),
-    "µs\t",
-    round(min(ticker) * 1000, 9),
-    "ms\t\t",
-    round(min(ticker), 9),
+    f"MIN:\t{round(min(ticker) * 1000000, 9):01.9f}",
+    f"µs\t{round(min(ticker) * 1000, 9):01.9f}",
+    f"ms\t\t{round(min(ticker), 9):01.9f}",
     "s",
 )
 print(
-    "MAX:\t",
-    round(0.0, 9),
-    "µs\t\t",
-    round(max(ticker) * 1000, 9),
-    "ms\t",
-    round(max(ticker), 9),
+    f"MAX:\t -",
+    f"\t\t{round(max(ticker) * 1000, 9):03.7f}",
+    f"ms\t{round(max(ticker), 9):01.9f}",
     "s",
 )
 print(
-    "AVG:\t",
-    round((sum(ticker) / len(ticker)) * 1000000, 9),
-    "µs\t",
-    round((sum(ticker) / len(ticker)) * 1000, 9),
-    "ms\t\t",
-    round((sum(ticker) / len(ticker)), 9),
+    f"MIN:\t{round(sum(ticker) / len(ticker) * 1000000, 9):01.9f}",
+    f"µs\t{round(sum(ticker) / len(ticker) * 1000, 9):01.9f}",
+    f"ms\t\t{round(sum(ticker) / len(ticker), 9):01.9f}",
     "s",
 )
-print("SUM:\t", round(sum(ticker), 9), "s")
+print(f"SUM:\t{round(sum(ticker), 9):01.9f} s")
