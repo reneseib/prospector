@@ -161,8 +161,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-.osm.pbf
-.pbf
-.csv
-.gpkg
-.shp
+*.osm.pbf
+*.pbf
+*.csv
+*.gpkg
+*.shp
