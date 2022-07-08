@@ -1,182 +1,101 @@
-import timeit
-import random
-from shapely.geometry import Point, Polygon, MultiPolygon, mapping
-from shapely import wkt
+from numba import njit, typeof, typed, types
 import numpy as np
-import geopandas as gpd
-import os
-import sys
-from math import radians, cos, sin, asin, sqrt
-from numba import njit
-from multiprocessing import Process, Manager
 
-# geoms = open("testdata.txt", "r").read()
+float_array = types.float64[:]
 
-file_name = "baden_wuerttemberg-3-filtered_by_intersection_protected_area.gpkg"
-file_dir = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area/baden_wuerttemberg/gpkg"
-
-lsg_file = (
-    "/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
+d1 = typed.Dict.empty(
+    key_type=types.unicode_type,
+    value_type=float_array,
+)
+d2 = typed.Dict.empty(
+    key_type=types.unicode_type,
+    value_type=typeof(d1),  # base the d2 instance values of the type of d1
 )
 
-file_path = os.path.join(file_dir, file_name)
-
-data = gpd.read_file(file_path)
-
-lsg = gpd.read_file(lsg_file)
-
-gdf = gpd.GeoDataFrame(data).set_crs(25832, allow_override=True).to_crs(4326)
-lsg_gdf = gpd.GeoDataFrame(lsg).set_crs(25832, allow_override=True).to_crs(4326)
+d3 = typed.Dict.empty(key_type=types.int64, value_type=typeof(d2))
 
 
-gdf["geometry"] = gdf["geometry"].apply(
-    lambda g: g.exterior.coords if type(g) == Polygon else g.convex_hull.exterior.coords
+d1["bla"] = np.array([4.312323, 2.123784, 8.234234])
+d1["asdasd"] = np.array(
+    [
+        [681545.89763492, 5307954.42966082],
+        [681658.73936926, 5308028.02175132],
+        [681778.26691051, 5308100.63661552],
+        [681922.25922828, 5308189.65560184],
+        [682033.38431816, 5308259.28561563],
+        [682044.97442753, 5308263.93435683],
+        [682071.59220517, 5308265.51993525],
+        [682172.85302116, 5308128.93855267],
+        [682253.01987149, 5307893.24053291],
+        [682276.19386866, 5307814.94452642],
+        [682312.40956315, 5307753.88097558],
+        [682340.53494646, 5307708.55887633],
+        [682373.01644141, 5307662.23991384],
+        [682449.84440712, 5307565.17193026],
+        [682528.0674794, 5307476.3477325],
+        [682597.42001567, 5307382.54915743],
+        [682697.13040599, 5307249.23049568],
+        [682700.61419995, 5307227.58127765],
+        [682695.00337947, 5307213.38671642],
+        [682688.80435543, 5307203.58996651],
+        [682660.64275079, 5307200.27314114],
+        [682607.70194591, 5307195.98298851],
+        [682554.0166277, 5307275.51507749],
+        [682468.92577277, 5307269.85294713],
+        [682488.80525451, 5307218.04090031],
+        [682457.85543382, 5307217.48473919],
+        [682466.41004736, 5307189.24323938],
+        [682390.72792525, 5307188.38532612],
+        [682232.8333549, 5307206.05637191],
+        [682120.12331712, 5307222.28774038],
+        [681873.32289339, 5307252.61448727],
+        [681793.53364954, 5307266.98655964],
+        [681744.2949936, 5307286.27121937],
+        [681715.16943735, 5307286.48844763],
+        [681650.346212, 5307276.57095892],
+        [681584.43046351, 5307254.29400097],
+        [681494.51533481, 5307245.25724685],
+        [681455.86541645, 5307492.1373196],
+        [681464.76693692, 5307587.78663641],
+        [681282.76405437, 5307599.41819804],
+        [681258.7905385, 5307598.82060034],
+        [681252.91306939, 5307594.20842851],
+        [681151.16666394, 5307614.75174661],
+        [681164.79815508, 5307669.27754866],
+        [681174.57916115, 5307667.27087535],
+        [681184.92028838, 5307720.31398606],
+        [681281.13844521, 5307705.66039842],
+        [681284.66018063, 5307729.99994176],
+        [681259.98538574, 5307732.92894025],
+        [681270.55640875, 5307788.14873721],
+        [681292.92121388, 5307799.44200602],
+        [681314.26923205, 5307812.61679697],
+        [681545.89763492, 5307954.42966082],
+    ]
 )
 
 
-lsg_gdf["geometry"] = lsg_gdf["geometry"].apply(
-    lambda g: g.exterior.coords if type(g) == Polygon else g
-)
+print(d1)
 
-# Figure out what to do with multipolygons!
-lsg_gdf["geometry"] = lsg_gdf["geometry"].apply(
-    lambda g: g.exterior.coords
-    if type(g) == Polygon
-    else [x.exterior.coords for x in g]
-    if type(g) == MultiPolygon
-    else None
-)
-
-
-gdf_arr = [
-    [np.array((Point(x).coords))[0] for x in gdf.iloc[i]["geometry"]]
-    for i in range(len(gdf))
-]
-
-lsg_arr = [
-    [np.array((Point(x).coords))[0] for x in lsg_gdf.iloc[i]["geometry"]]
-    for i in range(len(lsg_gdf))
-]
-
-# print(lsg_arr)
-# os._exit(3)
-
-
-@njit(fastmath=True)
-def haversine(p1, p2):
-    """
-    Calculate the great circle distance in kilometers between two points
-    on the earth (specified in decimal degrees)
-
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      IMPORTANT: ONLY WORKS WITH WSG84 / EPSG:4326 coordinates
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    """
-
-    if not np.array_equal(p1, p2):
-
-        lon1, lat1 = p1[::-1]
-        lon2, lat2 = p2[::-1]
-
-        # convert decimal degrees to radians
-        lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])
-
-        # haversine formula
-        dlon = lon2 - lon1
-        dlat = lat2 - lat1
-        a = np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2) ** 2
-        c = 2 * np.arcsin(np.sqrt(a))
-        r = 6371
-        # r = Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
-        return c * r
-
-
-times = []
-
-gdf["centroid"] = gdf["centroid"].apply(lambda x: wkt.loads(x))
-
-tmp_gdf = gpd.GeoDataFrame(
-    list(gdf["centroid"]), columns=["geometry"], geometry="geometry"
-)
-tmp_gdf = tmp_gdf.set_crs(25832).to_crs(4326)
-gdf["centroid"] = tmp_gdf["geometry"]
-
-i = 0
-max_len = len(gdf["centroid"])
-
-work_gdf = gdf[gdf["lsg_overlap"] == False]
-remain_gdf = gdf[gdf["lsg_overlap"] == True]
-
-
-def get_distance(gdf_arr, point, times):
-    # print("starting cycle")
-    start = timeit.default_timer()
-
-    dists = []
-
-    for p in gdf_arr:
-
-        p = np.array([p[0][0], p[0][1]])
-        distance = haversine(p, point)
-        dists.append(distance)
-
-    end = timeit.default_timer() - start
-    times.append(end)
-    global i
-    global max_len
-    i += 1
-
-    print(" " * os.get_terminal_size().columns, end="\r")
-    print(f"{(i / max_len)*100} %", end="\r")
-    # sys.stdout.flush()
-    return min(dists)
-
-
-work_gdf["nearest_lsg"] = gdf["centroid"].apply(
-    lambda x: get_distance(lsg_arr, np.array(x.coords)[0], times)
-)
-
-print(work_gdf[work_gdf["nearest_lsg"] == work_gdf["nearest_lsg"].min()])
-print(work_gdf[work_gdf["nearest_lsg"] == work_gdf["nearest_lsg"].max()])
-
-
-# # import geopandas as gpd
-# #
-# # maindir = "/common/ecap/prospector_data/results/stages/"
-# #
-# # stages = [
-# #     "2-added_centroids",
-# #     "3-filtered_by_intersection_protected_area",
-# #     "4-added_nearest_protected_area",
-# # ]
-# #
-# # regions = [
-# #     "baden_wuerttemberg",
-# #     "bayern",
-# #     "brandenburg",
-# #     "berlin",
-# #     "bremen",
-# #     "hamburg",
-# #     "hessen",
-# #     "mecklenburg_vorpommern",
-# #     "niedersachsen",
-# #     "nordrhein_westfalen",
-# #     "rheinland_pfalz",
-# #     "saarland",
-# #     "sachsen_anhalt",
-# #     "sachsen",
-# #     "schleswig_holstein",
-# #     "thueringen",
-# # ]
-# #
-# # # for stage in stages:
-# # #     stage_path = os.path.join(maindir, stage)
-# # #     for regio in regions:
-# # #         regio_dir = os.path.join(stage_path, regio)
-# # #
-# # #         gpkg_dir = os.path.join(regio_dir, "gpkg")
-# # #         for file in os.listdir(gpkg_dir):
-# # #             file_path = os.path.join(gpkg_dir, file)
-# # #             print(file_path)
-# # #             os.remove(file_path)
+#
+# print("d1's Numba type is", typeof(d1))
+# # d1 is an instance so you can use it like a dict
+# d1["bla"] = 6.0
+# print(d1)
+#
+#
+# @njit
+# def foo(d2):
+#     d2["bla"] = {9.0: 3.0}
+#     return d2
+#
+#
+# print("Using d2")
+# print(foo(d1))
+#
+# # you can also spell it like this:
+# d1_type = types.DictType(types.float64, types.float64)
+# d3 = typed.Dict.empty(types.float64, d1_type)
+#
+# print("Using d3")
+# print(foo(d3))
