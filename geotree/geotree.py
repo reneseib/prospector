@@ -392,17 +392,24 @@ print("Pre-processing took: ", t2, "seconds")
 # Here we can iterate over the points that we want to find
 # the closest pa_polygon for.
 
-# MAKE LOOP HERE OVER OUR POINTS
-xs = np.random.uniform(296666, 915443, [50000, 1])
-ys = np.random.uniform(5340858, 6068663, [50000, 1])
-
-test_points = np.column_stack((xs, ys))
+# # MAKE LOOP HERE OVER OUR POINTS
+"""
+Only test data
+"""
+# xs = np.random.uniform(296666, 915443, [10, 1])
+# ys = np.random.uniform(5340858, 6068663, [10, 1])
+#
+# test_points = np.column_stack((xs, ys))
 
 tgo = timeit.default_timer()
 
-k = 0
+"""
+Replace test_points with real data
+"""
+test_points = [RD["data"][key]["centroid"] for key in list(RD["data"].keys())]
+calcs = []
 for orig_point in test_points:
-    all_distances = np.empty((len(test_points))).astype(np.float64)
+
     page_to_load = get_page_to_load(TREE, orig_point)
 
     if len(TREE["collections"][page_to_load]) == 0:
@@ -412,6 +419,9 @@ for orig_point in test_points:
     # to the centroids of all polygons.
     # 1. Get all polygon ids
     polygon_ids = np.array(TREE["collections"][page_to_load]).astype(np.int64)
+
+    # Collect data for measurements
+    calcs.append(len(polygon_ids))
 
     # 2. Setup a dict where all distances are stored in as
     #    {id: distance}
@@ -434,9 +444,15 @@ for orig_point in test_points:
         p2pa_distance = get_distance(pa_centroid, orig_point)
         id_distances_arr[i] = np.array([id, p2pa_distance])
 
-    # 4. Get the minimum distance from the list
-    min_distance_meter = np.amin(distances_arr)
+    # 4. Get the minimum distance from the array
+    min_distance_meter = np.amin(id_distances_arr, axis=0)[1]
+    #  >> np.amin(id_distances_arr, axis=0)[1]
+    #     returns an array with min [0] IDs and [1] DISTANCES
     min_distance_km = min_distance_meter / 1000
+
+    # print("MIN DISTANCE:", min_distance_meter, "m")
+    # print("MIN DISTANCE:", min_distance_km, "km")
+    # print("-" * 10)
 
     # 5. Get the polygon id from the polygon that is closest
     """
@@ -452,7 +468,7 @@ for orig_point in test_points:
 
 
 tend = timeit.default_timer() - tgo
-print(f"{len(test_points)} distance calculations took {tend} sec")
+print(f"{sum(calcs)} distance calculations took {tend} sec")
 
 
 # We store them, find the lowest 10 distances, get the IDs to these centroids
