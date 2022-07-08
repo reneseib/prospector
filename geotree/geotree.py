@@ -19,12 +19,12 @@ from itertools import chain
 """
 The general idea to improve computation time for the minimum distance
 is to first check if our point of origin (the point we provide) is within
-a tree branch/page.
+a TREE branch/page.
 
 If it is not, we don't need to follow up searching within it and therefore
 save the many computation within this page.
 
-if it is within the tree branch/page, we go to that branch and test if our
+if it is within the TREE branch/page, we go to that branch and test if our
 point is within the sub-branches/sub-pages.
 
 Repeat until lowest level and only then calculate the distances,
@@ -235,7 +235,7 @@ def process_geodata(geo_file):
     return geo_data
 
 
-def make_init_tree(global_bbox, global_centroid, buffer=1):
+def make_pages(global_bbox, global_centroid, buffer=1):
     # Since the syntax for boxes are minx, miny, maxx, maxy the 'left bottom'
     # and 'right top' can be retrieved from the existing coordinates.
     # Left top and right bottom have to be put together since the coordinates
@@ -327,12 +327,9 @@ pa_global_centroid = get_centroid(pa_all_coords__dissolved)
 pa_global_bbox = get_bbox(pa_all_coords__dissolved)
 
 
-# Now comes pagination
-pa_init_tree = make_init_tree(pa_global_bbox, pa_global_centroid, buffer=1.05)
-
-# Set up the tree with all its data
-tree = {
-    "init_tree": pa_init_tree,
+# Set up the TREE with all its data
+TREE = {
+    "pages": make_pages(pa_global_bbox, pa_global_centroid, buffer=1.025),
     "collections": {
         0: [],
         1: [],
@@ -341,47 +338,128 @@ tree = {
     },
 }
 
-# Now we add the polygons to the page, where the test_point is within
-# that way we save time as we don't need to check all polygons first just
-# to not need 3/4 of it in the next step.
-i = -1
-for k, v in PA["data"].items():
-    # Iterate over the polygons of Protected Areas
-    # and assign them to the page they are within.
-    pa_item = PA["data"][k]
-    pa_item_bbox = pa_item["bbox"]
-    pa_item_bbox_points = construct_true_bbox(pa_item_bbox)
-    for i in range(len(tree["init_tree"])):
-        bounds = tree["init_tree"][i]
-        res = overlaps(bounds, pa_item_bbox_points)
-        if res == True:
-            # Add this bbox id (pointer to the polygon) to the "page_contains"
-            # so we know which page holds which polygons.
-            tree["collections"][i].append(k)
 
-
-# Next we need to find out, on which page our point to check is.
+# Next we need to find out, on which page our 'point to check' is.
 # That way we can determine which page's polygon ids to load,
 # to then load the respective data to run against our point.
-orig_point = np.array([666666.6666, 5613500.6666]).astype(np.float64)
+def get_page_to_load(TREE, point):
+    for i in range(len(TREE["pages"])):
+        page = TREE["pages"][i]
+        page_bounds = np.array(page).astype(np.float64)
 
-
-def get_page_to_load(bounds_dict, point):
-    page_to_load = None
-    for i in range(len(bounds_dict)):
-        bounds = np.array(bounds_dict[i]).astype(np.float64)
-
-        res = within(bounds, orig_point)
+        res = within(page_bounds, point)
         if res == 1:
-            page_to_load = i
-            return page_to_load
+            return i
 
 
-page_to_load = get_page_to_load(tree["init_tree"], orig_point)
+# Now we add the polygons to the page, where the test_point is within
+# that way we save time as we don't need to check all polygons first - only
+# to not need 3/4 of it in the next step.
 
 
-print("We need to load page: ", page_to_load)
+def get_page_collection(TREE, PA, page_to_load):
+    """
+    Arguments:
+    TREE: to get the pages
+    PA: the bboxes we want to check for intersections with the pages
+    page_to_load: the page we want to check intersections with.
+
+    Returns a list with the polygon ids of the polygons that
+    are lying within the page.
+    """
+    bounds = TREE["pages"][page_to_load]
+    # Then we iterate over the polygons
+    page_polygon_ids = []
+    for k, v in PA["data"].items():
+        # Iterate over the polygons of Protected Areas
+        # and assign them to the page they are within.
+        pa_item = PA["data"][k]
+        pa_item_bbox = pa_item["bbox"]
+        pa_item_bbox_points = construct_true_bbox(pa_item_bbox)
+        res = overlaps(bounds, pa_item_bbox_points)
+        if res == True:
+            # Add this bbox's id (aka pointer to the polygon)
+            # to the "page_contains" so we know which page
+            # holds which polygons.
+            page_polygon_ids.append(k)
+
+    return page_polygon_ids
 
 
 t2 = timeit.default_timer() - t1
-print("Data processing: ", t2, "seconds")
+print("Pre-processing took: ", t2, "seconds")
+
+# Here we can iterate over the points that we want to find
+# the closest pa_polygon for.
+
+# MAKE LOOP HERE OVER OUR POINTS
+xs = np.random.uniform(296666, 915443, [50000, 1])
+ys = np.random.uniform(5340858, 6068663, [50000, 1])
+
+test_points = np.column_stack((xs, ys))
+
+tgo = timeit.default_timer()
+
+k = 0
+for orig_point in test_points:
+    all_distances = np.empty((len(test_points))).astype(np.float64)
+    page_to_load = get_page_to_load(TREE, orig_point)
+
+    if len(TREE["collections"][page_to_load]) == 0:
+        TREE["collections"][page_to_load] = get_page_collection(TREE, PA, page_to_load)
+
+    # Once we have the collections, we check the distances
+    # to the centroids of all polygons.
+    # 1. Get all polygon ids
+    polygon_ids = np.array(TREE["collections"][page_to_load]).astype(np.int64)
+
+    # 2. Setup a dict where all distances are stored in as
+    #    {id: distance}
+    point_to_pa_distances = {}
+
+    # 3. Iterate over all polygon centroids and get the distance
+    #    between centroid and orig_point, store distance in list
+
+    # Result array where we store the values as [ID, DISTANCE]
+    id_distances_arr = np.empty((len(polygon_ids), 2)).astype(np.float64)
+
+    # Prepare an array with all centroids for all polygons of that page
+    pa_centroids = np.array(
+        [PA["data"][id]["centroid"] for id in list(PA["data"].keys())]
+    ).astype(np.float64)
+
+    for i in prange(len(polygon_ids)):
+        id = polygon_ids[i]
+        pa_centroid = pa_centroids[i]
+        p2pa_distance = get_distance(pa_centroid, orig_point)
+        id_distances_arr[i] = np.array([id, p2pa_distance])
+
+    # 4. Get the minimum distance from the list
+    min_distance_meter = np.amin(distances_arr)
+    min_distance_km = min_distance_meter / 1000
+
+    # 5. Get the polygon id from the polygon that is closest
+    """
+    CHANGE THAT TO NP ARRAY MECHANICS
+    """
+    # min_distance_id = [
+    #     k for k, v in point_to_pa_distances.items() if v == min_distance_meter
+    # ]
+    # if len(min_distance_ids) == 1:
+    #     min_distance_ids = min_distance_ids[0]
+    # else:
+    #     min_distance_ids = None
+
+
+tend = timeit.default_timer() - tgo
+print(f"{len(test_points)} distance calculations took {tend} sec")
+
+
+# We store them, find the lowest 10 distances, get the IDs to these centroids
+# and load the real polygon points.
+
+# On these real points we iterate again for the distances
+
+# And will eventually # retrieve the one with the min distance to our point
+
+# This polygon incl. all information and the distance is then returned.
