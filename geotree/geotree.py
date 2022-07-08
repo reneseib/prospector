@@ -19,13 +19,13 @@ from itertools import chain
 """
 The general idea to improve computation time for the minimum distance
 is to first check if our point of origin (the point we provide) is within
-a TREE branch/page.
+a TREE branch/leaf.
 
 If it is not, we don't need to follow up searching within it and therefore
-save the many computation within this page.
+save the many computation within this leaf.
 
-if it is within the TREE branch/page, we go to that branch and test if our
-point is within the sub-branches/sub-pages.
+if it is within the TREE branch/leaf, we go to that branch and test if our
+point is within the sub-branches/sub-leafs.
 
 Repeat until lowest level and only then calculate the distances,
 get the minimum distance and return it.
@@ -235,7 +235,7 @@ def process_geodata(geo_file):
     return geo_data
 
 
-def make_pages(global_bbox, global_centroid, buffer=1):
+def make_leafs(global_bbox, global_centroid, buffer=1):
     # Since the syntax for boxes are minx, miny, maxx, maxy the 'left bottom'
     # and 'right top' can be retrieved from the existing coordinates.
     # Left top and right bottom have to be put together since the coordinates
@@ -244,7 +244,7 @@ def make_pages(global_bbox, global_centroid, buffer=1):
     bbox_minx, bbox_miny, bbox_maxx, bbox_maxy = global_bbox
 
     # Buffer (optional; a float number as percentage points; 1 = 100%)
-    # that can enlarge or shrink the pages by the value. Defaults to 1.
+    # that can enlarge or shrink the leafs by the value. Defaults to 1.
     # Example: buffer = 1.1 = 110% = +10%
 
     min_buffer = 1 - buffer + 1
@@ -292,14 +292,14 @@ def make_pages(global_bbox, global_centroid, buffer=1):
         dtype=np.float64,
     )
 
-    # Make a returnable pages array with all 4 pages
+    # Make a returnable leafs array with all 4 leafs
     # THE ORDER IS SUPER IMPORTANT
-    pages = np.array(
+    leafs = np.array(
         [p_left_bottom, p_left_top, p_right_top, p_right_bottom],
         dtype=np.float64,
     )
 
-    return pages
+    return leafs
 
 
 regio_data = process_geodata(geo_file)
@@ -329,7 +329,7 @@ pa_global_bbox = get_bbox(pa_all_coords__dissolved)
 
 # Set up the TREE with all its data
 TREE = {
-    "pages": make_pages(pa_global_bbox, pa_global_centroid, buffer=1.025),
+    "leafs": make_leafs(pa_global_bbox, pa_global_centroid, buffer=1.025),
     "collections": {
         0: [],
         1: [],
@@ -339,51 +339,51 @@ TREE = {
 }
 
 
-# Next we need to find out, on which page our 'point to check' is.
-# That way we can determine which page's polygon ids to load,
+# Next we need to find out, on which leaf our 'point to check' is.
+# That way we can determine which leaf's polygon ids to load,
 # to then load the respective data to run against our point.
-def get_page_to_load(TREE, point):
-    for i in range(len(TREE["pages"])):
-        page = TREE["pages"][i]
-        page_bounds = np.array(page).astype(np.float64)
+def get_leaf_to_load(TREE, point):
+    for i in range(len(TREE["leafs"])):
+        leaf = TREE["leafs"][i]
+        leaf_bounds = np.array(leaf).astype(np.float64)
 
-        res = within(page_bounds, point)
+        res = within(leaf_bounds, point)
         if res == 1:
             return i
 
 
-# Now we add the polygons to the page, where the test_point is within
+# Now we add the polygons to the leaf, where the test_point is within
 # that way we save time as we don't need to check all polygons first - only
 # to not need 3/4 of it in the next step.
 
 
-def get_page_collection(TREE, PA, page_to_load):
+def get_leaf_collection(TREE, PA, leaf_to_load):
     """
     Arguments:
-    TREE: to get the pages
-    PA: the bboxes we want to check for intersections with the pages
-    page_to_load: the page we want to check intersections with.
+    TREE: to get the leafs
+    PA: the bboxes we want to check for intersections with the leafs
+    leaf_to_load: the leaf we want to check intersections with.
 
     Returns a list with the polygon ids of the polygons that
-    are lying within the page.
+    are lying within the leaf.
     """
-    bounds = TREE["pages"][page_to_load]
+    bounds = TREE["leafs"][leaf_to_load]
     # Then we iterate over the polygons
-    page_polygon_ids = []
+    leaf_polygon_ids = []
     for k, v in PA["data"].items():
         # Iterate over the polygons of Protected Areas
-        # and assign them to the page they are within.
+        # and assign them to the leaf they are within.
         pa_item = PA["data"][k]
         pa_item_bbox = pa_item["bbox"]
         pa_item_bbox_points = construct_true_bbox(pa_item_bbox)
         res = overlaps(bounds, pa_item_bbox_points)
         if res == True:
             # Add this bbox's id (aka pointer to the polygon)
-            # to the "page_contains" so we know which page
+            # to the "leaf_contains" so we know which leaf
             # holds which polygons.
-            page_polygon_ids.append(k)
+            leaf_polygon_ids.append(k)
 
-    return page_polygon_ids
+    return leaf_polygon_ids
 
 
 t2 = timeit.default_timer() - t1
@@ -399,26 +399,64 @@ Only test data
 # xs = np.random.uniform(296666, 915443, [10, 1])
 # ys = np.random.uniform(5340858, 6068663, [10, 1])
 #
-# test_points = np.column_stack((xs, ys))
+# points_arr = np.column_stack((xs, ys))
 
 tgo = timeit.default_timer()
 
 """
-Replace test_points with real data
+Replace points_arr with real data
 """
-test_points = [RD["data"][key]["centroid"] for key in list(RD["data"].keys())]
+points_arr = [RD["data"][key]["centroid"] for key in list(RD["data"].keys())]
 calcs = []
-for orig_point in test_points:
 
-    page_to_load = get_page_to_load(TREE, orig_point)
 
-    if len(TREE["collections"][page_to_load]) == 0:
-        TREE["collections"][page_to_load] = get_page_collection(TREE, PA, page_to_load)
+def raw_distances(
+    RD,
+    PA,
+    TREE,
+):
+    """
+    Arguments:
+    RD:     The data with geometries we want to find the distances for.
+    PA:     The data with geometries that are the distant objects.
+    TREE:   The tree with leafs that group the distant objects
+
+    Returns:
+    A 2D numpy array that contains the polygon IDs and the polygon's
+    'centroid-centroid-distance' to the closest object, for example:
+
+      ids           distances
+       ↓                ↓
+    [  1.       ,  73.8712483]
+    [  2.       , 173.8712483]
+    ...
+    [  9.       , 873.8712483]
+    [ 10.       , 973.8712483]
+    dtype=np.float64
+
+    """
+    # Get the centroids of all the geometries that we want to measure
+    # a distance for. Here: the centroids of the 'RD Regio Data' polygons
+    centroids_arr = np.array(
+        [RD["data"][key]["centroid"] for key in list(RD["data"].keys())]
+    ).astype(np.float64)
+
+    # Then we iterate through all the centroids, for each
+    # measuring the distances within the respective tree leaf.
+    return None
+
+
+for orig_point in points_arr:
+
+    leaf_to_load = get_leaf_to_load(TREE, orig_point)
+
+    if len(TREE["collections"][leaf_to_load]) == 0:
+        TREE["collections"][leaf_to_load] = get_leaf_collection(TREE, PA, leaf_to_load)
 
     # Once we have the collections, we check the distances
     # to the centroids of all polygons.
     # 1. Get all polygon ids
-    polygon_ids = np.array(TREE["collections"][page_to_load]).astype(np.int64)
+    polygon_ids = np.array(TREE["collections"][leaf_to_load]).astype(np.int64)
 
     # Collect data for measurements
     calcs.append(len(polygon_ids))
@@ -433,7 +471,7 @@ for orig_point in test_points:
     # Result array where we store the values as [ID, DISTANCE]
     id_distances_arr = np.empty((len(polygon_ids), 2)).astype(np.float64)
 
-    # Prepare an array with all centroids for all polygons of that page
+    # Prepare an array with all centroids for all polygons of that leaf
     pa_centroids = np.array(
         [PA["data"][id]["centroid"] for id in list(PA["data"].keys())]
     ).astype(np.float64)
@@ -445,26 +483,26 @@ for orig_point in test_points:
         id_distances_arr[i] = np.array([id, p2pa_distance])
 
     # 4. Get the minimum distance from the array
+    #    >> np.amin(id_distances_arr, axis=0)[1]
+    #       returns an array with min [0] IDs and [1] DISTANCES
     min_distance_meter = np.amin(id_distances_arr, axis=0)[1]
-    #  >> np.amin(id_distances_arr, axis=0)[1]
-    #     returns an array with min [0] IDs and [1] DISTANCES
-    min_distance_km = min_distance_meter / 1000
 
-    # print("MIN DISTANCE:", min_distance_meter, "m")
-    # print("MIN DISTANCE:", min_distance_km, "km")
-    # print("-" * 10)
+    # 5. Sort the id_distances_arr by ascending distance (column [1])
 
-    # 5. Get the polygon id from the polygon that is closest
-    """
-    CHANGE THAT TO NP ARRAY MECHANICS
-    """
-    # min_distance_id = [
-    #     k for k, v in point_to_pa_distances.items() if v == min_distance_meter
-    # ]
-    # if len(min_distance_ids) == 1:
-    #     min_distance_ids = min_distance_ids[0]
-    # else:
-    #     min_distance_ids = None
+    # 6. Slice the first 10 elements from the sorted id_distances_arr
+    #    to get the 10 centroid-closest polygon ids
+
+    # 7.
+
+    # """
+    # CHANGE THAT TO NP ARRAY MECHANICS
+    # """
+    # min_distance_id_arr = np.where(id_distances_arr == min_distance_meter)
+    # min_distance_id = min_distance_id_arr[0][0]
+    # print("POINT: ", orig_point)
+    # print("ID of closest protected area:", min_distance_id)
+    # print("POLYGON DATA of closest protected area: ", PA["data"][min_distance_id])
+    # sys.exit()
 
 
 tend = timeit.default_timer() - tgo
