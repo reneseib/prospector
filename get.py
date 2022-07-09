@@ -1,20 +1,43 @@
 from numba import njit, typeof, typed, types
 import numpy as np
+from itertools import chain
+
+bla = [
+    1.123123,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+]
+blub = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=object)
+
+bla = list(chain(*bla))
+
+blub = blub.flatten()
+
+print(bla)
+print(blub)
 
 
-float_array = types.float64[:]
-
-d1 = typed.Dict.empty(
-    key_type=types.unicode_type,
-    value_type=float_array,
-)
-d2 = typed.Dict.empty(
-    key_type=types.unicode_type,
-    value_type=typeof(d1),  # base the d2 instance values of the type of d1
-)
-
-d3 = typed.Dict.empty(key_type=types.int64, value_type=typeof(d2))
 #
+#
+# float_array = types.float64[:]
+#
+# d1 = typed.Dict.empty(
+#     key_type=types.unicode_type,
+#     value_type=float_array,
+# )
+# d2 = typed.Dict.empty(
+#     key_type=types.unicode_type,
+#     value_type=typeof(d1),  # base the d2 instance values of the type of d1
+# )
+#
+# d3 = typed.Dict.empty(key_type=types.int64, value_type=typeof(d2))
+# #
 #
 # d1["bla"] = np.array([4.312323, 2.123784, 8.234234])
 # d1["asdasd"] = np.array(

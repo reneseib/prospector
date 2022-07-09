@@ -34,55 +34,67 @@ get the minimum distance and return it.
 
 # Setup
 t1 = timeit.default_timer()
-geo_file = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area/baden_wuerttemberg/gpkg/baden_wuerttemberg-3-filtered_by_intersection_protected_area.gpkg"
+geo_file = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area/bayern/gpkg/bayern-3-filtered_by_intersection_protected_area.gpkg"
 
 lsg_file = (
     "/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
 )
 
 
-def get_bbox(x):
-    minx, miny = np.amin(x, axis=0)
-    maxx, maxy = np.amax(x, axis=0)
-    result = np.array([minx, miny, maxx, maxy], dtype=np.float64)
-    return result
+@njit
+def hsplit(input, pos1, pos2):
+    x1 = pos1
+    x2 = pos2 + 1
+    cols = x2 - x1
+    res = np.empty((len(input), cols)).astype(input.dtype)
+    for i in range(len(input)):
+        row = input[i]
+        res[i] = row[x1:x2]
+    return res
 
 
+@njit
+def split_bbox_input(input):
+
+    xcol = hsplit(input, 0, 0)
+
+    ycol = hsplit(input, 1, 1)
+
+    minx = min(xcol)
+    miny = min(ycol)
+    maxx = max(xcol)
+    maxy = max(ycol)
+    return minx, miny, maxx, maxy
+
+
+def get_bbox(input):
+    # bbox_vals =
+    # minx, miny, maxx, maxy = bbox_vals
+
+    return np.array(split_bbox_input(input))
+
+
+@njit
 def construct_true_bbox(bbox_arr):
     minx, miny, maxx, maxy = bbox_arr
 
-    p1 = np.array([minx, miny])
-    p2 = np.array([minx, maxy])
-    p3 = np.array([maxx, maxy])
-    p4 = np.array([maxx, miny])
+    p1 = [minx, miny]
+    p2 = [minx, maxy]
+    p3 = [maxx, maxy]
+    p4 = [maxx, miny]
 
-    bbox = np.array([p1, p2, p3, p4]).astype(np.float64)
+    bbox = [p1, p2, p3, p4]
 
     return bbox
 
 
+@njit
 def get_centroid(x):
-
-    if (
-        type(x) is np.ndarray
-        and type(x[0]) is np.ndarray
-        and type(x[0][0]) is np.float64
-    ):
-        # It is a multipolygon
-        cx, cy = np.sum(x, axis=0)
-        cx = cx / len(x)
-        cy = cy / len(x)
-        result = np.array([cx, cy], dtype=np.float64)
-        return result
-
-    elif type(x) is np.ndarray and type([x0]) is np.float64:
-
-        # It is a polygon
-        cx, cy = np.sum(x, axis=0)
-        cx = cx / len(x)
-        cy = cy / len(x)
-        result = np.array([cx, cy], dtype=np.float64)
-        return result
+    cx, cy = np.sum(x, axis=0)
+    cx = cx / len(x)
+    cy = cy / len(x)
+    result = np.array([cx, cy]).astype(np.float64)
+    return result
 
 
 @njit
@@ -97,7 +109,7 @@ def get_distance(p1, p2):
 
 
 @njit
-def within(bounds, point):
+def within_bbox(bounds, point):
     minx, miny, maxx, maxy = bounds
     px, py = point
 
@@ -105,20 +117,6 @@ def within(bounds, point):
         return 1
     else:
         return 0
-
-
-@njit
-def contains(bounds, bbox):
-    _results = np.zeros(len(points), dtype=np.int16)
-
-    for i in 4:
-        point = bbox[i]
-        _results[i] = within(bounds, point)
-
-    if np.bincount(_results)[1] == 4:
-        return True
-
-    return False
 
 
 @njit
@@ -130,7 +128,7 @@ def overlaps(bounds, bbox):
 
     for i in range(bbox_len):
         point = bbox[i]
-        _results[i] = within(bounds, point)
+        _results[i] = within_bbox(bounds, point)
 
     bin_count = np.bincount(_results)
     if len(bin_count) == 2:
@@ -140,38 +138,19 @@ def overlaps(bounds, bbox):
     return False
 
 
-def proc_multi_polygons(input):
-    # MultiPolygons are nested arrays/lists.
-    # Therefore we first need to flatten it to a single array
-    # be able to get our two results: bbox, centroid.
-    input_unpacked = list(chain(*input))
-    dissolved_arr = np.array(input_unpacked)
-
-    bbox = get_bbox(dissolved_arr)
-    centroid = get_centroid(dissolved_arr)
-
-    return bbox, centroid
-
-
+# @njit
 def proc_polygons(input):
-    dissolved_input = np.array(input)
 
-    bbox = get_bbox(dissolved_input)
-    centroid = get_centroid(dissolved_input)
+    bbox = get_bbox(input)
+    centroid = get_centroid(input)
 
     return bbox, centroid
 
 
 def proc_geometry(dataset):
-    if dataset["type"] == "MultiPolygon":
-        bbox, centroid = proc_multi_polygons(dataset["coords"])
-        dataset["bbox"] = bbox
-        dataset["centroid"] = centroid
-
-    if dataset["type"] == "Polygon":
-        bbox, centroid = proc_polygons(dataset["coords"])
-        dataset["bbox"] = bbox
-        dataset["centroid"] = centroid
+    bbox, centroid = proc_polygons(dataset["coords"])
+    dataset["bbox"] = bbox
+    dataset["centroid"] = centroid
 
     return dataset
 
@@ -208,10 +187,25 @@ def prepare_data(geo_file):
                         data[id]["coords"] = coords
 
                 else:
+                    # List to store all np.arrayed lists in
                     coords_collection = []
+                    # List to store all lengths of lists in list to get
+                    # the total count of points in multipolygon
+                    mp_coords_flat_len = []
+
+                    # Iterate through list of list and append len of sublist
+                    for i in range(len(orig_coords)):
+                        mp_coords_flat_len.append(len(orig_coords[i]))
+
+                    # Get the total count of all points
+                    flat_len = sum(mp_coords_flat_len)
+
+                    # Loop through all subarrays and transform all points to
+                    # np.arrays
                     for i in range(len(orig_coords)):
                         mp_coords = orig_coords[i]
                         coords_len = len(mp_coords)
+                        # Subcoords = Polygon in MultiPolygon
                         subcoords = (
                             np.array(
                                 [np.array(x).astype(np.float64) for x in mp_coords]
@@ -219,19 +213,36 @@ def prepare_data(geo_file):
                             .astype(np.float64)
                             .reshape(coords_len, 2)
                         )
+
+                        # Append the new np.array of Point np.arrays to list
                         coords_collection.append(subcoords)
 
-                    if coords_collection is not None:
-                        data[id]["coords"] = coords_collection
+                    # Flatten the list to a single long np.array
+                    coords = np.array(list(chain(*coords_collection))).astype(
+                        np.float64
+                    )
+
+                    if coords is not None:
+                        data[id]["coords"] = coords
     return data
 
 
 def process_geodata(geo_file):
+
+    ts_process_geodata = timeit.default_timer()
+
     geo_data = prepare_data(geo_file)
 
+    te_process_geodata = timeit.default_timer() - ts_process_geodata
+    print(f"function 'prepare_data': {te_process_geodata} sec")
+
+    ts_proc_geometry = timeit.default_timer()
     for i in geo_data.keys():
-        enriched_data = proc_geometry(geo_data[i])
-        geo_data[i] = enriched_data
+        geo_data[i] = proc_geometry(geo_data[i])
+
+    te_proc_geometry = timeit.default_timer() - ts_proc_geometry
+    print(f"Loop with 'proc_geometry': {te_proc_geometry} sec")
+
     return geo_data
 
 
@@ -257,12 +268,12 @@ def make_leafs(global_bbox, global_centroid, buffer=1):
 
     centroid_x, centroid_y = global_centroid
 
-    p_left_bottom = np.array(
-        [bbox_minx, bbox_miny, centroid_x, centroid_y], dtype=np.float64
+    p_left_bottom = np.array([bbox_minx, bbox_miny, centroid_x, centroid_y]).astype(
+        np.float64
     )
 
-    p_right_top = np.array(
-        [centroid_x, centroid_y, bbox_maxx, bbox_maxy], dtype=np.float64
+    p_right_top = np.array([centroid_x, centroid_y, bbox_maxx, bbox_maxy]).astype(
+        np.float64
     )
 
     # Put the coordinates together for 'left top'
@@ -279,8 +290,7 @@ def make_leafs(global_bbox, global_centroid, buffer=1):
 
     p_left_top = np.array(
         [p_left_top_minx, p_left_top_miny, p_left_top_maxx, p_left_top_maxy],
-        dtype=np.float64,
-    )
+    ).astype(np.float64)
 
     p_right_bottom = np.array(
         [
@@ -288,15 +298,13 @@ def make_leafs(global_bbox, global_centroid, buffer=1):
             p_right_bottom_miny,
             p_right_bottom_maxx,
             p_right_bottom_maxy,
-        ],
-        dtype=np.float64,
-    )
+        ]
+    ).astype(np.float64)
 
     # Make a returnable leafs array with all 4 leafs
     # THE ORDER IS SUPER IMPORTANT
-    leafs = np.array(
-        [p_left_bottom, p_left_top, p_right_top, p_right_bottom],
-        dtype=np.float64,
+    leafs = np.array([p_left_bottom, p_left_top, p_right_top, p_right_bottom]).astype(
+        np.float64
     )
 
     return leafs
@@ -317,24 +325,57 @@ PA = {
 }
 
 
-pa_all_coords__packed = [np.array(pa_data[key]["coords"]) for key in pa_data.keys()]
+# pa_all_coords__packed = [np.array(pa_data[key]["coords"]) for key in pa_data.keys()]
+#
+# pa_all_coords__flat = list(chain(*pa_all_coords__packed))
+# pa_all_coords__flat = list(chain(*pa_all_coords__flat))
+# pa_all_coords__dissolved = np.array(pa_all_coords__flat).reshape(
+#     int((len(pa_all_coords__flat) / 2)), 2
+# )
+#
+# pa_global_centroid = get_centroid(pa_all_coords__dissolved)
+# pa_global_bbox = get_bbox(pa_all_coords__dissolved)
 
-pa_all_coords__flat = list(chain(*pa_all_coords__packed))
-pa_all_coords__flat = list(chain(*pa_all_coords__flat))
-pa_all_coords__dissolved = np.array(pa_all_coords__flat)
 
-pa_global_centroid = get_centroid(pa_all_coords__dissolved)
-pa_global_bbox = get_bbox(pa_all_coords__dissolved)
+rd_all_coords__packed = [
+    np.array(regio_data[key]["coords"]) for key in regio_data.keys()
+]
+
+rd_all_coords__flat = list(chain(*rd_all_coords__packed))
+rd_all_coords__flat = list(chain(*rd_all_coords__flat))
+rd_all_coords__dissolved = np.array(rd_all_coords__flat).reshape(
+    int((len(rd_all_coords__flat) / 2)), 2
+)
+
+rd_global_centroid = get_centroid(rd_all_coords__dissolved)
+rd_global_bbox = get_bbox(rd_all_coords__dissolved)
 
 
 # Set up the TREE with all its data
+"""
+MAJOR THOUGHT ERROR!!!!!!!!!!!!!!!!!
+
+We need to make the pages within the boundaries of the RD region!
+The global boundary is the bbox of the region and not the prot area!
+
+"""
 TREE = {
-    "leafs": make_leafs(pa_global_bbox, pa_global_centroid, buffer=1.025),
+    "base": "PA",
+    # "leafs": make_leafs(pa_global_bbox, pa_global_centroid, buffer=1.025),
+    "leafs": make_leafs(rd_global_bbox, rd_global_centroid, buffer=1.025),
     "collections": {
-        0: [],
-        1: [],
-        2: [],
-        3: [],
+        "parent": {
+            0: [],
+            1: [],
+            2: [],
+            3: [],
+        },
+        "child": {
+            0: [],
+            1: [],
+            2: [],
+            3: [],
+        },
     },
 }
 
@@ -347,7 +388,7 @@ def get_leaf_to_load(TREE, point):
         leaf = TREE["leafs"][i]
         leaf_bounds = np.array(leaf).astype(np.float64)
 
-        res = within(leaf_bounds, point)
+        res = within_bbox(leaf_bounds, point)
         if res == 1:
             return i
 
@@ -376,6 +417,7 @@ def get_leaf_collection(TREE, PA, leaf_to_load):
         pa_item = PA["data"][k]
         pa_item_bbox = pa_item["bbox"]
         pa_item_bbox_points = construct_true_bbox(pa_item_bbox)
+        pa_item_bbox_points = np.array(pa_item_bbox_points).astype(np.float64)
         res = overlaps(bounds, pa_item_bbox_points)
         if res == True:
             # Add this bbox's id (aka pointer to the polygon)
@@ -389,32 +431,11 @@ def get_leaf_collection(TREE, PA, leaf_to_load):
 t2 = timeit.default_timer() - t1
 print("Pre-processing took: ", t2, "seconds")
 
-# Here we can iterate over the points that we want to find
-# the closest pa_polygon for.
-
-# # MAKE LOOP HERE OVER OUR POINTS
-"""
-Only test data
-"""
-# xs = np.random.uniform(296666, 915443, [10, 1])
-# ys = np.random.uniform(5340858, 6068663, [10, 1])
-#
-# points_arr = np.column_stack((xs, ys))
 
 tgo = timeit.default_timer()
 
-"""
-Replace points_arr with real data
-"""
-points_arr = [RD["data"][key]["centroid"] for key in list(RD["data"].keys())]
-calcs = []
 
-
-def raw_distances(
-    RD,
-    PA,
-    TREE,
-):
+def raw_distances(RD, PA):
     """
     Arguments:
     RD:     The data with geometries we want to find the distances for.
@@ -423,94 +444,139 @@ def raw_distances(
 
     Returns:
     A 2D numpy array that contains the polygon IDs and the polygon's
-    'centroid-centroid-distance' to the closest object, for example:
+    'centroid-centroid-distances' to the respective closest object.
 
-      ids           distances
-       ↓                ↓
-    [  1.       ,  73.8712483]
-    [  2.       , 173.8712483]
-    ...
-    [  9.       , 873.8712483]
-    [ 10.       , 973.8712483]
+    Example:
+
+       ids           distances
+        ↓                ↓
+    [[  1.       ,  73.8712483]
+     [  2.       , 173.8712483]
+               ...
+     [  9.       , 873.8712483]
+     [ 10.       , 973.8712483]]
+
     dtype=np.float64
 
     """
+
     # Get the centroids of all the geometries that we want to measure
     # a distance for. Here: the centroids of the 'RD Regio Data' polygons
-    centroids_arr = np.array(
-        [RD["data"][key]["centroid"] for key in list(RD["data"].keys())]
-    ).astype(np.float64)
+    for key in list(RD["data"].keys()):
+        rd_centroid = RD["data"][key]["centroid"]
 
-    # Then we iterate through all the centroids, for each
-    # measuring the distances within the respective tree leaf.
-    return None
+        # Then we iterate through all the centroids, for each
+        # measuring the distances within the respective tree leaf.
+        # for rd_centroid in centroids_arr:
+        # Set 'TREE' global as we don't want all leaf calculations
+        # to repeat every time we start the function.
+        global TREE
+
+        leaf_to_load = get_leaf_to_load(TREE, rd_centroid)
+
+        # First, collect the leafs for the parent; here PA
+        if len(TREE["collections"]["parent"][leaf_to_load]) == 0:
+            TREE["collections"]["parent"][leaf_to_load] = get_leaf_collection(
+                TREE, PA, leaf_to_load
+            )
+
+        # Then collect the leafs for the child; here RD
+        if len(TREE["collections"]["child"][leaf_to_load]) == 0:
+            TREE["collections"]["child"][leaf_to_load] = get_leaf_collection(
+                TREE, RD, leaf_to_load
+            )
+
+        # Once we have the collections, we check the distances
+        # to the centroids of all polygons.
+        # 1. Get all polygon ids
+        polygon_ids = np.array(TREE["collections"]["parent"][leaf_to_load]).astype(
+            np.int64
+        )
+
+        # Create empty 'result 2D array' in which we store
+        # the values as [ID, DISTANCE]
+        id_distances_arr = np.empty((len(polygon_ids), 2)).astype(np.float64)
+
+        # Prepare an array with all centroids for all polygons
+        # within that leaf
+        pa_centroids = np.array(
+            [PA["data"][id]["centroid"] for id in list(PA["data"].keys())]
+        ).astype(np.float64)
+
+        for i in prange(len(polygon_ids)):
+            id = polygon_ids[i]
+            pa_centroid = pa_centroids[i]
+            p2pa_distance = get_distance(pa_centroid, rd_centroid)
+            id_distances_arr[i] = np.array([id, p2pa_distance])
+
+        # 5. Sort the id_distances_arr by ascending distance (column [1])
+        sorted_id_distances_arr = id_distances_arr[id_distances_arr[:, 1].argsort()]
+
+        # 6. Return the n-th shortest distances
+        n = 10
+        nth_sorted_id_distances = sorted_id_distances_arr[:n]
+
+        # Load the real polygon points from the IDs of the shortlist
+        closest_pa_ids = np.array([x[0] for x in nth_sorted_id_distances]).astype(
+            np.float64
+        )
+
+        shortest_distances = []
+
+        rd_polygon_ids_on_this_leaf = np.array(
+            TREE["collections"]["child"][leaf_to_load]
+        ).astype(np.float64)
+
+        # Variables to prepare to speed up the whole looping
+        # rd_data_coords = holds all polygon coords
+        # Since we don't have a same length on all arrays, we can't
+        # store them in another array. Therefore, we might revert to
+        # a numba.TypedDict where key=id and value=array
+
+        print("building typed dict")
+        rd_data_coords = Dict.empty(
+            key_type=types.int64,
+            value_type=types.float64[:],
+        )
+        for id in rd_polygon_ids_on_this_leaf:
+            rd_data_coords[id] = np.array([1, 2, 3]).astype(np.float64)
+
+        print("typed dict:")
+        print(len(rd_data_coords.keys()))
+        print("\n\n")
+        for k in range(len(rd_polygon_ids_on_this_leaf)):
+            print("checking polygon id:", k)
+            rd_id = rd_polygon_ids_on_this_leaf[k]
+            orig_polygon = RD["data"][rd_id]["coords"]
+
+            for i in range(len(closest_pa_ids)):
+                pa_id = closest_pa_ids[i]
+                pa_polygon_coords = PA["data"][pa_id]["coords"]
+
+                polygon_single_distances = []
+
+                for p1 in pa_polygon_coords:
+                    for p2 in orig_polygon:
+                        # print("p1", p1)
+                        # print("p2", p2)
+                        # print("")
+                        # sys.exit()
+                        d = get_distance(p1, p2)
+                        polygon_single_distances.append(d)
+                min_distance = min(polygon_single_distances)
+                shortest_distances.append(min_distance)
+
+        print(min(shortest_distances))
+
+        return min(shortest_distances)
 
 
-for orig_point in points_arr:
-
-    leaf_to_load = get_leaf_to_load(TREE, orig_point)
-
-    if len(TREE["collections"][leaf_to_load]) == 0:
-        TREE["collections"][leaf_to_load] = get_leaf_collection(TREE, PA, leaf_to_load)
-
-    # Once we have the collections, we check the distances
-    # to the centroids of all polygons.
-    # 1. Get all polygon ids
-    polygon_ids = np.array(TREE["collections"][leaf_to_load]).astype(np.int64)
-
-    # Collect data for measurements
-    calcs.append(len(polygon_ids))
-
-    # 2. Setup a dict where all distances are stored in as
-    #    {id: distance}
-    point_to_pa_distances = {}
-
-    # 3. Iterate over all polygon centroids and get the distance
-    #    between centroid and orig_point, store distance in list
-
-    # Result array where we store the values as [ID, DISTANCE]
-    id_distances_arr = np.empty((len(polygon_ids), 2)).astype(np.float64)
-
-    # Prepare an array with all centroids for all polygons of that leaf
-    pa_centroids = np.array(
-        [PA["data"][id]["centroid"] for id in list(PA["data"].keys())]
-    ).astype(np.float64)
-
-    for i in prange(len(polygon_ids)):
-        id = polygon_ids[i]
-        pa_centroid = pa_centroids[i]
-        p2pa_distance = get_distance(pa_centroid, orig_point)
-        id_distances_arr[i] = np.array([id, p2pa_distance])
-
-    # 4. Get the minimum distance from the array
-    #    >> np.amin(id_distances_arr, axis=0)[1]
-    #       returns an array with min [0] IDs and [1] DISTANCES
-    min_distance_meter = np.amin(id_distances_arr, axis=0)[1]
-
-    # 5. Sort the id_distances_arr by ascending distance (column [1])
-
-    # 6. Slice the first 10 elements from the sorted id_distances_arr
-    #    to get the 10 centroid-closest polygon ids
-
-    # 7.
-
-    # """
-    # CHANGE THAT TO NP ARRAY MECHANICS
-    # """
-    # min_distance_id_arr = np.where(id_distances_arr == min_distance_meter)
-    # min_distance_id = min_distance_id_arr[0][0]
-    # print("POINT: ", orig_point)
-    # print("ID of closest protected area:", min_distance_id)
-    # print("POLYGON DATA of closest protected area: ", PA["data"][min_distance_id])
-    # sys.exit()
+raw_distances = raw_distances(RD, PA)
 
 
 tend = timeit.default_timer() - tgo
-print(f"{sum(calcs)} distance calculations took {tend} sec")
+print(f"Actual distance calculations took {tend} sec")
 
-
-# We store them, find the lowest 10 distances, get the IDs to these centroids
-# and load the real polygon points.
 
 # On these real points we iterate again for the distances
 
