@@ -34,7 +34,7 @@ get the minimum distance and return it.
 
 # Setup
 t1 = timeit.default_timer()
-geo_file = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area/bayern/gpkg/bayern-3-filtered_by_intersection_protected_area.gpkg"
+geo_file = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area/saarland/gpkg/saarland-3-filtered_by_intersection_protected_area.gpkg"
 
 lsg_file = (
     "/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
@@ -521,8 +521,6 @@ def raw_distances(RD, PA):
             np.float64
         )
 
-        shortest_distances = []
-
         rd_polygon_ids_on_this_leaf = np.array(
             TREE["collections"]["child"][leaf_to_load]
         ).astype(np.float64)
@@ -533,42 +531,30 @@ def raw_distances(RD, PA):
         # store them in another array. Therefore, we might revert to
         # a numba.TypedDict where key=id and value=array
 
-        print("building typed dict")
-        rd_data_coords = Dict.empty(
+        # Set up typed Dict for all PA data arrays
+        pa_data_coords = Dict.empty(
             key_type=types.int64,
             value_type=types.float64[:],
         )
-        for id in rd_polygon_ids_on_this_leaf:
-            rd_data_coords[id] = np.array([1, 2, 3]).astype(np.float64)
 
-        print("typed dict:")
-        print(len(rd_data_coords.keys()))
-        print("\n\n")
-        for k in range(len(rd_polygon_ids_on_this_leaf)):
-            print("checking polygon id:", k)
-            rd_id = rd_polygon_ids_on_this_leaf[k]
-            orig_polygon = RD["data"][rd_id]["coords"]
+        shortest_distances = []
 
+        current_polygon = RD["data"][key]["coords"]
+        for p1 in current_polygon:
             for i in range(len(closest_pa_ids)):
                 pa_id = closest_pa_ids[i]
                 pa_polygon_coords = PA["data"][pa_id]["coords"]
 
                 polygon_single_distances = []
 
-                for p1 in pa_polygon_coords:
-                    for p2 in orig_polygon:
-                        # print("p1", p1)
-                        # print("p2", p2)
-                        # print("")
-                        # sys.exit()
-                        d = get_distance(p1, p2)
-                        polygon_single_distances.append(d)
+                for p2 in pa_polygon_coords:
+                    d = get_distance(p1, p2)
+                    polygon_single_distances.append(d)
                 min_distance = min(polygon_single_distances)
-                shortest_distances.append(min_distance)
-
+            shortest_distances.append(min_distance)
         print(min(shortest_distances))
 
-        return min(shortest_distances)
+    return None
 
 
 raw_distances = raw_distances(RD, PA)
