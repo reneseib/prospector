@@ -160,14 +160,26 @@ def prepare_data(geo_file):
         # REGULAR
         data = {}
 
+        # EXPERIMENTAL
+
+        str_arr_dict = Dict.empty(
+            key_type=types.unicode_type,
+            value_type=types.float64[:],
+        )
+
+        data_dict = Dict.empty(
+            key_type=types.int64,
+            value_type=typeof(str_arr_dict),
+        )
+
         for i in range(len(geo)):
             feature = geo[i]
             if feature is not None:
-                ################################################################
+                ###############################################################
                 # The following has to be later built as a function
-                ################################################################
+                ###############################################################
+
                 orig_coords = feature["geometry"]["coordinates"][0]
-                type = feature["geometry"]["type"]
 
                 id = int(feature["id"])
                 # Regular dict filling
@@ -185,6 +197,7 @@ def prepare_data(geo_file):
 
                     if coords is not None:
                         data[id]["coords"] = coords
+                        data_dict[id]["coords"] = coords
 
                 else:
                     # List to store all np.arrayed lists in
@@ -205,6 +218,8 @@ def prepare_data(geo_file):
                     for i in range(len(orig_coords)):
                         mp_coords = orig_coords[i]
                         coords_len = len(mp_coords)
+                        if coords_len == 2:
+                            coords_len = 1
                         # Subcoords = Polygon in MultiPolygon
                         subcoords = (
                             np.array(
