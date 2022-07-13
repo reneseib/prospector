@@ -125,7 +125,7 @@ def get_distance(p1, p2):
 
 @njit(fastmath=True)
 def batch_centroids(SECONDARY_DATA):
-    result = List([get_centroid(SECONDARY_DATA[id]) for id in SECONDARY_DATA.keys()])
+    result = [get_centroid(SECONDARY_DATA[id]) for id in SECONDARY_DATA.keys()]
     return result
 
 
@@ -193,11 +193,11 @@ def convert(geom):
     return geom
 
 
-def load_geometries(geo_data):
+def load_geometries_typed_dict(geo_data):
     nested_arr = np.array(
         [
-            np.array([0.123, 0.123]).astype(np.float64),
-            np.array([0.123, 0.123]).astype(np.float64),
+            [0.123, 0.123],
+            [0.123, 0.123],
         ]
     ).reshape(2, 2)
 
@@ -207,17 +207,40 @@ def load_geometries(geo_data):
         # old_arr = geo_data.iloc[x, geo_data.columns.get_loc("geomarr")][0]
         old_arr = geo_data.iloc[x, geo_data.columns.get_loc("geometry")]
         old_arr = convert(old_arr)
-        old_arr = np.array(old_arr[0]).astype(np.float64)
+        old_arr = old_arr[0]
 
-        new_arr = np.empty((len(old_arr), 2)).astype(np.float64)
+        # new_arr = np.empty((len(old_arr), 2)).astype(np.float64)
+        new_arr = []
 
         for i in range(len(old_arr)):
             elem = old_arr[i]
             cx, cy = elem
-            new_pair = np.array([cx, cy]).astype(np.float64)
-            new_arr[i] = new_pair
+            new_pair = [cx, cy]
+            new_arr.append(new_pair)
 
         UnpackedDataDict[x] = new_arr
+
+    return UnpackedDataDict
+
+
+def load_geometries_reg_dict(geo_data):
+    UnpackedDataDict = {}
+
+    for x in range(len(geo_data)):
+        # old_arr = geo_data.iloc[x, geo_data.columns.get_loc("geomarr")][0]
+        old_arr = geo_data.iloc[x, geo_data.columns.get_loc("geometry")]
+        old_arr = convert(old_arr)
+        old_arr = old_arr[0]
+
+        # new_arr = np.empty((len(old_arr), 2)).astype(np.float64)
+        #
+        # for i in range(len(old_arr)):
+        #     elem = old_arr[i]
+        #     cx, cy = elem
+        #     new_pair = [cx, cy]
+        #     new_arr[i] = new_pair
+
+        UnpackedDataDict[x] = old_arr
 
     return UnpackedDataDict
 
@@ -344,10 +367,9 @@ def get_leaf_collection(TREE_leaves, leaf_to_load, DATA):
     return leaf_polygon_ids
 
 
-def global_polygon_dissolve(DATA):
-    DATA_global_coords = [DATA[key] for key in DATA.keys()]
-    all_coordinates = []
-    for i in range(len(DATA_global_coords)):
+@njit
+def destruct_global_coords(DATA_global_coords, all_coordinates):
+    for i in prange(len(DATA_global_coords)):
         geom = DATA_global_coords[i]
 
         for k in range(len(geom)):
@@ -358,9 +380,14 @@ def global_polygon_dissolve(DATA):
             if gx > 278000.0 and gx < 930000.0 and gy > 5200000.0 and gy < 6100000.0:
                 all_coordinates.append(g)
 
-    all_coordinates = (
-        np.array(all_coordinates).astype(np.float64).reshape(len(all_coordinates), 2)
-    )
+    return all_coordinates
+
+
+def global_polygon_dissolve(DATA):
+    DATA_global_coords = List([DATA[key] for key in DATA.keys()])
+
+    all_coordinates = destruct_global_coords(DATA_global_coords, all_coordinates)
+
     return all_coordinates
 
 

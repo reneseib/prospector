@@ -163,6 +163,6 @@ cython_debug/
 
 *.osm.pbf
 *.pbf
-*.csv
 *.gpkg
 *.shp
+*.feather

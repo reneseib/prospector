@@ -8,7 +8,9 @@
   "hostname": "45.131.66.123",
   "port": "22",
   "target": "/common/ecap",
-  "ignore": [".*"],
+  "ignore": [
+    "gtenv"
+  ],
   "username": "shellsquid",
   "password": "FloraBruno2014!",
   "watch": [],
