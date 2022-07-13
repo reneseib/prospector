@@ -107,8 +107,8 @@ class Prospector:
 
         region_files_exist = check_region_files(self.main_dir)
 
-        if preload == True:
-            self.prot_areas = load_prot_areas(self.prot_area_path)
+        # if preload == True:
+        #     self.prot_areas = load_prot_areas(self.prot_area_path)
 
         return None
 
@@ -139,37 +139,6 @@ class Prospector:
 
             else:
 
-                """
-
-                MP TESTING
-
-                """
-                # with multiprocessing.Pool() as pool:
-                #
-                #     f = stages.stage_funcs[stage]
-                #
-                #     for regio in all_subregions:
-                #         # Launch the first round of tasks, building a list of ApplyResult objects
-                #         verify_stage_processing = [
-                #             pool.apply_async(f, (regio, stage_name))
-                #             for i in range((os.cpu_count() - 1))
-                #         ]
-                #
-                #         # Wait for every task to finish
-                #         [result.wait() for result in verify_stage_processing]
-
-                """
-
-                MP TESTING END
-
-                """
-
-                # for regio in all_subregions:
-                #     ############################################################
-                #     # STAGE SPECIFIC FUNCTION BELOW
-                #     # All of the blow params are always passed to the function
-                #     # Individual params have to be worked out within the function
-                #     ############################################################
                 for regio in all_subregions:
                     f = stages.stage_funcs[stage]
 

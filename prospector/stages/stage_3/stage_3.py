@@ -21,7 +21,7 @@ for dir in config["init"]["prospector_package_path"]:
 
 from util import util
 
-import prot_areas
+# import prot_areas
 
 
 for dir in config["init"]["proj_path"]:

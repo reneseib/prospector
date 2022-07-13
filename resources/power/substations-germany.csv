@@ -1,45 +1,45 @@
 id;Bundesland;Anlage;Betreiber;380 kV;220 kV;Koordinaten;Baujahr;Bemerkungen
 BW1;Baden-Württemberg;Altbach 1;TransnetBW;x;;48.719151, 9.371;;
-BW2;Baden-Württemberg;Altlu§heim;TransnetBW;;x;49.293889, 8.511944;;
+BW2;Baden-Württemberg;Altlußheim;TransnetBW;;x;49.293889, 8.511944;;
 BW3;Baden-Württemberg;Bad Friedrichshall;TransnetBW;;;49.22818, 9.20259;;
 BW4;Baden-Württemberg;Bad Mergentheim;TransnetBW;;;49.4743, 9.7725;;
 BW5;Baden-Württemberg;Bestenheid;TransnetBW;;;49.7804, 9.4828;;
 BW6;Baden-Württemberg;Beuren;TransnetBW;;x;47.806111, 8.861111;;
 BW7;Baden-Württemberg;Birkenfeld;TransnetBW;;x;48.89, 8.641389;;Pforzheim-Arlinger
-BW8;Baden-Württemberg;Bruchsal-KŠndelweg;TransnetBW;x;;49.133083, 8.561597;;
-BW9;Baden-Württemberg;BŸhl;TransnetBW;;x;48.705278, 8.120556;;
-BW10;Baden-Württemberg;BŸnzwangen;TransnetBW;x;;48.701389, 9.5625;;
-BW11;Baden-Württemberg;Daxlanden;"Amprion; TransnetBW";x;x;49.008889, 8.313611;;In der NŠhe zumÊRheinhafen-Dampfkraftwerk Karlsruhe. Anlage wird bis Mitte 2029 durchÊSiemensÊeinemÊRetrofitÊunterzogen.[1]ÊTransnetBW investiert mehr als 100 Millionen Euro.
+BW8;Baden-Württemberg;Bruchsal-Kändelweg;TransnetBW;x;;49.133083, 8.561597;;
+BW9;Baden-Württemberg;Bühl;TransnetBW;;x;48.705278, 8.120556;;
+BW10;Baden-Württemberg;Bünzwangen;TransnetBW;x;;48.701389, 9.5625;;
+BW11;Baden-Württemberg;Daxlanden;"Amprion; TransnetBW";x;x;49.008889, 8.313611;;In der Nähe zum Rheinhafen-Dampfkraftwerk Karlsruhe. Anlage wird bis Mitte 2029 durch Siemens einem Retrofit unterzogen.[1] TransnetBW investiert mehr als 100 Millionen Euro.
 BW12;Baden-Württemberg;Dellmensingen;TransnetBW;x;x;48.304167, 9.885833;;
 BW13;Baden-Württemberg;Eberbach;TransnetBW;;;49.4599, 8.9954;;
 BW14;Baden-Württemberg;Eichstetten 1;TransnetBW;x;;48.099167, 7.753333;;
 BW15;Baden-Württemberg;Eichstetten 2;TransnetBW;;x;48.096111, 7.751667;;
 BW16;Baden-Württemberg;Endersbach;TransnetBW;x;;48.8125, 9.3775;;
 BW17;Baden-Württemberg;Engstlatt;TransnetBW;x;;48.310278, 8.8725;;
-BW18;Baden-Württemberg;Goldshšfe;TransnetBW;x;x;48.896944, 10.116389;;
-BW19;Baden-Württemberg;Gro§gartach;TransnetBW;x;x;49.143611, 9.150833;;
-BW20;Baden-Württemberg;GrŸnkraut;TransnetBW;x;;47.744722, 9.645;;
+BW18;Baden-Württemberg;Goldshöfe;TransnetBW;x;x;48.896944, 10.116389;;
+BW19;Baden-Württemberg;Großgartach;TransnetBW;x;x;49.143611, 9.150833;;
+BW20;Baden-Württemberg;Grünkraut;TransnetBW;x;;47.744722, 9.645;;
 BW21;Baden-Württemberg;Gurtweil;TransnetBW;;x;47.64, 8.251944;;EnBW
 BW22;Baden-Württemberg;Heilbronn;TransnetBW;x;x;49.1805, 9.2079;;
 BW23;Baden-Württemberg;Herbertingen;TransnetBW;x;;48.064167, 9.425556;;
-BW24;Baden-Württemberg;HoheneckÊ1;Amprion;x;x;48.914373, 9.190595;;
+BW24;Baden-Württemberg;Hoheneck 1;Amprion;x;x;48.914373, 9.190595;;
 BW25;Baden-Württemberg;Hoheneck 2;TransnetBW;;x;48.913333, 9.195278;;
-BW26;Baden-Württemberg;Hšpfingen;TransnetBW;x;;49.59, 9.446667;;
-BW27;Baden-Württemberg;HŸffenhardt;TransnetBW;;x;49.295, 9.091111;;
+BW26;Baden-Württemberg;Höpfingen;TransnetBW;x;;49.59, 9.446667;;
+BW27;Baden-Württemberg;Hüffenhardt;TransnetBW;;x;49.295, 9.091111;;
 BW28;Baden-Württemberg;Ingelfingen;TransnetBW;;;49.2935, 9.6652;;
 BW29;Baden-Württemberg;Karlsruhe-Durlach;TransnetBW;;x;48.985833, 8.445278;;
 BW30;Baden-Württemberg;Karlsruhe-West;TransnetBW;;x;49.013056, 8.348889;;
 BW31;Baden-Württemberg;Karlsruhe-Rintheim;TransnetBW;;x;49.006944, 8.451667;;
-BW32;Baden-Württemberg;Kšnigshofen;TransnetBW;;;49.558, 9.7243;;
+BW32;Baden-Württemberg;Königshofen;TransnetBW;;;49.558, 9.7243;;
 BW33;Baden-Württemberg;Kupferzell;TransnetBW;x;x;49.232222, 9.694722;;
 BW34;Baden-Württemberg;Kuppenheim;TransnetBW;;x;48.846111, 8.248889;;
-BW35;Baden-Württemberg;KŸhmoos;"Amprion; TransnetBW";x;x;47.595833, 7.9575;;
+BW35;Baden-Württemberg;Kühmoos;"Amprion; TransnetBW";x;x;47.595833, 7.9575;;
 BW36;Baden-Württemberg;Laichingen;TransnetBW;x;;48.464722, 9.704167;;
 BW37;Baden-Württemberg;Leimen;TransnetBW;;x;49.36, 8.663611;;
-BW38;Baden-Württemberg;Mannheim-Rheinau;Amprion;x;x;49.439722, 8.546667;;"380-kV-Anschluss seit 2019; benachbarteÊForschungsgemeinschaft fŸr elektrische Anlagen und Stromwirtschaft"
+BW38;Baden-Württemberg;Mannheim-Rheinau;Amprion;x;x;49.439722, 8.546667;;"380-kV-Anschluss seit 2019; benachbarte Forschungsgemeinschaft für elektrische Anlagen und Stromwirtschaft"
 BW39;Baden-Württemberg;Metzingen;TransnetBW;x;;48.549722, 9.274722;;
 BW40;Baden-Württemberg;Mudau;TransnetBW;;;49.54306, 9.20894;;mit Kompensationsanlagen
-BW41;Baden-Württemberg;MŸhlhausen (Stuttgart);TransnetBW;x;;48.8525, 9.214722;;
+BW41;Baden-Württemberg;Mühlhausen (Stuttgart);TransnetBW;x;;48.8525, 9.214722;;
 BW42;Baden-Württemberg;Neckargartach;TransnetBW;;x;49.143333, 9.143056;;
 BW43;Baden-Württemberg;Neckarwestheim;TransnetBW;;x;49.041944, 9.205278;;Schaltwerk
 BW44;Baden-Württemberg;Neurott;TransnetBW;x;;49.356667, 8.623056;;
@@ -53,7 +53,7 @@ BW51;Baden-Württemberg;Philippsburg;TransnetBW;x;;49.251389, 8.440833;;
 BW52;Baden-Württemberg;Pulverdingen;TransnetBW;x;x;48.902778, 9.045833;;
 BW53;Baden-Württemberg;Rotensohl;TransnetBW;x;;48.736667, 10.222222;;
 BW54;Baden-Württemberg;Schweigern;TransnetBW;;;49.4807, 9.6705;;
-BW55;Baden-Württemberg;Schwšrstadt;TransnetBW;x;;47.586111, 7.838889;;
+BW55;Baden-Württemberg;Schwörstadt;TransnetBW;x;;47.586111, 7.838889;;
 BW56;Baden-Württemberg;Stockach;TransnetBW;;x;47.844444, 9.012778;;
 BW57;Baden-Württemberg;Tauberbischofsheim;TransnetBW;;;49.6363, 9.65455;;
 BW58;Baden-Württemberg;Tiengen;Amprion;x;x;47.633611, 8.258611;;
@@ -70,8 +70,8 @@ BY68;Bayern;Bergrheinfeld;Tennet TSO;x;x;49.989167, 10.16;;
 BY69;Bayern;Bidingen;Amprion;x;;47.826398, 10.702388;;
 BY70;Bayern;Dettingen;Amprion;x;;50.060082, 8.989755;;
 BY71;Bayern;Eltmann;Tennet TSO;x;;49.98, 10.664444;;
-BY72;Bayern;Etzenricht;Tennet TSO;x;x;49.631111, 12.113333;;"von 1992 bis 1995 Standort einerÊHG†-KurzkupplungÊ(160ÊkV); 220ÊkV-Anlage wegen Umstellung des Ostbayernrings temporŠr nachgerŸstet"
-BY73;Bayern;Fšhring;Tennet TSO;x;;48.179167, 11.64;;
+BY72;Bayern;Etzenricht;Tennet TSO;x;x;49.631111, 12.113333;;"von 1992 bis 1995 Standort einer HG†-Kurzkupplung (160 kV); 220 kV-Anlage wegen Umstellung des Ostbayernrings temporär nachgerüstet"
+BY73;Bayern;Föhring;Tennet TSO;x;;48.179167, 11.64;;
 BY74;Bayern;Grafenrheinfeld;Tennet TSO;x;x;49.981111, 10.188056;;
 BY75;Bayern;Gundelfingen;Amprion;x;;48.517627, 10.392729;;Lastverteilerwerk
 BY76;Bayern;Ingolstadt-Mailing;Tennet TSO;x;;48.761111, 11.5075;;
@@ -79,12 +79,12 @@ BY77;Bayern;Irsching;Tennet TSO;x;;48.763611, 11.584444;;
 BY78;Bayern;Isar;Tennet TSO;x;;48.606944, 12.296944;;
 BY79;Bayern;Kempten;Amprion;;x;47.682778, 10.321944;;
 BY80;Bayern;Kriegenbrunn;Tennet TSO;x;;49.558611, 10.972778;;
-BY81;Bayern;KrŸn;Tennet TSO;;x;47.495833, 11.2775;;
+BY81;Bayern;Krün;Tennet TSO;;x;47.495833, 11.2775;;
 BY82;Bayern;Lechhausen;Amprion;x;;48.401111, 10.936667;;
 BY83;Bayern;Leupolz;Amprion;x;;47.738056, 10.363056;;
 BY84;Bayern;Ludersheim;Tennet TSO;;x;49.393333, 11.327222;;
 BY85;Bayern;Marienberg;Tennet TSO;x;;47.913056, 12.129722;;
-BY86;Bayern;Mechlenreuth;Tennet TSO;x;(x);50.183056, 11.811111;;"380-kV-Teil wird erneuert und erweitert; 220-kV-Teil stillgelegt; im RŸckbau"
+BY86;Bayern;Mechlenreuth;Tennet TSO;x;(x);50.183056, 11.811111;;"380-kV-Teil wird erneuert und erweitert; 220-kV-Teil stillgelegt; im Rückbau"
 BY87;Bayern;Meitingen;Amprion;x;;48.539167, 10.8675;;
 BY88;Bayern;Memmingen;Amprion;;x;47.970556, 10.194722;;
 BY89;Bayern;Menzing;Tennet TSO;x;;48.171667, 11.440833;;
@@ -92,7 +92,7 @@ BY90;Bayern;Neufinsing;Tennet TSO;;x;48.221133, 11.812918;;
 BY91;Bayern;Oberbachern;Tennet TSO;x;x;48.291389, 11.370833;;
 BY92;Bayern;Oberbrunn;Tennet TSO;x;;48.051667, 11.293889;;
 BY93;Bayern;Oberhaid;Tennet TSO;x;;49.928056, 10.835833;;
-BY94;Bayern;Oberottmarshausen;Amprion;x;x;48.237778, 10.840556;;"Amprion betreibt den sŸdlichen Teil der Anlage (380ÊkV); der nšrdliche Teil (110ÊkV) wird von der LEW Verteilnetz betrieben.[2]; Am 11. September 2018 hat Amprion einen neuenÊrotierenden PhasenschieberÊvonÊSiemensÊin der Umspannanlage feierlich in Betrieb genommen.[3]ÊAmprion investierte 65 Millionen Euro."
+BY94;Bayern;Oberottmarshausen;Amprion;x;x;48.237778, 10.840556;;"Amprion betreibt den südlichen Teil der Anlage (380 kV); der nördliche Teil (110 kV) wird von der LEW Verteilnetz betrieben.[2]; Am 11. September 2018 hat Amprion einen neuen rotierenden Phasenschieber von Siemens in der Umspannanlage feierlich in Betrieb genommen.[3] Amprion investierte 65 Millionen Euro."
 BY95;Bayern;Ottenhofen;Tennet TSO;x;;48.206667, 11.868056;;
 BY96;Bayern;Pirach;Tennet TSO;;x;48.148611, 12.747222;;
 BY97;Bayern;Plattling;Tennet TSO;x;;48.763297, 12.851912;;
@@ -106,8 +106,8 @@ BY104;Bayern;Schweinfurt;Tennet TSO;x;;50.028056, 10.196111;;
 BY105;Bayern;Sittling;Tennet TSO;;x;48.838056, 11.792222;;
 BY106;Bayern;Stalldorf;TransnetBW;x;;49.578034, 9.946251;;
 BY107;Bayern;Trennfeld;Tennet TSO;;x;49.798333, 9.593889;;
-BY108;Bayern;Všhringen;Amprion;x;x;48.267222, 10.083056;;
-BY109;Bayern;WŸrgau;Tennet TSO;x;;49.979167, 11.105278;;
+BY108;Bayern;Vöhringen;Amprion;x;x;48.267222, 10.083056;;
+BY109;Bayern;Würgau;Tennet TSO;x;;49.979167, 11.105278;;
 BY110;Bayern;Zolling;Tennet TSO;;x;48.455691, 11.807357;;
 B111;Berlin;Berlin-Charlottenburg;50HertzT;x;;52.522057, 13.315521;;reine Erdkabelspeisung
 B112;Berlin;Berlin-Malchow;50HertzT;x;;52.589722, 13.494167;;
@@ -119,18 +119,18 @@ B117;Berlin;Berlin-Teufelsbruch;50HertzT;x;;52.580556, 13.211389;;
 B118;Berlin;Berlin-Wuhlheide;50HertzT;;x;52.473889, 13.505833;;
 BRB119;Brandenburg;Bertikow;50HertzT;;x;53.252048, 13.957036;;
 BRB120;Brandenburg;Brandenburg-West;50HertzT;;x;52.405, 12.499444;;
-BRB121;Brandenburg;EisenhŸttenstadt-Pohlitz;50HertzT;x;;52.174167, 14.604444;;
+BRB121;Brandenburg;Eisenhüttenstadt-Pohlitz;50HertzT;x;;52.174167, 14.604444;;
 BRB122;Brandenburg;Gransee;50HertzT;x;;52.994583, 13.2653;;Neubau 2016
-BRB123;Brandenburg;Gro§rŠschen;;;;51.607222, 14.024722;;2 _ 380/110-kV-Transformatoren fŸr 2023 projektiert
-BRB124;Brandenburg;Heinersdorf;50HertzT;x;;52.44405, 14.139367;;Neubau 2017 Ð nurÊEEG-Einspeisung Ð reine Erdkabelspeisung
+BRB123;Brandenburg;Großräschen;;;;51.607222, 14.024722;;2 _ 380/110-kV-Transformatoren für 2023 projektiert
+BRB124;Brandenburg;Heinersdorf;50HertzT;x;;52.44405, 14.139367;;Neubau 2017 - nur EEG-Einspeisung - reine Erdkabelspeisung
 BRB125;Brandenburg;Hennigsdorf;;;x;52.657222, 13.205833;;
 BRB126;Brandenburg;Neuenhagen;50HertzT;x;x;52.539722, 13.71;;
 BRB127;Brandenburg;Perleberg;50HertzT;x;;53.086111, 11.8525;;
 BRB128;Brandenburg;Preilack;50HertzT;x;;51.888611, 14.428333;;
-BRB129;Brandenburg;Putlitz;50HertzT;x;;53.250896, 12.087755;;nur EEG-Einspeisung Ð reine Erdkabelspeisung
-BRB130;Brandenburg;Putlitz-SŸd;50HertzT;x;;53.253217, 12.111417;;Neubau 2016 Ð nur EEG-Einspeisung Ð reine Erdkabelspeisung
+BRB129;Brandenburg;Putlitz;50HertzT;x;;53.250896, 12.087755;;nur EEG-Einspeisung - reine Erdkabelspeisung
+BRB130;Brandenburg;Putlitz-Süd;50HertzT;x;;53.253217, 12.111417;;Neubau 2016 - nur EEG-Einspeisung - reine Erdkabelspeisung
 BRB131;Brandenburg;Ragow;50HertzT;x;;51.874167, 13.9025;;
-BRB132;Brandenburg;Schšnewalde;50HertzT;x;;51.828255, 13.157311;;
+BRB132;Brandenburg;Schönewalde;50HertzT;x;;51.828255, 13.157311;;
 BRB133;Brandenburg;Thyrow;50HertzT;x;x;52.231389, 13.303611;;
 BRB134;Brandenburg;Vierraden bei Schwedt;50HertzT;;x;53.096111, 14.271111;;
 BRB135;Brandenburg;Wustermark;50HertzT;x;x;52.561944, 12.941111;;
@@ -139,47 +139,47 @@ HB137;Bremen;Bremen-Niedervieland;Tennet TSO;x;;53.092691, 8.695427;;
 HB138;Bremen;Bremen-Ochtum;Tennet TSO;;x;53.069167, 8.763056;;
 HB139;Bremen;Bremen-Oslebshausen;Tennet TSO;;x;53.139167, 8.714444;;
 HB140;Bremen;Bremen-Ost;Tennet TSO;;x;53.106944, 8.82;;
-HH141;Hamburg;Hamburg-Ost;50HertzT;x;;53.554936, 10.157221;;380-kV-Leitung zumÊKernkraftwerk KrŸmmelÊ(KKK)
-HH142;Hamburg;Hamburg-SŸd;50HertzT;x;;53.487778, 9.908611;;380-kV-Leitung nach Dollern (Tennet) & 380-kV-Leitung zumÊKohlekraftwerk Moorburg
+HH141;Hamburg;Hamburg-Ost;50HertzT;x;;53.554936, 10.157221;;380-kV-Leitung zum Kernkraftwerk Krümmel (KKK)
+HH142;Hamburg;Hamburg-Süd;50HertzT;x;;53.487778, 9.908611;;380-kV-Leitung nach Dollern (Tennet) & 380-kV-Leitung zum Kohlekraftwerk Moorburg
 HH143;Hamburg;Hamburg-Harburg;Tennet TSO;;x;53.452137, 10.002707;;
-HE144;Hessen;A§lar;TenneT TSO;x;;50.590833, 8.479722;1970er Jahre;
+HE144;Hessen;Aßlar;TenneT TSO;x;;50.590833, 8.479722;1970er Jahre;
 HE145;Hessen;Bergshausen;Tennet TSO;x;;51.258889, 9.514167;um 1990;
-HE146;Hessen;Beerfelden;Amprion;;x;49.567222, 8.953611;1960er Jahre;Wegfall der 220-kV-Ebene 2021 durch Umstellung des ehem. Stromkreises UrberachÐGro§gartach auf 110ÊkV
-HE147;Hessen;Bischofsheim;Amprion;x;;49.981944, 8.388056;1990;Erweiterung der Schaltanlage 2018Ð2021
-HE148;Hessen;Borken;TenneT TSO;x;;51.058611, 9.257778;1974;"bis 1994 benachbarte 220-kV-Schaltanlage des ehem.ÊKraftwerks Borken; die 380-kV-Anlage selbst war stets Netzknotenpunkt und nie Teil der Kraftwerkseinspeisung"
-HE149;Hessen;BŸrstadt;Amprion;x;x;49.633333, 8.419167;1960er Jahre;
+HE146;Hessen;Beerfelden;Amprion;;x;49.567222, 8.953611;1960er Jahre;Wegfall der 220-kV-Ebene 2021 durch Umstellung des ehem. Stromkreises Urberach-Großgartach auf 110 kV
+HE147;Hessen;Bischofsheim;Amprion;x;;49.981944, 8.388056;1990;Erweiterung der Schaltanlage 2018-2021
+HE148;Hessen;Borken;TenneT TSO;x;;51.058611, 9.257778;1974;"bis 1994 benachbarte 220-kV-Schaltanlage des ehem. Kraftwerks Borken; die 380-kV-Anlage selbst war stets Netzknotenpunkt und nie Teil der Kraftwerkseinspeisung"
+HE149;Hessen;Bürstadt;Amprion;x;x;49.633333, 8.419167;1960er Jahre;
 HE150;Hessen;Dillenburg;TenneT TSO;x;;50.758611, 8.284444;1970er Jahre;
-HE151;Hessen;Dipperz;TenneT TSO;x;;50.528611, 9.773889;1975;Erweiterung des Schaltfelds 1992 (Bau der Leitung nach Gro§krotzenburg)
-HE152;Hessen;Dšrnigheim;TenneT TSO;;x;50.130556, 8.872222;1963;"Anlagenstandort fŸr 60 und 110ÊkV seit 1925; spŠter Erweiterung um 220ÊkV"
-HE153;Hessen;Frankfurt Nord;TenneT TSO;;x;50.15923, 8.73533;1963;"frŸher noch weitere 220-kV-Leitungen nach Frankfurt-SŸdwest und Gie§en-Nord; Reduktion der 220-kV-Anlage und Umstellung der Leitungen auf 110ÊkV Anfang der 1990er Jahre"
-HE154;Hessen;Frankfurt SŸdwest;TenneT TSO;x;;50.092222, 8.618611;1976;"bis etwa Anfang der 1990er Jahre 220-kV-Anlage; abzweigende Leitung war bereits beim Bau fŸr 380ÊkV dimensioniert; der ehemalige Transformator wurde ins UmspannwerkÊHardegsenÊumgesetzt[4]"
-HE155;Hessen;Gie§en Nord;TenneT TSO;x;;50.605556, 8.656389;1965;"110-kV-Anlagenstandort seit 1925; bis Anfang der 1990er Jahre noch zusŠtzlich 220-kV-Schaltanlage; schrittweise Modernisierung 2016Ð2021"
-HE156;Hessen;Gro§krotzenburg;TenneT TSO;x;;50.082316, 8.95871;1967;Einspeisung aus den Blšcken 4 und 5 desÊKraftwerks Staudinger
-HE157;Hessen;Karben;TenneT TSO;x;;50.203333, 8.809444;1990er Jahre;Wurde 2013Ð2015 stark erweitert und alle vorbeifŸhrenden Stromkreise in die Schaltanlage eingefŸhrt[5]
+HE151;Hessen;Dipperz;TenneT TSO;x;;50.528611, 9.773889;1975;Erweiterung des Schaltfelds 1992 (Bau der Leitung nach Großkrotzenburg)
+HE152;Hessen;Dörnigheim;TenneT TSO;;x;50.130556, 8.872222;1963;"Anlagenstandort für 60 und 110 kV seit 1925; später Erweiterung um 220 kV"
+HE153;Hessen;Frankfurt Nord;TenneT TSO;;x;50.15923, 8.73533;1963;"früher noch weitere 220-kV-Leitungen nach Frankfurt-Südwest und Gießen-Nord; Reduktion der 220-kV-Anlage und Umstellung der Leitungen auf 110 kV Anfang der 1990er Jahre"
+HE154;Hessen;Frankfurt Südwest;TenneT TSO;x;;50.092222, 8.618611;1976;"bis etwa Anfang der 1990er Jahre 220-kV-Anlage; abzweigende Leitung war bereits beim Bau für 380 kV dimensioniert; der ehemalige Transformator wurde ins Umspannwerk Hardegsen umgesetzt[4]"
+HE155;Hessen;Gießen Nord;TenneT TSO;x;;50.605556, 8.656389;1965;"110-kV-Anlagenstandort seit 1925; bis Anfang der 1990er Jahre noch zusätzlich 220-kV-Schaltanlage; schrittweise Modernisierung 2016-2021"
+HE156;Hessen;Großkrotzenburg;TenneT TSO;x;;50.082316, 8.95871;1967;Einspeisung aus den Blöcken 4 und 5 des Kraftwerks Staudinger
+HE157;Hessen;Karben;TenneT TSO;x;;50.203333, 8.809444;1990er Jahre;Wurde 2013-2015 stark erweitert und alle vorbeiführenden Stromkreise in die Schaltanlage eingeführt[5]
 HE158;Hessen;Kelsterbach;Amprion;x;;50.045556, 8.532222;2007;Ersetzt 220-kV-Anlage von 1926 an nahegelegenem Standort
-HE159;Hessen;KelsterbachÊ(alt);RWE;;x;50.0435, 8.5289;1926;Abriss und Neubau als platzsparende Innenraumanlage im Zuge des Baus der Landebahn Nordwest amÊFlughafen FrankfurtÊ2006Ð2007[6]
-HE160;Hessen;Kriftel;Amprion;x;;50.097321, 8.470142;2004;Erweiterung um Blindleistungskompensationsanlage und zusŠtzliches 380-kV-Schaltfeld fŸr einkreisigen 380-kV-Abzweig aus dem TenneT-Netz 2016Ð2018[7]
-HE161;Hessen;Lauterbach;PreussenElektra;;x;50.6418, 9.3904;1950er Jahre;"Wegfall der 220-kV-Ebene um 1992; Umbau der Leitung nach Borken auf 110ÊkV"
-HE162;Hessen;Limburg;Amprion;x;;50.406752, 8.065895;2009;"frŸher 220-kV-Anlage; wurde in eine 380-kV-Anlage umgebaut"
-HE163;Hessen;Mecklar;TenneT TSO;x;;50.916667, 9.745833;1975;Erweiterung 1994Ð1995 (Leitung MecklarÐVieselbach) und 2014Ð2019 (Leitung WahleÐMecklar)[8]
-HE164;Hessen;Pfungstadt;Amprion;x;x;49.815, 8.588611;1979;"110-kV-Anlagenstandort seit ca. 1964; Erweiterung um 380-kV-Anlage 2014Ð2017[9]"
-HE165;Hessen;Sandershausen;TenneT TSO;;x;51.325, 9.56729;1960er Jahre;"FrŸher 220-/60-kV-Anlage; Reduktion Mitte der 1990er Jahre mit Abbau der Leitung SandershausenÐBorken; Wegfall mittelfristig"
-HE166;Hessen;Sandershausen (neu);TenneT TSO;x;;51.3311, 9.5847;2016;ersetzt mittelfristig altes 220-kV-Umspannwerk an derÊBABÊ7[10]
-HE167;Hessen;Staudinger;TenneT TSO;;x;50.0909, 8.5967;1963;"FrŸher Kraftwerkseinspeisung aus den Blšcken 1Ð3 des Kraftwerks Staudinger; seit Stilllegung der Blšcke reiner Netzknotenpunkt"
+HE159;Hessen;Kelsterbach (alt);RWE;;x;50.0435, 8.5289;1926;Abriss und Neubau als platzsparende Innenraumanlage im Zuge des Baus der Landebahn Nordwest am Flughafen Frankfurt 2006-2007[6]
+HE160;Hessen;Kriftel;Amprion;x;;50.097321, 8.470142;2004;Erweiterung um Blindleistungskompensationsanlage und zusätzliches 380-kV-Schaltfeld für einkreisigen 380-kV-Abzweig aus dem TenneT-Netz 2016-2018[7]
+HE161;Hessen;Lauterbach;PreussenElektra;;x;50.6418, 9.3904;1950er Jahre;"Wegfall der 220-kV-Ebene um 1992; Umbau der Leitung nach Borken auf 110 kV"
+HE162;Hessen;Limburg;Amprion;x;;50.406752, 8.065895;2009;"früher 220-kV-Anlage; wurde in eine 380-kV-Anlage umgebaut"
+HE163;Hessen;Mecklar;TenneT TSO;x;;50.916667, 9.745833;1975;Erweiterung 1994-1995 (Leitung Mecklar-Vieselbach) und 2014-2019 (Leitung Wahle-Mecklar)[8]
+HE164;Hessen;Pfungstadt;Amprion;x;x;49.815, 8.588611;1979;"110-kV-Anlagenstandort seit ca. 1964; Erweiterung um 380-kV-Anlage 2014-2017[9]"
+HE165;Hessen;Sandershausen;TenneT TSO;;x;51.325, 9.56729;1960er Jahre;"Früher 220-/60-kV-Anlage; Reduktion Mitte der 1990er Jahre mit Abbau der Leitung Sandershausen-Borken; Wegfall mittelfristig"
+HE166;Hessen;Sandershausen (neu);TenneT TSO;x;;51.3311, 9.5847;2016;ersetzt mittelfristig altes 220-kV-Umspannwerk an der BAB 7[10]
+HE167;Hessen;Staudinger;TenneT TSO;;x;50.0909, 8.5967;1963;"Früher Kraftwerkseinspeisung aus den Blöcken 1-3 des Kraftwerks Staudinger; seit Stilllegung der Blöcke reiner Netzknotenpunkt"
 HE168;Hessen;Twistetal;TenneT TSO;x;;51.343056, 8.9925;1974;
-HE169;Hessen;Urberach;Amprion;x;x;49.974444, 8.772222;1979;"110-kV-Anlagenstandort seit ca. 1956; seit 2017 etappenweise RŸckbau der 220-kV-Anlage"
-HE170;Hessen;Waldeck;TenneT TSO;x;;51.167222, 9.050278;1974;"Einspeisung aus demÊPumpspeicherkraftwerk Waldeck; reine Schaltanlage; Neubau in den 2010er Jahren"
+HE169;Hessen;Urberach;Amprion;x;x;49.974444, 8.772222;1979;"110-kV-Anlagenstandort seit ca. 1956; seit 2017 etappenweise Rückbau der 220-kV-Anlage"
+HE170;Hessen;Waldeck;TenneT TSO;x;;51.167222, 9.050278;1974;"Einspeisung aus dem Pumpspeicherkraftwerk Waldeck; reine Schaltanlage; Neubau in den 2010er Jahren"
 MV171;Mecklenburg-Vorpommern;Altentreptow-Nord;50HertzT;x;;53.737049, 13.317389;;nur Einspeisung aus Windenergieanlagen
-MV172;Mecklenburg-Vorpommern;Altentreptow-SŸd;50HertzT;x;;53.624083, 13.180317;;Neubau 2017
+MV172;Mecklenburg-Vorpommern;Altentreptow-Süd;50HertzT;x;;53.624083, 13.180317;;Neubau 2017
 MV173;Mecklenburg-Vorpommern;Bentwisch;50HertzT;;x;54.111944, 12.213333;;
-MV174;Mecklenburg-Vorpommern;Bentwisch HG†;50HertzT;x;;54.100556, 12.2175;;HG†-StationÊKontekÊ(400ÊkV) undÊCombined Grid Solution
-MV175;Mecklenburg-Vorpommern;GŸstrow;50HertzT;x;x;53.815556, 12.186667;;
+MV174;Mecklenburg-Vorpommern;Bentwisch HG†;50HertzT;x;;54.100556, 12.2175;;HG†-Station Kontek (400 kV) und Combined Grid Solution
+MV175;Mecklenburg-Vorpommern;Güstrow;50HertzT;x;x;53.815556, 12.186667;;
 MV176;Mecklenburg-Vorpommern;Iven;50HertzT;;x;53.794167, 13.399722;;nur Einspeisung aus Windenergieanlagen
 MV177;Mecklenburg-Vorpommern;Lubmin;50HertzT;x;x;54.139051, 13.682132;;auch Einspeisung aus Offshore-Windenergieanlagen in der Ostsee
 MV178;Mecklenburg-Vorpommern;Pasewalk;50HertzT;;x;53.507778, 14.033611;;
-MV179;Mecklenburg-Vorpommern;SiedenbrŸnzow;50HertzT;x;;53.908056, 13.1425;;
-MV180;Mecklenburg-Vorpommern;Schwerin-Gšrries;50HertzT;x;;53.600833, 11.370278;;
-MV181;Mecklenburg-Vorpommern;Stralsund-LŸdershagen;50HertzT;;x;54.284722, 13.079167;;
+MV179;Mecklenburg-Vorpommern;Siedenbrünzow;50HertzT;x;;53.908056, 13.1425;;
+MV180;Mecklenburg-Vorpommern;Schwerin-Görries;50HertzT;x;;53.600833, 11.370278;;
+MV181;Mecklenburg-Vorpommern;Stralsund-Lüdershagen;50HertzT;;x;54.284722, 13.079167;;
 MV182;Mecklenburg-Vorpommern;Wessin;50HertzT;x;;53.572129, 11.699461;;nur Einspeisung aus Windenergieanlagen
 NI183;Niedersachsen;Abbenfleth;Tennet TSO;;x;53.619595, 9.528898;;
 NI184;Niedersachsen;Ahlten;Tennet TSO;;x;52.381667, 9.9175;;
@@ -189,17 +189,17 @@ NI187;Niedersachsen;Braunschweig-Nord;Tennet TSO;;x;52.301667, 10.505278;;
 NI188;Niedersachsen;Butteldorf;Tennet TSO;;x;53.19, 8.408889;;
 NI189;Niedersachsen;Cloppenburg;Tennet TSO;;x;52.858056, 8.081944;;
 NI190;Niedersachsen;Conneforde;Tennet TSO;x;x;53.333333, 8.053056;;
-NI191;Niedersachsen;Diele;Tennet TSO;x;;53.125556, 7.312222;;"HG†-StationÊBorWin 1; 150 kV zur Ankopplung desÊBARD-Offshore-1-Windparks"
+NI191;Niedersachsen;Diele;Tennet TSO;x;;53.125556, 7.312222;;"HG†-Station BorWin 1; 150 kV zur Ankopplung des BARD-Offshore-1-Windparks"
 NI192;Niedersachsen;Dollern;Tennet TSO;x;x;53.543056, 9.501944;;
-NI193;Niedersachsen;Dšrpen-West;Tennet TSO;x;;52.981111, 7.257222;;"HG†-StationÊDolWin 1; 160 kV zur Anbindung von Offshore-Windparks in der Nordsee"
+NI193;Niedersachsen;Dörpen-West;Tennet TSO;x;;52.981111, 7.257222;;"HG†-Station DolWin 1; 160 kV zur Anbindung von Offshore-Windparks in der Nordsee"
 NI194;Niedersachsen;Emden;Tennet TSO;;x;53.35, 7.224167;;
 NI195;Niedersachsen;Ganderkesee;Tennet TSO;x;;53.031944, 8.563889;;
-NI196;Niedersachsen;GeorgsmarienhŸtte;Tennet TSO;;x;53.210556, 8.047778;;
+NI196;Niedersachsen;Georgsmarienhütte;Tennet TSO;;x;53.210556, 8.047778;;
 NI197;Niedersachsen;Gleidingen;Tennet TSO;;x;52.236667, 10.421111;;
-NI198;Niedersachsen;Gšttingen;Tennet TSO;;x;51.515556, 9.882778;;
-NI199;Niedersachsen;Gštzdorf;Tennet TSO;;x;53.657888, 9.491601;;
+NI198;Niedersachsen;Göttingen;Tennet TSO;;x;51.515556, 9.882778;;
+NI199;Niedersachsen;Götzdorf;Tennet TSO;;x;53.657888, 9.491601;;
 NI200;Niedersachsen;Grohnde;Tennet TSO;x;;52.026111, 9.389722;;
-NI201;Niedersachsen;HanekenfŠhr;Amprion;x;x;52.476389, 7.309167;;
+NI201;Niedersachsen;Hanekenfähr;Amprion;x;x;52.476389, 7.309167;;
 NI202;Niedersachsen;Hannover-Lahe;Tennet TSO;;x;52.424444, 9.821111;;
 NI203;Niedersachsen;Hannover-West;Tennet TSO;;x;52.360278, 9.5225;;
 NI204;Niedersachsen;Hattorf;Tennet TSO;x;;52.367651, 10.761055;;
@@ -211,8 +211,8 @@ NI209;Niedersachsen;Lamspringe;Tennet TSO;x;;51.953115, 9.996842;;in Planung
 NI210;Niedersachsen;Landesbergen;Tennet TSO;x;x;52.538056, 9.125278;;
 NI211;Niedersachsen;Lehrte;Tennet TSO;;x;52.3819, 9.9159;;
 NI212;Niedersachsen;Limmer (Godenau);Tennet TSO;;x;52.000556, 9.796944;;
-NI213;Niedersachsen;LŸneburg;Tennet TSO;x;;53.219722, 10.378611;;
-NI214;Niedersachsen;LŸstringen;Amprion;;x;52.264167, 8.104167;;
+NI213;Niedersachsen;Lüneburg;Tennet TSO;x;;53.219722, 10.378611;;
+NI214;Niedersachsen;Lüstringen;Amprion;;x;52.264167, 8.104167;;
 NI215;Niedersachsen;Maade;Tennet TSO;(x);x;53.560278, 8.1225;;"Schaltwerk (380 kV in Planung/Bau; momentan ohne Anschluss)"
 NI216;Niedersachsen;Mehrum;Tennet TSO;;x;52.314167, 10.087778;;
 NI217;Niedersachsen;Meppen;Amprion;x;;52.75338, 7.277667;;
@@ -220,7 +220,7 @@ NI218;Niedersachsen;Minden;Tennet TSO;;x;52.278333, 8.959167;;
 NI219;Niedersachsen;Neurhede;Tennet TSO;x;;53.026389, 7.254167;;
 NI220;Niedersachsen;Niederlangen;Amprion;x;;52.869722, 7.194722;;
 NI221;Niedersachsen;Ohlensehlen;Tennet TSO;x;;52.563762, 8.895596;;
-NI222;Niedersachsen;Sankt HŸlfe;Amprion;x;x;52.60964, 8.403178;;
+NI222;Niedersachsen;Sankt Hülfe;Amprion;x;x;52.60964, 8.403178;;
 NI223;Niedersachsen;Stade;Tennet TSO;;x;53.6186, 9.5303;;
 NI224;Niedersachsen;Sottrum;Tennet TSO;x;x;53.114444, 9.25;;
 NI225;Niedersachsen;Stadorf;Tennet TSO;x;;52.993333, 10.381944;;
@@ -229,61 +229,61 @@ NI227;Niedersachsen;Voslapp;Tennet TSO;;x;53.605833, 8.085556;;
 NI228;Niedersachsen;Wahle;Tennet TSO;x;x;52.2852, 10.367;;
 NI229;Niedersachsen;Wechold;Tennet TSO;;x;52.853056, 9.145278;;
 NRW230;Niedersachsen;Wehrendorf;Amprion;x;x;52.345556, 8.308611;;
-NRW231;Nordrhein-Westfalen;Altenkleusheim;Amprion;x;x;51.011111, 7.9375;;Umbau auf 380ÊkV im Zuge der Neuerrichtung der Leitung KruckelÐDauersberg
+NRW231;Nordrhein-Westfalen;Altenkleusheim;Amprion;x;x;51.011111, 7.9375;;Umbau auf 380 kV im Zuge der Neuerrichtung der Leitung Kruckel-Dauersberg
 NRW232;Nordrhein-Westfalen;Arpe;Amprion;x;;51.177908, 8.211166;;
 NRW233;Nordrhein-Westfalen;Bechterdissen;TenneT TSO;x;x;51.999722, 8.659444;;
 NRW234;Nordrhein-Westfalen;Bochum;Amprion;;x;51.471944, 7.179167;;
 NRW235;Nordrhein-Westfalen;Bochum-Laer;Amprion;;x;51.471944, 7.278611;;
-NRW236;Nordrhein-Westfalen;BocklemŸnd;Amprion;;x;50.983611, 6.851111;;
+NRW236;Nordrhein-Westfalen;Bocklemünd;Amprion;;x;50.983611, 6.851111;;
 NRW237;Nordrhein-Westfalen;Brauweiler;Amprion;;x;50.966111, 6.805556;;Die Anlage ist nun auch an das 380kV Netz angeschlossen.
-NRW238;Nordrhein-Westfalen;BŸscherhof;Amprion;x;x;51.498889, 6.926667;;
+NRW238;Nordrhein-Westfalen;Büscherhof;Amprion;x;x;51.498889, 6.926667;;
 NRW239;Nordrhein-Westfalen;Dahlem;Amprion;x;;50.389722, 6.531944;;
 NRW240;Nordrhein-Westfalen;Dortmund-Mengede;Amprion;x;;51.575556, 7.353056;;
 NRW241;Nordrhein-Westfalen;Dortmund-Wambel;Amprion;;x;51.5325, 7.522778;;
-NRW242;Nordrhein-Westfalen;DŸsseldorf-Rath;Amprion;x;;51.268333, 6.808889;;
+NRW242;Nordrhein-Westfalen;Düsseldorf-Rath;Amprion;x;;51.268333, 6.808889;;
 NRW243;Nordrhein-Westfalen;Eiberg;Amprion;x;x;51.447886, 7.126306;;
 NRW244;Nordrhein-Westfalen;Eickum;TenneT TSO;x;;52.105278, 8.571111;;
 NRW245;Nordrhein-Westfalen;Eiserfeld;Amprion;;x;50.841944, 7.985278;;
 NRW246;Nordrhein-Westfalen;Elsen;TenneT TSO;x;;51.736389, 8.7025;;
 NRW247;Nordrhein-Westfalen;Enniger;Amprion;x;;51.822887, 7.993998;;
 NRW248;Nordrhein-Westfalen;Gersteinwerk;Amprion;x;x;51.676111, 7.708611;;
-NRW249;Nordrhein-Westfalen;Gohrpunkt;Amprion;;x;51.090833, 6.709444;;"Durch die Anlage fŸhren drei 380-kV-Stromkreise; die allerdings nicht angeschlossen sind"
+NRW249;Nordrhein-Westfalen;Gohrpunkt;Amprion;;x;51.090833, 6.709444;;"Durch die Anlage führen drei 380-kV-Stromkreise; die allerdings nicht angeschlossen sind"
 NRW250;Nordrhein-Westfalen;Gremberghoven;Amprion;;x;50.905556, 7.047222;;
-NRW251;Nordrhein-Westfalen;Gronau;Amprion;x;;52.202778, 7.034444;;"Durch die Anlage fŸhrt ein 220-kV-Stromkreis; der allerdings nicht angeschlossen ist"
-NRW252;Nordrhein-Westfalen;GŸtersloh;Amprion;x;x;51.926944, 8.364167;;Langfristig Wegfall der 220-kV-Ebene nach Umstellung der Leitung LŸstringenÐGŸtersloh auf 380ÊkV
+NRW251;Nordrhein-Westfalen;Gronau;Amprion;x;;52.202778, 7.034444;;"Durch die Anlage führt ein 220-kV-Stromkreis; der allerdings nicht angeschlossen ist"
+NRW252;Nordrhein-Westfalen;Gütersloh;Amprion;x;x;51.926944, 8.364167;;Langfristig Wegfall der 220-kV-Ebene nach Umstellung der Leitung Lüstringen-Gütersloh auf 380 kV
 NRW253;Nordrhein-Westfalen;Halfeshof;Amprion;x;;51.171389, 7.123056;;
 NRW254;Nordrhein-Westfalen;Hattingen;Amprion;x;x;51.389167, 7.168056;;
 NRW255;Nordrhein-Westfalen;Hesseln;Amprion;x;;52.066, 8.318596;;
-NRW256;Nordrhein-Westfalen;HŸllen;Amprion;x;;51.525263, 7.122363;;
+NRW256;Nordrhein-Westfalen;Hüllen;Amprion;x;;51.525263, 7.122363;;
 NRW257;Nordrhein-Westfalen;Karnap;Amprion;x;;51.513296, 6.998289;;
-NRW258;Nordrhein-Westfalen;Kottiger Hook;Amprion;x;;52.17759, 7.01173;;Harfenabgriff. 110 kV-Erdkabeleinspeisung in das benachbarteÊWestnetz-Umspannwerk.
+NRW258;Nordrhein-Westfalen;Kottiger Hook;Amprion;x;;52.17759, 7.01173;;Harfenabgriff. 110 kV-Erdkabeleinspeisung in das benachbarte Westnetz-Umspannwerk.
 NRW259;Nordrhein-Westfalen;Kruckel;Amprion;;x;51.457222, 7.416667;;
 NRW260;Nordrhein-Westfalen;Kusenhorst;Amprion;x;x;51.696667, 7.060556;;
-NRW261;Nordrhein-Westfalen;Lie§em;Amprion;x;;50.6425, 7.136944;;
+NRW261;Nordrhein-Westfalen;Ließem;Amprion;x;;50.6425, 7.136944;;
 NRW262;Nordrhein-Westfalen;Lippe;Amprion;x;;51.643956, 7.4032;;Schaltwerk
 NRW263;Nordrhein-Westfalen;Linde;Amprion;x;;51.232222, 7.233056;;
 NRW264;Nordrhein-Westfalen;Merkenich;Amprion;x;;51.0175, 6.961944;;
-NRW265;Nordrhein-Westfalen;MŸlheim;Amprion;;x;51.434722, 6.876111;;
+NRW265;Nordrhein-Westfalen;Mülheim;Amprion;;x;51.434722, 6.876111;;
 NRW266;Nordrhein-Westfalen;Nehden;Amprion;x;;51.427778, 8.624722;;
 NRW267;Nordrhein-Westfalen;Niederrhein;Amprion;x;x;51.645833, 6.680278;;
 NRW268;Nordrhein-Westfalen;Nordlicht;Amprion;x;;51.564879, 6.906431;;
 NRW269;Nordrhein-Westfalen;Norf;Amprion;x;;51.146944, 6.772222;;
-NRW270;Nordrhein-Westfalen;Oberzier;Amprion;x;;50.871111, 6.456944;;Geplanter Standort einer Konverterstation fŸr HG†-Verbindung mit Belgien (ALEGrO)
+NRW270;Nordrhein-Westfalen;Oberzier;Amprion;x;;50.871111, 6.456944;;Geplanter Standort einer Konverterstation für HG†-Verbindung mit Belgien (ALEGrO)
 NRW271;Nordrhein-Westfalen;Ohligs;Amprion;x;;51.174257, 7.008126;;
 NRW272;Nordrhein-Westfalen;Opladen;Amprion;x;x;51.071111, 6.965;;
 NRW273;Nordrhein-Westfalen;Osker;Amprion;x;;51.683611, 7.992778;;Schaltwerk
 NRW274;Nordrhein-Westfalen;Osterath;Amprion;x;x;51.26025, 6.625979;;
-NRW275;Nordrhein-Westfalen;OvenstŠdt;TenneT TSO;x;;52.402778, 8.939444;;Schaltwerk
+NRW275;Nordrhein-Westfalen;Ovenstädt;TenneT TSO;x;;52.402778, 8.939444;;Schaltwerk
 NRW276;Nordrhein-Westfalen;Paffendorf;Amprion;;x;50.951959, 6.594773;;
-NRW277;Nordrhein-Westfalen;Pšppinghausen;Amprion;;x;51.573611, 7.264167;;
-NRW278;Nordrhein-Westfalen;Polsum;Amprion;x;;51.625278, 7.023333;;"Abriss der 220-kV-Schaltanlage wegen Bergsenkungen 2004Ð2006; schrittweise Verlagerung der Einrichtungen nach Kusenhorst"
+NRW277;Nordrhein-Westfalen;Pöppinghausen;Amprion;;x;51.573611, 7.264167;;
+NRW278;Nordrhein-Westfalen;Polsum;Amprion;x;;51.625278, 7.023333;;"Abriss der 220-kV-Schaltanlage wegen Bergsenkungen 2004-2006; schrittweise Verlagerung der Einrichtungen nach Kusenhorst"
 NRW279;Nordrhein-Westfalen;Rommerskirchen;Amprion;x;x;51.008889, 6.701667;;
 NRW280;Nordrhein-Westfalen;Rosenblumendelle;Amprion;x;;51.443611, 6.948704;;
 NRW281;Nordrhein-Westfalen;Roxel;Amprion;x;;51.970278, 7.545556;;
 NRW282;Nordrhein-Westfalen;Ruhrviertel;Amprion;x;;51.445556, 6.872778;;
 NRW283;Nordrhein-Westfalen;Sechtem;Amprion;x;x;50.795278, 6.9725;;
 NRW284;Nordrhein-Westfalen;Senne;Amprion;x;;51.949167, 8.546389;;
-NRW285;Nordrhein-Westfalen;Setzer Wiese;Amprion;(x);x;50.923611, 8.02;;Umbau auf 380 kV im Zuge der Neuerrichtung der Leitung KruckelÐDauersberg
+NRW285;Nordrhein-Westfalen;Setzer Wiese;Amprion;(x);x;50.923611, 8.02;;Umbau auf 380 kV im Zuge der Neuerrichtung der Leitung Kruckel-Dauersberg
 NRW286;Nordrhein-Westfalen;Siegburg;Amprion;;x;50.798056, 7.193056;;
 NRW287;Nordrhein-Westfalen;Siersdorf;Amprion;x;;50.912222, 6.215833;;
 NRW288;Nordrhein-Westfalen;St. Peter;Amprion;x;x;51.12398, 6.799945;;
@@ -293,19 +293,19 @@ NRW291;Nordrhein-Westfalen;Unna;Amprion;x;;51.533889, 7.718611;;
 NRW292;Nordrhein-Westfalen;Utfort;Amprion;x;x;51.475556, 6.616667;;
 NRW293;Nordrhein-Westfalen;Veltheim;TenneT TSO;;x;52.193333, 8.932222;;
 NRW294;Nordrhein-Westfalen;Verlautenheide;Amprion;x;;50.801667, 6.167222;;
-NRW295;Nordrhein-Westfalen;Všrden;TenneT TSO;x;;51.811839, 9.228849;;
+NRW295;Nordrhein-Westfalen;Vörden;TenneT TSO;x;;51.811839, 9.228849;;
 NRW296;Nordrhein-Westfalen;Walsum;Amprion;x;x;51.526667, 6.715278;;
 NRW297;Nordrhein-Westfalen;Weisweiler;Amprion;x;;50.828611, 6.300833;;
 NRW298;Nordrhein-Westfalen;Westerkappeln;Amprion;x;x;52.276617, 7.888889;;
 NRW299;Nordrhein-Westfalen;Witten;Amprion;x;;51.446389, 7.313333;;
-NRW300;Nordrhein-Westfalen;WŸrgassen;TenneT TSO;x;;51.640587, 9.387477;;
+NRW300;Nordrhein-Westfalen;Würgassen;TenneT TSO;x;;51.640587, 9.387477;;
 NRW301;Nordrhein-Westfalen;Zensenbusch;Amprion;x;;51.576335, 6.689501;;
 RP302;Rheinland-Pfalz;Andernach;Amprion;;x;50.436667, 7.428611;;
 RP303;Rheinland-Pfalz;Bacharach;Amprion;x;;50.02609, 7.692591;;in Planung
 RP304;Rheinland-Pfalz;Bauler;Amprion;;x;49.958333, 6.211111;;Schaltwerk
 RP305;Rheinland-Pfalz;Betzdorf-Dauersberg;Amprion;x;x;50.768611, 7.863889;;
 RP306;Rheinland-Pfalz;Koblenz;Amprion;x;;50.385833, 7.593056;;
-RP307;Rheinland-Pfalz;Ludwigshafen Ð BASF;Amprion;x;;49.528611, 8.408056;;
+RP307;Rheinland-Pfalz;Ludwigshafen - BASF;Amprion;x;;49.528611, 8.408056;;
 RP308;Rheinland-Pfalz;Mutterstadt;Amprion;;x;49.421111, 8.351944;;
 RP309;Rheinland-Pfalz;Niederhausen;Amprion;;x;49.810556, 7.793056;;
 RP310;Rheinland-Pfalz;Niederstedem;Amprion;x;x;49.922222, 6.474722;;
@@ -315,57 +315,57 @@ RP313;Rheinland-Pfalz;Quint;Amprion;;x;49.828889, 6.702222;;
 RP314;Rheinland-Pfalz;Trier;Amprion;;x;49.748889, 6.620556;;
 RP315;Rheinland-Pfalz;Waldlaubersheim;Amprion;x;;49.922079, 7.815893;;Umspannwerk
 RP316;Rheinland-Pfalz;Weingarten;Amprion;x;x;49.257167, 8.308407;;
-RP317;Rheinland-Pfalz;Wei§enthurm;Amprion;x;x;50.401667, 7.448889;;
-RP318;Rheinland-Pfalz;Wšrth;Amprion;;x;49.028611, 8.272222;;Maximiliansau
+RP317;Rheinland-Pfalz;Weißenthurm;Amprion;x;x;50.401667, 7.448889;;
+RP318;Rheinland-Pfalz;Wörth;Amprion;;x;49.028611, 8.272222;;Maximiliansau
 SL319;Saarland;Bexbach;Amprion;;x;49.3575, 7.240278;;
 SL320;Saarland;Ensdorf;Amprion;x;x;49.290278, 6.7725;;seit September 2011 auch 380 kV
 SL321;Saarland;Homburg;Amprion;;x;49.305, 7.319167;;
 SL322;Saarland;Mittelbexbach;Amprion;x;;49.368889, 7.235556;;Schaltwerk
 SL323;Saarland;Uchtelfangen;Amprion;x;x;49.375556, 6.996111;;
-SN324;Sachsen;BŠrwalde;50HertzT;x;;51.413056, 14.509722;;
+SN324;Sachsen;Bärwalde;50HertzT;x;;51.413056, 14.509722;;
 SN325;Sachsen;Crossen;50HertzT;;x;50.753056, 12.477222;;
-SN326;Sachsen;Dresden-SŸd;50HertzT;x;;50.99, 13.841111;;letzter Totalausfall 13.09.2021
+SN326;Sachsen;Dresden-Süd;50HertzT;x;;50.99, 13.841111;;letzter Totalausfall 13.09.2021
 SN327;Sachsen;Eula;50HertzT;x;x;51.156389, 12.5175;;
 SN328;Sachsen;Freiberg Nord;50HertzT;x;;50.930902, 13.257187;;
 SN329;Sachsen;Graustein;50HertzT;x;;51.553889, 14.47;;
-SN330;Sachsen;Gro§dalzig;;;x;51.198056, 12.248611;;
+SN330;Sachsen;Großdalzig;;;x;51.198056, 12.248611;;
 SN331;Sachsen;Hagenwerder;50HertzT;x;;51.061667, 14.948611;;
-SN332;Sachsen;HerlasgrŸn;50HertzT;;x;50.567222, 12.242778;;
+SN332;Sachsen;Herlasgrün;50HertzT;;x;50.567222, 12.242778;;
 SN333;Sachsen;Markersbach;50HertzT;x;;50.518753, 12.881043;;
 SN334;Sachsen;Niederwiesa;50HertzT;;x;50.865833, 13.002222;;
 SN335;Sachsen;Pulgar;50HertzT;x;;51.196667, 12.3375;;
-SN336;Sachsen;Ršhrsdorf;50HertzT;x;x;50.857778, 12.813333;;
-SN337;Sachsen;Schmšlln;50HertzT;x;;51.120556, 14.218889;;
+SN336;Sachsen;Röhrsdorf;50HertzT;x;x;50.857778, 12.813333;;
+SN337;Sachsen;Schmälln;50HertzT;x;;51.120556, 14.218889;;
 SN338;Sachsen;Streumen;50HertzT;x;x;51.356111, 13.382222;;
 SN339;Sachsen;Taucha;50HertzT;;x;51.371389, 12.469444;;
-SN340;Sachsen;Zwšnitz;50HertzT;x;;50.626667, 12.789167;;
-ST341;Sachsen-Anhalt;Fšrderstedt;50HertzT;x;;51.908611, 11.644167;;Umbau von 220/110 kV auf 380/110 kV ist erfolgt
+SN340;Sachsen;Zwönitz;50HertzT;x;;50.626667, 12.789167;;
+ST341;Sachsen-Anhalt;Förderstedt;50HertzT;x;;51.908611, 11.644167;;Umbau von 220/110 kV auf 380/110 kV ist erfolgt
 ST342;Sachsen-Anhalt;Klostermansfeld;50HertzT;x;;51.584167, 11.516111;;
-ST343;Sachsen-Anhalt;LauchstŠdt;50HertzT;x;;51.405, 11.8925;;
+ST343;Sachsen-Anhalt;Lauchstädt;50HertzT;x;;51.405, 11.8925;;
 ST344;Sachsen-Anhalt;Magdeburg;50HertzT;;x;52.123889, 11.561944;;soll aufgegeben werden
 ST345;Sachsen-Anhalt;Marke;50HertzT;x;;51.740833, 12.261944;;
 ST346;Sachsen-Anhalt;Stendal;50HertzT;x;;52.568889, 11.727222;;
-ST347;Sachsen-Anhalt;Wolmirstedt;50HertzT;x;x;52.269167, 11.638333;;nie in Betrieb gegangeneÊHG†-KurzkupplungÊ(160ÊkV)
-SH348;Schleswig-Holstein;Audorf;Tennet TSO;x;x;54.290096, 9.726649;;380 und 220 kV in zwei getrennten GebŠuden
-SH349;Schleswig-Holstein;BrunsbŸttel;Tennet TSO;x;x;53.895024, 9.205347;;
-SH350;Schleswig-Holstein;BŸttel;Tennet TSO;x;;53.917659, 9.235118;;Endpunkte derÊHG†-LeitungenÊSylWin 1 & 2 und HelWin 1 & 2Êvon Offshore-Windparks in der Nordsee
+ST347;Sachsen-Anhalt;Wolmirstedt;50HertzT;x;x;52.269167, 11.638333;;nie in Betrieb gegangene HG†-Kurzkupplung (160 kV)
+SH348;Schleswig-Holstein;Audorf;Tennet TSO;x;x;54.290096, 9.726649;;380 und 220 kV in zwei getrennten Gebäuden
+SH349;Schleswig-Holstein;Brunsbüttel;Tennet TSO;x;x;53.895024, 9.205347;;
+SH350;Schleswig-Holstein;Büttel;Tennet TSO;x;;53.917659, 9.235118;;Endpunkte der HG†-Leitungen SylWin 1 & 2 und HelWin 1 & 2 von Offshore-Windparks in der Nordsee
 SH351;Schleswig-Holstein;Flensburg;Tennet TSO;x;x;54.716148, 9.3189;;
-SH352;Schleswig-Holstein;Handewitt;Tennet TSO;;x;54.715556, 9.317222;;Gro§enwiehe
+SH352;Schleswig-Holstein;Handewitt;Tennet TSO;;x;54.715556, 9.317222;;Großenwiehe
 SH353;Schleswig-Holstein;Hamburg-Nord/Friedrichsgabe;50HertzT;x;x;53.741431, 9.984782;;Norderstedt
 SH354;Schleswig-Holstein;Hamburg-Nord/Ulzburg;TenneT TSO;;x;53.7659, 9.988;;Henstedt-Ulzburg
 SH355;Schleswig-Holstein;Itzehoe West;Tennet TSO;;x;53.96721, 9.449652;;
 SH356;Schleswig-Holstein;Jardelund;Tennet TSO;x;;54.851045, 9.196995;;
 SH357;Schleswig-Holstein;Kummerfeld;Tennet TSO;;x;53.690556, 9.776389;;
-SH358;Schleswig-Holstein;KrŸmmel;Tennet TSO;x;;53.413333, 10.412778;;
-SH359;Schleswig-Holstein;LŸbeck-Herrenwyk;Tennet TSO;x;;53.895833, 10.802222;;HG†-StationÊBaltic CableÊ(450 kV)
-SH360;Schleswig-Holstein;LŸbeck-Siems;Tennet TSO;x;x;53.909444, 10.760556;;Beginn der 380-kV-Inselleitung nach Herrenwyk
-SH361;Schleswig-Holstein;LŸbeck;Tennet TSO;;x;53.918889, 10.641111;;Stockelsdorf
+SH358;Schleswig-Holstein;Krümmel;Tennet TSO;x;;53.413333, 10.412778;;
+SH359;Schleswig-Holstein;Lübeck-Herrenwyk;Tennet TSO;x;;53.895833, 10.802222;;HG†-Station Baltic Cable (450 kV)
+SH360;Schleswig-Holstein;Lübeck-Siems;Tennet TSO;x;x;53.909444, 10.760556;;Beginn der 380-kV-Inselleitung nach Herrenwyk
+SH361;Schleswig-Holstein;Lübeck;Tennet TSO;;x;53.918889, 10.641111;;Stockelsdorf
 SH362;Schleswig-Holstein;Wilster;Tennet TSO;x;;53.921667, 9.344722;;Schaltanlage
-TH363;ThŸringen;Altenfeld;50HertzT;x;;50.574167, 10.989722;;
-TH364;ThŸringen;Eisenach;50HertzT;x;;51.001667, 10.385278;;
-TH365;ThŸringen;Gro§schwabhausen;50HertzT;x;;50.93, 11.470556;;
-TH366;ThŸringen;Hohenwarte II;;;x;50.603889, 11.474444;;
-TH367;ThŸringen;Remptendorf;50HertzT;x;x;50.534444, 11.646667;;
-TH368;ThŸringen;Vieselbach;50HertzT;x;x;50.999444, 11.122778;;
-TH369;ThŸringen;Weida;50HertzT;x;x;50.781389, 12.044722;;
-TH370;ThŸringen;Wolkramshausen;50HertzT;;x;51.440278, 10.735556;;Bemerkungen
+TH363;Thüringen;Altenfeld;50HertzT;x;;50.574167, 10.989722;;
+TH364;Thüringen;Eisenach;50HertzT;x;;51.001667, 10.385278;;
+TH365;Thüringen;Großschwabhausen;50HertzT;x;;50.93, 11.470556;;
+TH366;Thüringen;Hohenwarte II;;;x;50.603889, 11.474444;;
+TH367;Thüringen;Remptendorf;50HertzT;x;x;50.534444, 11.646667;;
+TH368;Thüringen;Vieselbach;50HertzT;x;x;50.999444, 11.122778;;
+TH369;Thüringen;Weida;50HertzT;x;x;50.781389, 12.044722;;
+TH370;Thüringen;Wolkramshausen;50HertzT;;x;51.440278, 10.735556;;

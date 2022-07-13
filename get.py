@@ -1,39 +1,19 @@
-import numpy as np
-import polars as pl
-
-bla = pl.read_csv(
-    "/Users/shellsquid/dev/green/geodata/FINAL/2-after_adding_centroid/csv/bayern.csv",
-    delimiter=";",
-    decimal=",",
-)
-
-print(len(bla))
-# bla["area_ha"] = bla["area_ha"].apply(lambda x: float(x.replace(",", ".")))
-#
-# bla = bla.filter(pl.col("area_ha") > 25)
-#
-# np.random.
-#
-# bla = bla["area_ha"].apply(
-#     lambda x: np.sqrt(
-#         x * (np.array([0.28734782487, 2.3478874, 813.723476877659]) ** 1.1)
-#     )
-# )
-# print(bla)
+import shutil
+import os
+import sys
 
 
-#
-#
-# for file in os.listdir(base_dir):
-#     if file.endswith(".gpkg"):
-#
-#         file_path = os.path.join(base_dir, file)
-#
-#         target_fname = file.replace(".gpkg", ".feather")
-#         out_path = os.path.join(base_dir, target_fname)
-#         if not os.path.exists(out_path):
-#             data = gpd.read_file(file_path)
-#             data["geomarr"] = data["geometry"].apply(lambda x: convert(x))
-#             data.to_feather(out_path)
-#             print(f">> {target_fname} created")
-# print("")
+dir = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area"
+
+for regio in os.listdir(dir):
+    regio_path = os.path.join(dir, regio, "gpkg")
+
+    for file in os.listdir(regio_path):
+        if file.endswith(".gpkg"):
+            src = os.path.join(regio_path, file)
+            dst = src.replace(
+                "3-filtered_by_intersection_protected_area",
+                "4-added_nearest_protected_area",
+            )
+            # print(dst)
+            shutil.copyfile(src, dst)
