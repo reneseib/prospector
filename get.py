@@ -1,19 +1,45 @@
-import shutil
-import os
-import sys
+import os, sys
+import geopandas as gpd
+from shapely.geometry import Point, Polygon, MultiPolygon, mapping
+import numpy as np
 
 
-dir = "/common/ecap/prospector_data/results/stages/3-filtered_by_intersection_protected_area"
+arr = np.array(
+    [
+        np.array([1.0, 20.0]).astype(np.float64),
+        np.array([10.0, 2.0]).astype(np.float64),
+        np.array([5.0, 25.0]).astype(np.float64),
+    ]
+).reshape(3, 2)
+print(arr)
 
-for regio in os.listdir(dir):
-    regio_path = os.path.join(dir, regio, "gpkg")
+x = [x[0] for x in arr]
+minx = min(x)
+maxx = max(x)
+y = [x[1] for x in arr]
+miny = min(y)
+maxy = max(y)
 
-    for file in os.listdir(regio_path):
-        if file.endswith(".gpkg"):
-            src = os.path.join(regio_path, file)
-            dst = src.replace(
-                "3-filtered_by_intersection_protected_area",
-                "4-added_nearest_protected_area",
-            )
-            # print(dst)
-            shutil.copyfile(src, dst)
+print(minx, maxx, miny, maxy)
+
+
+# file = "/common/ecap/prospector_data/results/stages/5-added_nearest_substation/bremen/gpkg/bremen-5-added_nearest_substation.gpkg"
+#
+# data = gpd.read_file(file)
+#
+# gdf = gpd.GeoDataFrame(data)
+#
+#
+# for i in range(len(gdf)):
+#     row = gdf.iloc[i]
+#     geometry = row["geometry"]
+#
+#     if type(geometry) == Polygon:
+#         coords = list(geometry.exterior.coords)
+#         coords = np.array([np.array(x).astype(np.float64) for x in coords]).astype(
+#             np.float64
+#         )
+# min = np.amin(coords, axis=0)
+# max = np.amax(coords, axis=0)
+#
+#         print(min, max)
