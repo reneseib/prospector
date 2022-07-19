@@ -17,4 +17,4 @@ if __name__ == "__main__":
     proj_path = os.path.abspath(os.path.dirname(__file__))
 
     prospector = Prospector(proj_path, preload=False)
-    prospector.staging(["brandenburg"], stage="stage_6", finput=["input"])
+    prospector.staging(["bremen"], stage="stage_4", finput=["input"])

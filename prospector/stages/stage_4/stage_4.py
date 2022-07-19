@@ -11,6 +11,7 @@ from shapely.geometry import Point, Polygon, MultiPolygon, mapping, shape
 from shapely import wkt
 from pyrosm import OSM, get_data
 import numpy as np
+import pandas as pd
 from math import radians, cos, sin, asin, sqrt
 
 from pygeos import Geometry, distance
@@ -24,7 +25,7 @@ for dir in config["init"]["prospector_package_path"]:
 
 from util import util
 
-# import prot_areas
+import prot_areas
 
 from display.display import Display
 
@@ -62,15 +63,109 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
         print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
 
         if len(gdf) > 0:
-            # Convert GDF always to epsg:25832
+            # Set to their original CRS, project always to epsg:25832
             gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
 
             all_overlap_cols = list(prot_areas.overlap_data.keys())
 
+            # Loop over all PA geometries against
+            # the non-overlapping geometries
             for i in range(len(all_overlap_cols)):
                 overlap_col = all_overlap_cols[i]
                 overlap_file_name = prot_areas.prot_area_names[i]
-                # Filter for non-overlapping rows
-                gdf_non_overlapping = gdf[gdf[overlap_col] == False]
 
-                pa_file = f"/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
+                # Filter GDF for non-overlapping rows at this PA
+                gdf_non_overlapping = gdf[gdf[overlap_col] == False]
+                print("gdf_non_overlapping:", gdf_non_overlapping.columns)
+                # Load PA data to gdf
+                pa_file = f"/common/ecap/prospector_data/src_data/protected_areas/gpkg/{overlap_file_name}.gpkg"
+
+                pa_data = gpd.read_file(pa_file)
+                pa_gdf = gpd.GeoDataFrame(pa_data).set_crs(25832, allow_override=True)
+
+                # print(pa_gdf.columns)
+                # sys.exit()
+
+                # sjoin and get distances
+                dist_gdf = gpd.sjoin_nearest(
+                    gdf_non_overlapping,
+                    pa_gdf,
+                    distance_col=f"{overlap_col.replace('_overlap','')}_distance",
+                )
+
+                print("dist_gdf", dist_gdf.columns)
+
+                pd_dist = pd.DataFrame(dist_gdf)
+
+                pd_gdf = pd.DataFrame(gdf)
+
+                mrgd_gdf = pd.merge(pd_gdf, pd_dist, how="outer", on="id")
+
+                gdf = gpd.GeoDataFrame(mrgd_gdf)
+
+                # Drop double columns
+                drop_cols = [
+                    "landuse_y",
+                    "timestamp_y",
+                    "version_y",
+                    "tags_y",
+                    "osm_type_y",
+                    "changeset_y",
+                    "area_m2_y",
+                    "area_ha_y",
+                    "centroid_y",
+                    "lsg_overlap_y",
+                    "nsg_overlap_y",
+                    "biosphaere_overlap_y",
+                    "fauna_flora_overlap_y",
+                    "nationalparks_overlap_y",
+                    "naturmonumente_overlap_y",
+                    "vogelschutz_overlap_y",
+                    "geometry_y",
+                    "index_right",
+                    "gml_id",
+                    "OBJECTID",
+                    "SHAPE_LENG",
+                    "LEG_DATE",
+                    "BL",
+                    "CDDA_CODE",
+                    "IUCN_KAT",
+                    "FLAECHE",
+                    "STATUS",
+                ]
+
+                gdf = gdf.drop(columns=drop_cols)
+
+                # Rename columns that got an '_x' at the end back to normal
+                rename_cols = [
+                    "landuse_x",
+                    "id",
+                    "timestamp_x",
+                    "version_x",
+                    "tags_x",
+                    "osm_type_x",
+                    "changeset_x",
+                    "area_m2_x",
+                    "area_ha_x",
+                    "centroid_x",
+                    "lsg_overlap_x",
+                    "nsg_overlap_x",
+                    "biosphaere_overlap_x",
+                    "fauna_flora_overlap_x",
+                    "nationalparks_overlap_x",
+                    "naturmonumente_overlap_x",
+                    "vogelschutz_overlap_x",
+                    "geometry_x",
+                    "lsg_distance",
+                    "NAME",
+                ]
+
+                for old_col in rename_cols:
+                    new_col = old_col.replace("_x", "")
+                    gdf[new_col] = gdf[old_col]
+
+                gdf = gdf.drop(columns=[rename_cols])
+
+                print("Final gdf:", gdf.columns)
+
+                sys.exit()
