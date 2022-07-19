@@ -145,25 +145,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     if "_left" in col or "_right" in col:
                         gdf = gdf.drop(columns=[col])
 
-                # Rename columns that got an '_x' or '_y' at the end
-
-                # print("HERE WE GO")
-                # all_cols = list(gdf.columns)
-                # for i in range(len(gdf.columns)):
-                #     old_col = all_cols.pop()
-                #     pattern = re.compile(r"(left_x|left_y|right_x|right_y|_x|_y)")
-                #
-                #     new_col = re.sub(pattern, "", old_col)
-                #
-                #     if new_col not in all_cols and old_col != "id":
-                #         gdf[new_col] = gdf[old_col]
-                #         gdf = gdf.drop(columns=[old_col])
-                #     elif "distance" in new_col and new_col not in all_cols:
-                #         gdf[new_col] = gdf[old_col]
-                #         # gdf = gdf.drop(columns=[old_col])
-                #     elif old_col != "id":
-                #         gdf = gdf.drop(columns=[old_col])
-
-                print("Final gdf:", gdf.columns)
-
+        dcols = [x for x in gdf.columns if "distance" in x]
+        dgdf = gdf[dcols]
+        print(dgdf)
         print("for all PA:", timeit.default_timer() - t)
