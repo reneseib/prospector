@@ -46,13 +46,12 @@ prot_area_file_paths = [
 
 prot_area_names = [
     "lsg_gesamt_de",
-    "fauna_flora_habitat_gesamt_de",
     "nsg_gesamt_de",
-    "vogelschutz_gesamt_de",
-    "naturparks_gesamt_de",
     "biosphaeren_gesamt_de",
+    "fauna_flora_habitat_gesamt_de",
     "nationalparks_gesamt_de",
     "naturmonumente_gesamt_de",
+    "vogelschutz_gesamt_de",
 ]
 
 # Load prot area files to GDF and store the GDFs in a dict

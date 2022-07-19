@@ -166,3 +166,6 @@ cython_debug/
 *.gpkg
 *.shp
 *.feather
+
+.ftpconfig
+.remote-sync.json

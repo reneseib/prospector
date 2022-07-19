@@ -56,22 +56,32 @@ def f_stage_6(regio, stage="6-added_slope"):
     # Load centroid wkt string to shapely objects
     centroids_series = gdf["centroid"].apply(lambda x: wkt.loads(x))
 
+    geom_series = gdf["geometry"]
     # print(centroids_series)
 
     centroid_frame = {"geometry": centroids_series}
+    geom_frame = {"geometry": geom_series}
 
     # Make new GDF from the centroids_series to transform the coordinates
-    geom_gdf = gpd.GeoDataFrame(centroid_frame, geometry="geometry")
+    centroid_gdf = gpd.GeoDataFrame(centroid_frame, geometry="geometry")
+    geom_gdf = gpd.GeoDataFrame(geom_frame, geometry="geometry")
 
     # Centroid are in EPSG:25832 -> convert to EPSG:4326
+    centroid_gdf = centroid_gdf.set_crs(25832).to_crs(4326)
     geom_gdf = geom_gdf.set_crs(25832).to_crs(4326)
 
-    geom_gdf["geometry"] = geom_gdf["geometry"].apply(
+    centroid_gdf["geometry"] = centroid_gdf["geometry"].apply(
         lambda x: np.array(x.coords.xy).astype(np.float64)
     )
 
+    geom_gdf["geometry"] = geom_gdf["geometry"].apply(
+        lambda geom: np.array(x.coords.xy).astype(np.float64)
+    )
+
     # Get centroid, !!reverse!! coordinates and split them to lat and lon
-    geom_gdf["geometry"] = geom_gdf["geometry"].apply(lambda x: np.array([x[1], x[0]]))
+    centroid_gdf["geometry"] = centroid_gdf["geometry"].apply(
+        lambda x: np.array([x[1], x[0]])
+    )
 
     token_gen_script = open(
         "/common/ecap/prospector/stages/stage_6/token_generator_topo.js", "r"
@@ -81,7 +91,7 @@ def f_stage_6(regio, stage="6-added_slope"):
 
     save_collection = []
 
-    if len(geom_gdf) == len(gdf):
+    if len(centroid_gdf) == len(gdf):
         counter = 0
 
         proxy_server = ProxyRequest()
@@ -90,9 +100,9 @@ def f_stage_6(regio, stage="6-added_slope"):
         if len(gdf) < 100:
             save_threshold = 50
 
-        for i in range(len(geom_gdf)):
-            print(round((i / len(geom_gdf)) * 100, 2), "%")
-            geom = geom_gdf.iloc[i, 0]
+        for i in range(len(centroid_gdf)):
+            print(round((i / len(centroid_gdf)) * 100, 2), "%")
+            geom = centroid_gdf.iloc[i, 0]
             lat = geom[0][0]
             lon = geom[1][0]
 

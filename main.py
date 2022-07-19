@@ -10,8 +10,9 @@ from prospector.prospector import Prospector
 from prospector.display.display import Display
 
 if __name__ == "__main__":
-
+    print("\n")
     Display.start_screen()
+    print("\n\n")
 
     proj_path = os.path.abspath(os.path.dirname(__file__))
 

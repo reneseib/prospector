@@ -62,12 +62,15 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
         print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
 
         if len(gdf) > 0:
-            # Convert GDF to EPSG:4326
-            if gdf.crs is None:
-                gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(
-                    4326
-                )
-            else:
-                gdf = gdf.to_crs(4326)
+            # Convert GDF always to epsg:25832
+            gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
 
             all_overlap_cols = list(prot_areas.overlap_data.keys())
+
+            for i in range(len(all_overlap_cols)):
+                overlap_col = all_overlap_cols[i]
+                overlap_file_name = prot_areas.prot_area_names[i]
+                # Filter for non-overlapping rows
+                gdf_non_overlapping = gdf[gdf[overlap_col] == False]
+
+                pa_file = f"/common/ecap/prospector_data/src_data/protected_areas/gpkg/lsg_gesamt_de.gpkg"
