@@ -13,6 +13,8 @@ from pyrosm import OSM, get_data
 import numpy as np
 import pandas as pd
 from math import radians, cos, sin, asin, sqrt
+import timeit
+import re
 
 from pygeos import Geometry, distance
 
@@ -56,6 +58,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
     )
     # Before starting the whole process, check if the output file already exists
     if not os.path.isfile(output_file_gpkg):
+        t = timeit.default_timer()
         print(f"Working on {regio} now:")
 
         # Load file from previous stage to a GDF
@@ -76,53 +79,14 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
 
                 # Filter GDF for non-overlapping rows at this PA
                 gdf_non_overlapping = gdf[gdf[overlap_col] == False]
-                print("gdf_non_overlapping:", gdf_non_overlapping.columns)
+
                 # Load PA data to gdf
                 pa_file = f"/common/ecap/prospector_data/src_data/protected_areas/gpkg/{overlap_file_name}.gpkg"
 
                 pa_data = gpd.read_file(pa_file)
                 pa_gdf = gpd.GeoDataFrame(pa_data).set_crs(25832, allow_override=True)
 
-                # print(pa_gdf.columns)
-                # sys.exit()
-
-                # sjoin and get distances
-                dist_gdf = gpd.sjoin_nearest(
-                    gdf_non_overlapping,
-                    pa_gdf,
-                    distance_col=f"{overlap_col.replace('_overlap','')}_distance",
-                )
-
-                print("dist_gdf", dist_gdf.columns)
-
-                pd_dist = pd.DataFrame(dist_gdf)
-
-                pd_gdf = pd.DataFrame(gdf)
-
-                mrgd_gdf = pd.merge(pd_gdf, pd_dist, how="outer", on="id")
-
-                gdf = gpd.GeoDataFrame(mrgd_gdf)
-
-                # Drop double columns
-                drop_cols = [
-                    "landuse_y",
-                    "timestamp_y",
-                    "version_y",
-                    "tags_y",
-                    "osm_type_y",
-                    "changeset_y",
-                    "area_m2_y",
-                    "area_ha_y",
-                    "centroid_y",
-                    "lsg_overlap_y",
-                    "nsg_overlap_y",
-                    "biosphaere_overlap_y",
-                    "fauna_flora_overlap_y",
-                    "nationalparks_overlap_y",
-                    "naturmonumente_overlap_y",
-                    "vogelschutz_overlap_y",
-                    "geometry_y",
-                    "index_right",
+                pa_drop_columns = [
                     "gml_id",
                     "OBJECTID",
                     "SHAPE_LENG",
@@ -132,40 +96,74 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     "IUCN_KAT",
                     "FLAECHE",
                     "STATUS",
+                    "MARIN_AREA",
+                    "BIOGEO",
+                    "WRRL",
+                    "LINK",
+                    "SITECODE",
+                    "JAHR",
                 ]
 
-                gdf = gdf.drop(columns=drop_cols)
+                for drop_col in pa_drop_columns:
+                    if drop_col in pa_gdf.columns:
+                        pa_gdf = pa_gdf.drop(columns=[drop_col])
 
-                # Rename columns that got an '_x' at the end back to normal
-                rename_cols = [
-                    "landuse_x",
-                    "id",
-                    "timestamp_x",
-                    "version_x",
-                    "tags_x",
-                    "osm_type_x",
-                    "changeset_x",
-                    "area_m2_x",
-                    "area_ha_x",
-                    "centroid_x",
-                    "lsg_overlap_x",
-                    "nsg_overlap_x",
-                    "biosphaere_overlap_x",
-                    "fauna_flora_overlap_x",
-                    "nationalparks_overlap_x",
-                    "naturmonumente_overlap_x",
-                    "vogelschutz_overlap_x",
-                    "geometry_x",
-                    "lsg_distance",
-                    "NAME",
-                ]
+                # sjoin and get distances
+                dist_gdf = gpd.sjoin_nearest(
+                    gdf_non_overlapping,
+                    pa_gdf,
+                    distance_col=f"{overlap_col.replace('_overlap','')}_distance",
+                )
 
-                for old_col in rename_cols:
-                    new_col = old_col.replace("_x", "")
-                    gdf[new_col] = gdf[old_col]
+                pd_dist = pd.DataFrame(dist_gdf)
 
-                gdf = gdf.drop(columns=[rename_cols])
+                pd_gdf = pd.DataFrame(gdf)
+                try:
+                    dist_target_cols = list(pd_dist.columns.difference(pd_gdf.columns))
+
+                    dist_target_cols.append("id")
+
+                    for col in dist_target_cols:
+                        if "_left" in col or "_right" in col:
+                            dist_target_cols.remove(col)
+
+                    mrgd_gdf = pd.merge(
+                        pd_gdf,
+                        pd_dist[dist_target_cols],
+                        how="outer",
+                        on="id",
+                    )
+
+                except:
+                    print("pd_gdf:", pd_gdf.columns)
+                    print("pd_dist:", pd_dist.columns)
+                    raise
+
+                gdf = gpd.GeoDataFrame(mrgd_gdf)
+
+                for col in gdf.columns:
+                    if "_left" in col or "_right" in col:
+                        gdf = gdf.drop(columns=[col])
+
+                # Rename columns that got an '_x' or '_y' at the end
+
+                # print("HERE WE GO")
+                # all_cols = list(gdf.columns)
+                # for i in range(len(gdf.columns)):
+                #     old_col = all_cols.pop()
+                #     pattern = re.compile(r"(left_x|left_y|right_x|right_y|_x|_y)")
+                #
+                #     new_col = re.sub(pattern, "", old_col)
+                #
+                #     if new_col not in all_cols and old_col != "id":
+                #         gdf[new_col] = gdf[old_col]
+                #         gdf = gdf.drop(columns=[old_col])
+                #     elif "distance" in new_col and new_col not in all_cols:
+                #         gdf[new_col] = gdf[old_col]
+                #         # gdf = gdf.drop(columns=[old_col])
+                #     elif old_col != "id":
+                #         gdf = gdf.drop(columns=[old_col])
 
                 print("Final gdf:", gdf.columns)
 
-                sys.exit()
+        print("for all PA:", timeit.default_timer() - t)
