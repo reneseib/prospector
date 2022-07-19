@@ -145,7 +145,8 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     if "_left" in col or "_right" in col:
                         gdf = gdf.drop(columns=[col])
 
-        dcols = [x for x in gdf.columns if "distance" in x]
-        dgdf = gdf[dcols]
-        print(dgdf)
+        """
+        Todo: Add saving function here
+        """
+
         print("for all PA:", timeit.default_timer() - t)
