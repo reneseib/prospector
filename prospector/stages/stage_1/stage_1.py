@@ -48,11 +48,11 @@ def f_stage_1(regio, stage="1-filtered_by_size"):
         # 1. Get planar areas in m2
         gdf["area_m2"] = gdf["geometry"].area
 
-        # 2. Divide m2 values by 10.000 in order to get the hectares
+        # 2. Divide m2 values by 10_000 to get the hectares
         gdf["area_ha"] = gdf["area_m2"].apply(lambda x: (x / (10 * 1000)))
 
         # 3. Filter by size - here: greater than 10 hectares
-        gdf = trans_gdf[trans_gdf["area_ha"] > 10]
+        gdf = gdf[gdf["area_ha"] > 10]
 
         # 4. Save processing results to disk
         stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
