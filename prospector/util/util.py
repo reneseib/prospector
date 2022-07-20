@@ -17,6 +17,8 @@ from shapely.geometry import MultiPolygon as shapeMultiPolygon
 from pyproj import Transformer
 from geopandas.geoseries import GeoSeries
 from pandas.core.series import Series
+from ast import literal_eval
+import re
 import json
 
 # Custom imports
@@ -69,6 +71,9 @@ def load_prev_stage_to_gdf(regio, current_stage):
     if os.path.isfile(last_stage_data):
         gdf = gpd.read_file(last_stage_data)
         gdf = gpd.GeoDataFrame(gdf)
+        for col in gdf.columns:
+            if col.startswith("np_"):
+                gdf[col] = gdf[col].apply(lambda x: arrify(x))
 
         return gdf
 
@@ -169,12 +174,20 @@ def isMultiPolygon(geom: Geometry):
     return False
 
 
-def geom2arr(geom: TrueGeometry):
+def geom2arr(geom: TrueGeometry, reverse_coords=False):
     if isinstance(geom, shapePoint):
-        arr = np.array([x[0] for x in geom.coords.xy]).astype(np.float64)
+        if reverse_coords == True:
+            arr = np.array([x[0] for x in np.flip(geom.coords.xy)]).astype(np.float64)
+        else:
+            arr = np.array([x[0] for x in geom.coords.xy]).astype(np.float64)
 
     if isinstance(geom, shapePolygon):
-        arr = np.array([x for x in geom.exterior.coords]).astype(np.float64)
+        if reverse_coords == True:
+            arr = np.array([np.flip(x) for x in geom.exterior.coords]).astype(
+                np.float64
+            )
+        else:
+            arr = np.array([x for x in geom.exterior.coords]).astype(np.float64)
 
     if isinstance(geom, shapeMultiPolygon):
         arr = list([np.array(g.exterior.coords).astype(np.float64) for g in geom.geoms])
@@ -386,3 +399,15 @@ def get_extrema(geom: Geometry) -> np.array:
             extrema[3] = np.array(point).astype(np.float64)
 
     return extrema
+
+
+def stringify(arr: np.ndarray) -> str:
+    arr = str(arr)
+    arr = re.sub(r"\s\s+", " ", arr)
+    arr = arr.replace(" ", ",")
+    return arr
+
+
+def arrify(arrstr: str) -> np.ndarray:
+    arr = np.array(literal_eval(arrstr))
+    return arr2string
