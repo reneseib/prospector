@@ -34,7 +34,8 @@ results_dir = os.path.join(main_dir, "results")
 def f_stage_1(regio, stage="1-filtered_by_size"):
     gdf = util.load_prev_stage_to_gdf(regio, stage)
 
-    # Source CRS depends on the state, Western Germany's state are 25832, Eastern 25833
+    # Source CRS depends on the state:
+    # Western Germany's states are 25832, Eastern ones 25833
     src_crs = config["epsg"][regio]
 
     if gdf.crs == None:
@@ -45,6 +46,7 @@ def f_stage_1(regio, stage="1-filtered_by_size"):
         print("Starting stage processing...")
         # 1. Copy GDF and transform to planar projection
         trans_gdf = gdf.copy()
+        # TODO: No need to copy & transform: keep standard EPSG 25832/325833 for any area/distance computation; it should be loaded this way anyway!
         trans_gdf = trans_gdf.to_crs(3035)
 
         # 2. Get planar areas in m2
