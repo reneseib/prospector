@@ -91,6 +91,11 @@ def save_current_stage_to_file(gdf, regio, current_stage):
         f"{regio}-{current_stage}.gpkg",
     )
 
+    # Before saving, we need to convert all np.arrays to strings
+    for col in gdf.columns:
+        if col.startswith("np_"):
+            gdf[col] = gdf[col].apply(lambda x: util.stringify(x))
+
     try:
         gdf.to_file(output_file_gpkg, driver="GPKG")
         return True
@@ -403,11 +408,17 @@ def get_extrema(geom: Geometry) -> np.array:
 
 def stringify(arr: np.ndarray) -> str:
     arr = str(arr)
-    arr = re.sub(r"\s\s+", " ", arr)
-    arr = arr.replace(" ", ",")
+    # Count spaces, set comma plus spaces -1
+    arr = re.sub(r"(\d)(\s|\s\s+)(\d)", r"\1, \3", arr)
+    arr = re.sub(r"\n", ", ", arr)
     return arr
 
 
 def arrify(arrstr: str) -> np.ndarray:
+    print("-------------------")
+    print(arrstr)
+
     arr = np.array(literal_eval(arrstr))
-    return arr2string
+    print(arr)
+    print("-------------------")
+    return arr
