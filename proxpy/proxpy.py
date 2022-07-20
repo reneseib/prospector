@@ -1,6 +1,7 @@
 import requests
 import random
 import json
+import time
 
 
 class ProxyRequest(object):
@@ -16,16 +17,20 @@ class ProxyRequest(object):
 
         ip_list = []
 
+        # Strip the intro from txt
         ip_tmp_list = ip_tmp_list[6:]
         for row in ip_tmp_list:
+            # Only add High Anonymity servers
             if "-H" in row:
                 row = row.split(" ")[0]
                 ip_list.append(row)
-        print(len(ip_list))
+
         return ip_list
 
     def __init__(self):
         self.ip_list = ProxyRequest.generate_ip_list()
+        self.setup_time = time.time()
+        # TODO: Add function to refresh list after 60min
 
     def get(self, url, headers=None):
         randint = random.randint(0, len(self.ip_list) - 1)
