@@ -145,9 +145,6 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     if "_left" in col or "_right" in col:
                         gdf = gdf.drop(columns=[col])
 
-        """
-        Todo: Need to add saving function here
-        """
         # Save processing results to disk
         stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
         if stage_successfully_saved:
