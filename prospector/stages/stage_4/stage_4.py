@@ -80,6 +80,13 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 # Filter GDF for non-overlapping rows at this PA
                 gdf_non_overlapping = gdf[gdf[overlap_col] == False]
 
+                for col in gdf_non_overlapping.columns:
+                    if "_left" in col or "_right" in col or "_x" in col or "_y" in col:
+                        gdf_non_overlapping = gdf_non_overlapping.drop(columns=[col])
+
+                print("Columns at start of iteration:")
+                print(gdf_non_overlapping.columns)
+
                 # Load PA data to gdf
                 pa_file = f"/common/ecap/prospector_data/src_data/protected_areas/gpkg/{overlap_file_name}.gpkg"
 
@@ -171,8 +178,20 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
 
                 gdf = gpd.GeoDataFrame(mrgd_gdf)
 
+                print(f"{regio} {overlap_col}: Columns after merge")
+                showcols = []
                 for col in gdf.columns:
-                    if "_left" in col or "_right" in col:
+                    if "distance" in col:
+                        showcols.append(col)
+                        pos = col.rfind("_") + 1
+                        add_col = col[:pos] + "overlap"
+                        showcols.append(add_col)
+                print(gdf[showcols].head(20))
+                print("\n\n")
+                # print(gdf["lsg_overlap", "lsg_distance"].head(10))
+
+                for col in gdf.columns:
+                    if "_left" in col or "_right" in col or "_x" in col or "_y" in col:
                         gdf = gdf.drop(columns=[col])
 
         # Save processing results to disk
