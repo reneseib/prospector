@@ -134,6 +134,36 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                         on="id",
                     )
 
+                # TODO: Find solutions for this
+                # Traceback (most recent call last):
+                #     File 'main.py', line 20, in <module>
+                #     prospector.staging([], stage='stage_2', finput=['input'])
+                #     File '/common/ecap/prospector/prospector.py', line 145, in staging
+                #     #         stage_finished = f(regio, stage=stage_name)
+                #     File '/common/ecap/prospector/stages/stage_4/stage_4.py', line 130, in f_stage_4
+                #     mrgd_gdf = pd.merge(
+                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py', line 122, in merge
+                #     return op.get_result()
+                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py', line 725, in get_result
+                #     result_data = concatenate_managers(
+                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/concat.py', line 202, in concatenate_managers
+                #     return _concat_managers_axis0(mgrs_indexers, axes, copy)
+                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/concat.py', line 264, in _concat_managers_axis0
+                #     mgrs_indexers = _maybe_reindex_columns_na_proxy(axes, mgrs_indexers)
+                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/concat.py', line 306, in _maybe_reindex_columns_na_proxy
+                #     mgr = mgr.reindex_indexer(
+                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/managers.py', line 692, in reindex_indexer
+                #     new_blocks = [
+                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/managers.py', line 693, in <listcomp>
+                #     blk.take_nd(
+                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/blocks.py', line 1137, in take_nd
+                #     new_values = algos.take_nd(
+                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/array_algos/take.py', line 117, in take_nd
+                #     return _take_nd_ndarray(arr, indexer, axis, fill_value, allow_fill)
+                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/array_algos/take.py', line 158, in _take_nd_ndarray
+                #     out = np.empty(out_shape, dtype=dtype)
+                #     numpy.core._exceptions.MemoryError: Unable to allocate 256. GiB for an array with shape (8, 4294979403) and data type object
+
                 except:
                     print("pd_gdf:", pd_gdf.columns)
                     print("pd_dist:", pd_dist.columns)
