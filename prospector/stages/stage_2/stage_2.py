@@ -113,11 +113,6 @@ def f_stage_2(regio, stage="2-added_centroids"):
 
         gdf = gpd.GeoDataFrame(mrgd_df)
 
-        # Before saving, we need to convert all np.arrays to strings
-        for col in gdf.columns:
-            if col.startswith("np_"):
-                gdf[col] = gdf[col].apply(lambda x: util.stringify(x))
-
         # Save processing results to disk
         stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
 
