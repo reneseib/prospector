@@ -82,7 +82,7 @@ def f_stage_0(regio, stage="0-filtered_by_landuse"):
             relations=True,
         )
 
-        # Since data is loaded from OSM, it is always CRS=4326!
+        # Since data is loaded from OSM, the CRS is always 4326!
         src_crs = 4326
 
         # Target CRS depends on the state:
