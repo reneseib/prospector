@@ -67,6 +67,7 @@ def f_stage_6(regio, stage="6-added_slope"):
     geom_gdf = gpd.GeoDataFrame(geom_frame, geometry="geometry")
 
     # Centroid are in EPSG:25832 -> convert to EPSG:4326
+    # TODO: 25832 not always true - implement config-based EPSG!
     centroid_gdf = centroid_gdf.set_crs(25832).to_crs(4326)
     geom_gdf = geom_gdf.set_crs(25832).to_crs(4326)
 
@@ -82,7 +83,7 @@ def f_stage_6(regio, stage="6-added_slope"):
     centroid_gdf["geometry"] = centroid_gdf["geometry"].apply(
         lambda x: np.array([x[1], x[0]])
     )
-    # TODO: Split & reverse also for GEOM GDG!
+    # TODO: Split & reverse also for GEOM GDF!
 
     # TODO: Merge centroid and geometry points into one array of points
 
