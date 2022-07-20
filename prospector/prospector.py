@@ -41,7 +41,7 @@ import geopandas as gpd
 from shapely.geometry import Point, Polygon, MultiPolygon, mapping
 from pyrosm import OSM, get_data
 
-import multiprocessing
+from multiprocessing import Pool
 
 # Custom imports
 from .validate import validate
@@ -131,20 +131,38 @@ class Prospector:
             stage_done = check_stage_done(self.proj_path, stage_name, all_subregions)
 
             verify_stage_processing = []
+            #
+            # if stage_done:
+            #     Display.stage_done(stage_formal)
+            #
+            #     return None
+            #
+            # else:
+            #
+            #     for regio in all_subregions:
+            #         f = stages.stage_funcs[stage]
+            #
+            #         stage_finished = f(regio, stage=stage_name)
+            #
+            #         verify_stage_processing.append(stage_finished)
 
-            if stage_done:
-                Display.stage_done(stage_formal)
+            # TODO: REVERSE TO NORMAL!!!! JUST FOR TESTING PURPOSES
+            with Pool(processes=os.cpu_count() - 1) as pool:
+                f = stages.stage_funcs[stage]
 
-                return None
+                multiple_results = [
+                    pool.apply_async(f, (regio, stage_name)) for regio in all_subregions
+                ]
+                verify_stage_processing = [
+                    res.get(timeout=3600) for res in multiple_results
+                ]
 
-            else:
-
-                for regio in all_subregions:
-                    f = stages.stage_funcs[stage]
-
-                    stage_finished = f(regio, stage=stage_name)
-
-                    verify_stage_processing.append(stage_finished)
+            # for regio in all_subregions:
+            # f = stages.stage_funcs[stage]
+            #
+            #     stage_finished = f(regio, stage=stage_name)
+            #
+            #     verify_stage_processing.append(stage_finished)
 
             if len(verify_stage_processing) > 0 and all(
                 x == True for x in verify_stage_processing
