@@ -65,6 +65,9 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
         gdf = util.load_prev_stage_to_gdf(regio, stage)
         print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
 
+        # Super important to convert all GDF to 25832, since we compare against national data which is all in 25832!!!
+        gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
+
         if len(gdf) > 0:
             # Set to their original CRS, project always to epsg:25832
             gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
