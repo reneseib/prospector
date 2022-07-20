@@ -44,7 +44,13 @@ def to_tuple(str):
 def f_stage_5(regio, stage="5-added_nearest_substation"):
     """
     Stage 5:
-    Adds the distance from the 'area' to the nearest substation.
+    Adds the distance from the 'area' to the nearest the following points or areas:
+        - substation
+        TODO: Create a stage 5.5 where the following points are done:
+        - residential area
+        - industrial area
+        - wind park
+        - solar park
     """
     print("")
     print(f">> {regio}: nearest substation")
