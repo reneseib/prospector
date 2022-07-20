@@ -148,5 +148,12 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
         """
         Todo: Need to add saving function here
         """
+        # Save processing results to disk
+        stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
+        if stage_successfully_saved:
+            print("Stage successfully saved to file")
+            return True
+        else:
+            return False
 
         print("for all PA:", timeit.default_timer() - t)
