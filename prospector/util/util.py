@@ -5,7 +5,19 @@ from pconfig import config
 import sys
 import os
 import geopandas as gpd
-from math import radians, cos, sin, asin, sqrt
+from typing import Union, NewType
+import numpy as np
+import numba as nb
+from numba import njit, typeof, prange
+from numba import errors
+from numba.typed import List as typedList
+from shapely.geometry import Point as shapePoint
+from shapely.geometry import Polygon as shapePolygon
+from shapely.geometry import MultiPolygon as shapeMultiPolygon
+from pyproj import Transformer
+from geopandas.geoseries import GeoSeries
+from pandas.core.series import Series
+import json
 
 # Custom imports
 from pconfig import config
@@ -93,35 +105,6 @@ def load_file_to_gdf(file_path, src_crs=4326, target_crs=25832):
     return gdf
 
 
-def haversine(p1, p2):
-    """
-    Calculate the great circle distance in kilometers between two points
-    on the earth (specified in decimal degrees)
-
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      IMPORTANT: ONLY WORKS WITH WSG84 / EPSG:4326 coordinates
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    """
-    # print("P1", p1)
-    # print("P2", p2)
-    # sys.exit()
-
-    lon1, lat1 = p1[::-1]
-    lon2, lat2 = p2[::-1]
-
-    # convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-
-    # haversine formula
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * asin(sqrt(a))
-    r = 6371  # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
-    return c * r
-
-
 def flatten_polygon(x):
     if isinstance(x, list):
         return [a for i in x for a in flatten_polygon(i)]
@@ -130,3 +113,276 @@ def flatten_polygon(x):
             return [x]
         else:
             return [a for i in x for a in flatten_polygon(i)]
+
+
+###############################################################################
+#                          Custom Type Definitions                            #
+###############################################################################
+Point = NewType("Point", np.array([1.0, 2.0]).astype(np.float64))
+
+AoA = NewType(
+    "AoA", np.array([[1.0, 2.0], [1.0, 2.0]]).astype(np.float64)
+)  # Array of arrays
+
+Polygon = NewType("Polygon", AoA)
+
+LoA = NewType(
+    "LoA", list([np.array([1.0, 2.0, 3.0]).astype(np.float64)])
+)  # LoA = List of Arrays
+
+MultiPolygon = NewType("MultiPolygon", LoA)
+
+Geometry = Union[Point, Polygon, MultiPolygon]
+
+TrueGeometry = Union[shapePoint, shapePolygon, shapeMultiPolygon]
+
+
+###############################################################################
+#                                Functions                                    #
+###############################################################################
+
+
+def isPoint(geom: Geometry):
+    if (
+        isinstance(geom, np.ndarray)
+        and len(geom) >= 2
+        and isinstance(geom[0], np.float64)
+    ):
+        return True
+
+    return False
+
+
+def isPolygon(geom: Geometry):
+    if (
+        isinstance(geom, np.ndarray)
+        and len(geom) >= 2
+        and isinstance(geom[0], np.ndarray)
+    ):
+        return True
+    return False
+
+
+def isMultiPolygon(geom: Geometry):
+    if isinstance(geom, list) and isinstance(geom[0], np.ndarray):
+        return True
+    return False
+
+
+def geom2arr(geom: TrueGeometry):
+    if isinstance(geom, shapePoint):
+        arr = np.array([x[0] for x in geom.coords.xy]).astype(np.float64)
+
+    if isinstance(geom, shapePolygon):
+        arr = np.array([x for x in geom.exterior.coords]).astype(np.float64)
+
+    if isinstance(geom, shapeMultiPolygon):
+        arr = list([np.array(g.exterior.coords).astype(np.float64) for g in geom.geoms])
+
+    return arr
+
+
+def crs_transform(geom: Geometry, src: int, target: int) -> Geometry:
+    """
+    Allows to transform coordinates stored in arrays
+    """
+    crs_transformer = Transformer.from_crs(f"epsg:{src}", f"epsg:{target}")
+
+    # Transformn Point
+    if isPoint(geom):
+        x_old, y_old = geom
+        x_new, y_new = crs_transformer.transform(x_old, y_old)
+        geom[0] = x_new
+        geom[1] = y_new
+
+    # Transform Polygon
+    elif isPolygon(geom):
+        for i in range(len(geom)):
+            x_old, y_old = geom[i]
+            transformed_coords = crs_transformer.transform(x_old, y_old)
+            geom[i] = np.array(transformed_coords).astype(np.float64)
+
+    # Transform MultiPolygon
+    elif isMultiPolygon(geom):
+        # Iterate over all polygons
+        for i in range(len(geom)):
+            polygon = geom[i]
+            # Iterate over all points
+            for k in range(len(polygon)):
+                x_old, y_old = polygon[k]
+                # Transform point coords
+                transformed_coords = crs_transformer.transform(x_old, y_old)
+                # Overwrite old with new coords
+                polygon[k][0] = transformed_coords[0]
+                polygon[k][1] = transformed_coords[1]
+            # Overwrite old with new polygon with transformed coords
+            geom[i] = polygon
+
+    return geom
+
+
+def series2list(series: Series):
+    """
+    Creates a list with the content of a series
+    """
+    # Type-check input
+    # if type(series) != Series:
+    if not isinstance(series, Series):
+        errors.TypingError("series2list: Argument must be of type pandas.Series")
+
+    # Type-check all elements of series if they are arrays
+    # check_all_arr_series = series.apply(lambda x: isinstance(x, np.array))
+    if False in [isinstance(x, np.ndarray) for x in series]:
+        errors.TypingError("series2list: All elements of series must be arrays")
+
+    # Create list to store all np.arrays of series
+    series_list = []
+
+    # If all elements are np.arrays, append all elemts to list
+    series.apply(lambda x: series_list.append(x))
+    return series_list
+
+
+def pointcloud(geom: Polygon) -> np.array:
+    """
+    Returns a list of points from a series of geometries as np.array
+    """
+    # Type check input
+    if isinstance(geom, np.ndarray):
+        """
+        This case applies when we use pointcloud on a series
+        and get a regular polygon as input
+        """
+        return geom
+
+    # Type check input
+    elif isinstance(geom, list):
+        """
+        This case applies when we get a multipolygon as input or if we apply
+        pointcloud on a list (e.g. a series converted to a list) with regular
+        or multipolygons
+        """
+        # Cloud-list in which points are stored
+        cloud = []
+
+        # Type check if the elements of 'geom' are lists as well
+        # which is an indication that it is a multipolygon so
+        # we know that we need to loop at one level deeper
+        if any([isinstance(geo, list) for geo in geom]):
+            # Iterate over the elements of the list
+            for geo in geom:
+                if isinstance(geo, list):
+                    # Iterate over points of geometry & store them in list
+                    [
+                        [cloud.append(np.array(p).astype(np.float64)) for p in g]
+                        for g in geo
+                    ]
+                else:
+                    [cloud.append(np.array(g).astype(np.float64)) for g in geo]
+
+        else:
+            # No lists in 'geom', so it's a regular polygon
+
+            # Cloud-list in which points are stored
+            cloud = []
+
+            # Iterate over all points and store them in the list
+            [[cloud.append(np.array(p).astype(np.float64)) for p in g] for g in geom]
+
+        # Convert cloud to np.array
+        cloud = np.array(cloud).astype(np.float64)
+        return cloud
+
+    else:
+        errors.TypingError("point_cloud_polygon: input was not a list.")
+
+
+def column_split(geom: AoA, index: int):
+    """
+    Creates a column/len(1)-slice of an array
+    """
+    index1 = index + 1
+    column = np.empty((len(geom))).astype(np.float64)
+
+    # Iterate over each row/array
+    for i in range(len(geom)):
+
+        # Slice out the desired index
+        row = geom[i]
+
+        # Store the slice in empty array
+        column[i] = row[index:index1][0]
+
+    return column
+
+
+def get_centroid(point_cloud: AoA) -> np.array:
+    """
+    Returns the centroid as list, the mean of all the points
+    """
+    # Get all x and y coordinates as single arrays
+    xcol = column_split(point_cloud, 0)
+    ycol = column_split(point_cloud, 1)
+
+    # Calculate mean of x and y coordinates
+    x = np.sum(xcol) / len(xcol)
+    y = np.sum(ycol) / len(ycol)
+
+    return np.array([x, y]).astype(np.float64)
+
+
+def get_bbox(point_cloud: Geometry) -> np.array:
+    """
+    Returns the bounding box of a geometry or point_cloud
+    """
+    # Get all x and y coordinates as single arrays
+    xcol = column_split(point_cloud, 0)
+    ycol = column_split(point_cloud, 1)
+
+    # Calculate min and max of all x and y coordinates
+    minx = min(xcol)
+    miny = min(ycol)
+    maxx = max(xcol)
+    maxy = max(ycol)
+
+    return np.array([minx, miny, maxx, maxy]).astype(np.float64)
+
+
+@njit
+def overlaps(geom: Geometry, bbox: Geometry) -> bool:
+    """
+    Returns True if the geometry overlaps with the bbox
+    """
+    minx, miny, maxx, maxy = bbox
+    # Iterate over all points in the geometry array
+    for point in geom:
+        x, y = point
+
+        # Check if the coordinates of the point lie within the bbox
+        if x >= minx and x <= maxx and y >= miny and y <= maxy:
+            return True
+
+    return False
+
+
+def get_extrema(geom: Geometry) -> np.array:
+    """
+    Returns the extreme points of a geometry: the point with the minx
+    coordinate, the point with maxx coordinate, the point with miny coordinate
+    and the point with maxy coordinate
+    """
+    minx, miny, maxx, maxy = get_bbox(geom)
+
+    extrema = np.empty((4, 2)).astype(np.float64)
+
+    for point in geom:
+        if point[1] == miny:
+            extrema[0] = np.array(point).astype(np.float64)
+        if point[0] == minx:
+            extrema[1] = np.array(point).astype(np.float64)
+        if point[1] == maxy:
+            extrema[2] = np.array(point).astype(np.float64)
+        if point[0] == maxx:
+            extrema[3] = np.array(point).astype(np.float64)
+
+    return extrema
