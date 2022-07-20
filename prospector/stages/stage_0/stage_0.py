@@ -85,55 +85,12 @@ def f_stage_0(regio, stage="0-filtered_by_landuse"):
         # Since data is loaded from OSM, it is always CRS=4326!
         src_crs = 4326
 
-        # Target CRS depends on the state, Western Germany's state are 25832, Eastern 25833
+        # Target CRS depends on the state:
+        # Western Germany's states are 25832, Eastern 25833
         target_crs = config["epsg"][regio]
 
         # Apply the CRS to the GDF
         gdf = gpd.GeoDataFrame(wrk_gdf).set_crs(src_crs).to_crs(target_crs)
-
-        #
-        # TESTING: Replace multipolygons with single polygons of their concave hull
-        apply_concave_hull = False
-        # if apply_concave_hull == True:
-        #     new_geometry = []
-        #     for i in range(len(gdf)):
-        #         row = gdf.iloc[i]
-        #
-        #         if type(row["geometry"]) == MultiPolygon:
-        #             try:
-        #                 poly_coordinates = [
-        #                     list(polygon.exterior.coords) for polygon in row["geometry"]
-        #                 ]
-        #
-        #                 coordslist = [y for x in poly_coordinates for y in x]
-        #
-        #                 for poly in poly_coordinates:
-        #                     for val in poly:
-        #                         coordslist.append(val)
-        #
-        #                 poly_coordinates = [list(x) for x in coordslist]
-        #                 poly_coordinates = np.array(poly_coordinates)
-        #
-        #                 hull = CH.concaveHull(
-        #                     poly_coordinates, round(len(poly_coordinates) / 5, 0)
-        #                 )
-        #                 hull = [Point(x[0], x[1]) for x in hull]
-        #
-        #                 new_geometry.append(Polygon(hull))
-        #             except:
-        #                 new_geometry.append(row["geometry"])
-        #                 pass
-        #
-        #         else:
-        #             new_geometry.append(row["geometry"])
-        #
-        #     tmp_gdf = gpd.GeoDataFrame(new_geometry, columns=["geometry"])
-        #
-        #     if len(new_geometry) > 0:
-        #         gdf["geometry"] = tmp_gdf["geometry"]
-        # # TESTING END
-        # #
-        # #
 
         try:
             gdf.to_file(output_file_gpkg, driver="GPKG")
