@@ -97,13 +97,21 @@ def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
     )
     # 3. Before starting the whole process, check if the
     # output file already exists
-    if not os.path.isfile(output_file_gpkg):
 
+    # if not os.path.isfile(output_file_gpkg):
+    if 1 == 1:
         # 4. Check if prot_area_dir exists
         if os.path.isdir(prot_area_dir_path):
 
             # 5. Load previous stage data from file
             gdf = util.load_prev_stage_to_gdf(regio, stage)
+
+            # Super important to convert all GDF to 25832, since we compare against national data which is all in 25832!!!
+            gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
+
+            """
+            TODO: Redo Stage 3 and 4 for all 25833 states!
+            """
 
             if len(gdf) > 0:
                 print(f"Loaded the previous stage data for {regio}")
@@ -136,6 +144,6 @@ def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
         else:
             return False
 
-    else:
-        print(f"{output_file_gpkg} already exists. Skipping this one")
-        return True
+    # else:
+    #     print(f"{output_file_gpkg} already exists. Skipping this one")
+    #     return True
