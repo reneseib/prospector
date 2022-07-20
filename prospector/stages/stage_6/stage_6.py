@@ -82,6 +82,11 @@ def f_stage_6(regio, stage="6-added_slope"):
     centroid_gdf["geometry"] = centroid_gdf["geometry"].apply(
         lambda x: np.array([x[1], x[0]])
     )
+    # TODO: Split & reverse also for GEOM GDG!
+
+    # TODO: Merge centroid and geometry points into one array of points
+
+    # TODO: Iterate over all points in the distinct order so we can create the 2,2 array
 
     token_gen_script = open(
         "/common/ecap/prospector/stages/stage_6/token_generator_topo.js", "r"
