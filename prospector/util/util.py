@@ -94,7 +94,7 @@ def save_current_stage_to_file(gdf, regio, current_stage):
     # Before saving, we need to convert all np.arrays to strings
     for col in gdf.columns:
         if col.startswith("np_"):
-            gdf[col] = gdf[col].apply(lambda x: util.stringify(x))
+            gdf[col] = gdf[col].apply(lambda x: stringify(x))
 
     try:
         gdf.to_file(output_file_gpkg, driver="GPKG")
@@ -406,19 +406,52 @@ def get_extrema(geom: Geometry) -> np.array:
     return extrema
 
 
-def stringify(arr: np.ndarray) -> str:
-    arr = str(arr)
-    # Count spaces, set comma plus spaces -1
-    arr = re.sub(r"(\d)(\s|\s\s+)(\d)", r"\1, \3", arr)
-    arr = re.sub(r"\n", ", ", arr)
-    return arr
+def stringify(arr: Union[np.ndarray, list]) -> str:
+    arrstr = str(arr).strip()
+    arrstr = re.sub(r"(\d)(\s|\s\s+)(\d)", r"\1, \3", arrstr)
+    arrstr = arrstr.split("\n")
+    arrstr = [x.strip() for x in arrstr]
+    arrstr = ",".join(arrstr)
+    arrstr = re.sub(r"\s\s+", " ", arrstr)
+    arrstr = arrstr.replace(". ", ".0000001, ")
+    arrstr = arrstr.replace(",,", ",")
+    arrstr = arrstr.replace(" ", "")
+    if arrstr.startswith(","):
+        arrstr = arr[1:]
+    if arrstr.endswith(","):
+        arrstr = arr[:-1]
+
+    arrstr = arrstr.replace("array(", "").replace(")", "")
+    arrstr = arrstr.replace("list(", "").replace(")", "")
+    arrstr = arrstr.replace("Ellipsis", "")
+    arrstr = arrstr.replace(",,", ",").replace("][", "],[")
+    return arrstr
 
 
-def arrify(arrstr: str) -> np.ndarray:
-    print("-------------------")
-    print(arrstr)
+def arrify(input_arrstr: str) -> np.ndarray:
+    input_arrstr = input_arrstr.replace("Ellipsis", "")
+    input_arrstr = input_arrstr.replace("list(", "").replace(")", "")
+    input_arrstr = input_arrstr.replace(",,", ",").replace("][", "],[")
+    try:
+        if input_arrstr.startswith("[array"):
+            # It is a multipolygon wrapped in a list
+            arrstr = input_arrstr[1:-1]
+            arrstr = arrstr.split("#")
+            arr = [np.array(literal_eval(x.strip())) for x in arrstr]
+        else:
+            arr = np.array(literal_eval(input_arrstr))
+        # print("INPUT")
+        # print(input_arrstr)
+        # print("OUTPUT")
+        # print(arr)
 
-    arr = np.array(literal_eval(arrstr))
-    print(arr)
-    print("-------------------")
-    return arr
+        return arr
+    except:
+        print("----------")
+        print(input_arrstr)
+        arrstr = input_arrstr[1:-1]
+        print(arrstr)
+        arrstr = arrstr.split("#")
+        print(arrstr)
+        print("----------")
+        raise
