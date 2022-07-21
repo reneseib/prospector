@@ -146,15 +146,22 @@ class Prospector:
             #
             #         verify_stage_processing.append(stage_finished)
 
-            # TODO: REVERSE TO NORMAL!!!! JUST FOR TESTING PURPOSES
-            with Pool(processes=os.cpu_count() - 1) as pool:
+            # TODO: REVERSE TO NORMAL!!!! JUST FOR TESTING PURPOSES - OVERWRITES PREV DATA
+
+            if not "4" in stage:
+                proc_count = os.cpu_count() - 1
+            else:
+                proc_count = 4
+
+            with Pool(processes=proc_count) as pool:
                 f = stages.stage_funcs[stage]
 
                 multiple_results = [
                     pool.apply_async(f, (regio, stage_name)) for regio in all_subregions
                 ]
+
                 verify_stage_processing = [
-                    res.get(timeout=3600) for res in multiple_results
+                    res.get(timeout=7200) for res in multiple_results
                 ]
 
             # for regio in all_subregions:
@@ -168,10 +175,9 @@ class Prospector:
                 x == True for x in verify_stage_processing
             ):
                 Display.stage_finished(stage_formal)
-                print(f"{stage_formal} finished")
+
             else:
                 Display.stage_proc_error(stage_formal)
-                print(f"{stage_formal} error")
 
         return None
 
