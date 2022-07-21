@@ -5,18 +5,14 @@ parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 
 import multiprocessing
-from pyrosm import OSM, get_data
 import geopandas as gpd
-from shapely.geometry import Point, Polygon, MultiPolygon, mapping, shape
 from shapely import wkt
-from pyrosm import OSM, get_data
 import numpy as np
 import pandas as pd
-from math import radians, cos, sin, asin, sqrt
 import timeit
 import re
 
-from pygeos import Geometry, distance
+# from pygeos import Geometry, distance
 
 
 # Custom imports
@@ -58,7 +54,10 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
     )
     # Before starting the whole process, check if the output file already exists
     print("starting now")
-    if not os.path.isfile(output_file_gpkg):
+
+    # if not os.path.isfile(output_file_gpkg):
+    # TODO: Reverse - Just for testing purposes
+    if 1 == 1:
         t = timeit.default_timer()
         print(f"Working on {regio} now:")
 
@@ -87,7 +86,27 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 """
                 Process:
                 - Copy GDF
+                gdf_non_overlapping = gdf.copy()
+                gdf_non_overlapping = gdf_non_overlapping[gdf_non_overlapping[overlap_col] == False]
+
+
                 - Drop unnecssary columns = all but ID, overlap_col and GEOMETRY as well as the new distance columns
+                # Drop all the double columns from merge
+                for col in gdf_non_overlapping.columns:
+                    if (
+                        "_left" in col
+                        or "_right" in col
+                        or "_x" in col
+                        or "_y" in col
+                        or col.startswith("np_")
+                    ):
+                        gdf_non_overlapping = gdf_non_overlapping.drop(columns=[col])
+
+                # To not oversize the gdf in memory, we need to drop
+                # the done columns in the copy of gdf
+                if len(done_pa) > 0:
+                    gdf_non_overlapping = gdf_non_overlapping.drop(columns=done_pa)
+
                 - sjoin_nearest with PA gdf
                 - Add the resulting distance column to the ORIGINAL GDF
                 - Start again at the beginning
@@ -151,6 +170,8 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     distance_col=f"{overlap_col.replace('_overlap','')}_distance",
                 )
 
+                # Convert to pandas dataframe to make the merge
+                # which isn't possible in geopandas
                 pd_dist = pd.DataFrame(dist_gdf)
 
                 pd_gdf = pd.DataFrame(gdf)
@@ -189,6 +210,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 """
                 gdf = gpd.GeoDataFrame(mrgd_gdf)
 
+                # Show results
                 print(f"{regio} {overlap_col}: Columns after merge")
                 showcols = []
                 for col in gdf.columns:
@@ -201,6 +223,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 print("\n\n")
                 # print(gdf["lsg_overlap", "lsg_distance"].head(10))
 
+                # Drop double and unnecssary columns
                 for col in gdf.columns:
                     if "_left" in col or "_right" in col or "_x" in col or "_y" in col:
                         gdf = gdf.drop(columns=[col])
@@ -213,10 +236,6 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 pos = overlap_col.rfind("_") + 1
                 overlap_dist_col = overlap_col[:pos] + "distance"
                 done_pa.append(overlap_dist_col)
-                print("DONE PA")
-                print(done_pa)
-                print(type(done_pa))
-                print("==================")
 
         # Save processing results to disk
         stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
