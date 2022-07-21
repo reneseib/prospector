@@ -1,40 +1,76 @@
-import os, sys
+# import os, sys
+#
+# parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# sys.path.append(parent_dir)
+#
+# # Stage 0 Imports
+# from pyrosm import OSM, get_data
+# import geopandas as gpd
+# from shapely.geometry import Point, Polygon, MultiPolygon, mapping
+# from shapely import wkt
+# from pyrosm import OSM, get_data
+# import numpy as np
+# from pyproj import Geod
+#
+# # Custom imports
+# from pconfig import config
+# from proxpy.proxpy import ProxyRequest
+#
+# for dir in config["init"]["prospector_package_path"]:
+#     sys.path.append(dir)
+#
+# from util import util
+#
+#
+# for dir in config["init"]["proj_path"]:
+#     if os.path.isdir(dir):
+#         proj_path = dir
+#
+# main_dir = os.path.join(proj_path, list(config["directories"].keys())[0])
+# src_data_dir = os.path.join(main_dir, "src_data")
+# geo_data_dir = os.path.join(src_data_dir, "geo_data")
+# results_dir = os.path.join(main_dir, "results")
 
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(parent_dir)
-
-# Stage 0 Imports
-from pyrosm import OSM, get_data
-import geopandas as gpd
-from shapely.geometry import Point, Polygon, MultiPolygon, mapping
-from shapely import wkt
-from pyrosm import OSM, get_data
-import numpy as np
-from pyproj import Geod
-
-# Custom imports
-from pconfig import config
-
-for dir in config["init"]["prospector_package_path"]:
-    sys.path.append(dir)
-
-from util import util
+import requests
+import json
 
 
-for dir in config["init"]["proj_path"]:
-    if os.path.isdir(dir):
-        proj_path = dir
-
-main_dir = os.path.join(proj_path, list(config["directories"].keys())[0])
-src_data_dir = os.path.join(main_dir, "src_data")
-geo_data_dir = os.path.join(src_data_dir, "geo_data")
-results_dir = os.path.join(main_dir, "results")
-
-
-def f_stage_8(regio, stage="8-added_solar_data"):
+def get_solar_data(lat: float, lon: float) -> str:
     """
-    Stage 8:
-    Adds lots of solar data of the area
+    Get request to solaratlas to fetch data, returns them as json
     """
-    print("GREETINGS FROM STAGE 8")
+    api_url = f"https://api.globalsolaratlas.info/data/lta?loc={lat},{lon}"
+
+    response = requests.get(api_url)
+    data = json.loads(response.content)["annual"]["data"]
+    print(data)
+
     return None
+
+
+# def f_stage_8(regio, stage="8-added_solar_data"):
+#     """
+#     Stage 8:
+#     Adds lots of solar data of the area
+#     """
+#
+#     print(regio)
+#
+#     # Load previous stage data
+#     gdf = util.load_prev_stage_to_gdf(regio, stage)
+#
+#     # Create proxyserver instance to use in loop
+#     proxy_server = ProxyRequest()
+#
+#     if len(gdf) > 0:
+#
+#         for i in range(len(gdf)):
+#             print("")
+#
+#     return None
+
+
+# proxy_server = ProxyRequest()
+lat = 51.282494
+lon = 9.001064
+get_solar_data(lat, lon)
