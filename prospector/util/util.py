@@ -429,9 +429,9 @@ def stringify(arr: Union[np.ndarray, list]) -> str:
 
 
 def arrify(input_arrstr: str) -> np.ndarray:
-    input_arrstr = input_arrstr.replace("Ellipsis", "")
-    input_arrstr = input_arrstr.replace("list(", "").replace(")", "")
-    input_arrstr = input_arrstr.replace(",,", ",").replace("][", "],[")
+    # input_arrstr = input_arrstr.replace("Ellipsis", "")
+    # input_arrstr = input_arrstr.replace("list(", "").replace(")", "")
+    # input_arrstr = input_arrstr.replace(",,", ",").replace("][", "],[")
     try:
         if input_arrstr.startswith("[array"):
             # It is a multipolygon wrapped in a list
@@ -440,10 +440,6 @@ def arrify(input_arrstr: str) -> np.ndarray:
             arr = [np.array(literal_eval(x.strip())) for x in arrstr]
         else:
             arr = np.array(literal_eval(input_arrstr))
-        # print("INPUT")
-        # print(input_arrstr)
-        # print("OUTPUT")
-        # print(arr)
 
         return arr
     except:
