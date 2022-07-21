@@ -54,8 +54,13 @@ def f_stage_6(regio, stage="6-added_slope"):
         # store them in the gdf. Once stored, we will calculate the slopes.
 
         # 1.Create new, empty column for the elevation of the extrema points
-        # and the centroid
-        gdf["points_ele"] = None
+        # and the centroid if it does not exist
+        if not "points_ele" in gdf.columns:
+            gdf["points_ele"] = None
+
+        """
+        TODO: Add a filter so we only keep going where we don't have results - in case we get banned/interrupted
+        """
 
         # Set counter to 0 at the beginng
         counter = 0
@@ -63,6 +68,7 @@ def f_stage_6(regio, stage="6-added_slope"):
         # 2. Iterate over the gdf, get all points from extrema and centroid
         # into a tuple of tuples
         for i in range(len(gdf)):
+            print(regio, ":", round((i / len(gdf)) * 100, 2), "%")
             row = gdf.iloc[i]
             extrema = row["np_extrema_4326"]
 
@@ -78,7 +84,13 @@ def f_stage_6(regio, stage="6-added_slope"):
             for x in range(len(points)):
                 point = points[x]
 
+                # try:
                 lat, lon = point
+                # print(lat, lon)
+                # except:
+                #     print("/////////////////")
+                #     print(point)
+                #     raise
 
                 save_threshold = round(len(gdf) * 0.1)
                 # if len(gdf) < 100:
@@ -119,27 +131,41 @@ def f_stage_6(regio, stage="6-added_slope"):
 
                 res = proxy_server.get(api_url, headers=headers)
 
+                counter += 1
+
                 if res.status_code == 200:
                     counter += 1
                     res_height = res.text.replace("&nbsp;m", "")
 
                     # Store result in list
                     ele_results[x] = res_height
-                    print("HEIGHT: ", res_height)
+                    # print("HEIGHT: ", res_height)
 
                 else:
                     print("LAT - LON: ", lat, lon)
                     print("API URL: ", api_url)
                     print("token: ", token)
 
-                print(f"Next!")
+                # Add a little sleep
+                sleeper = random.uniform(0.025, 0.25)
+                time.sleep(sleeper)
 
-            print(ele_results)
+            # Add results to gdf
+            gdf.at[i, "points_ele"] = ", ".join(ele_results)
 
-            if i == 10:
-                break
-                sys.exit()
             """
-            ADD SAVING FUNCTIONS
-            FOR INTERIM (THRESHOLD) SAVINGS & FINAL RESULT
+            TODO: Figure out what produces the error/malformulation in the "points" after saving
             """
+            # if counter == save_threshold * 5:
+            #     interim_save = util.save_current_stage_to_file(gdf, regio, stage)
+            #     print("Interim save")
+            #     counter = 0
+
+        # Save the final result
+        final_save = util.save_current_stage_to_file(gdf, regio, stage)
+        print(f"{regio}: all elevations saved")
+
+        if final_save == True:
+            return True
+        else:
+            return False
