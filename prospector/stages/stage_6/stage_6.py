@@ -5,11 +5,7 @@ parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 
 # Stage 0 Imports
-from pyrosm import OSM, get_data
 import geopandas as gpd
-from shapely.geometry import Point, Polygon, MultiPolygon, mapping
-from shapely import wkt
-from pyrosm import OSM, get_data
 import numpy as np
 import requests
 import time
@@ -50,71 +46,50 @@ def f_stage_6(regio, stage="6-added_slope"):
     # Load previous stage data
     gdf = util.load_prev_stage_to_gdf(regio, stage)
 
+    # Create proxyserver instance to use in loop
+    proxy_server = ProxyRequest()
+
     if len(gdf) > 0:
+        # First we scrape the elevation for all points and
+        # store them in the gdf. Once stored, we will calculate the slopes.
 
-        # Add column "centroid_ele" to gdf
-        gdf["geomarr"] = gdf["geometry"].apply(
-            lambda x: np.array(x.exteriors.coords).astype(np.float64)
-        )
-        gdf["centroid"] = gdf["geometry"].centroid
-        gdf["centroid"] = gdf["centroid"].apply(
-            lambda x: np.array(x.coords.xy).astype(np.float64)
-        )
+        # 1.Create new, empty column for the elevation of the extrema points
+        # and the centroid
+        gdf["points_ele"] = None
 
-        geom_series = gdf["geometry"]
-        # print(centroids_series)
+        # Set counter to 0 at the beginng
+        counter = 0
 
-        centroid_frame = {"geometry": centroids_series}
-        geom_frame = {"geometry": geom_series}
+        # 2. Iterate over the gdf, get all points from extrema and centroid
+        # into a tuple of tuples
+        for i in range(len(gdf)):
+            row = gdf.iloc[i]
+            extrema = row["np_extrema_4326"]
 
-        # Make new GDF from the centroids_series to transform the coordinates
-        centroid_gdf = gpd.GeoDataFrame(centroid_frame, geometry="geometry")
-        geom_gdf = gpd.GeoDataFrame(geom_frame, geometry="geometry")
+            centroid = tuple(row["np_centroid_4326"])
 
-        # TODO: 25832 not always true - implement config-based EPSG!
-        centroid_gdf = centroid_gdf.set_crs(25832).to_crs(4326)
-        geom_gdf = geom_gdf.set_crs(25832).to_crs(4326)
+            points = [tuple(x) for x in extrema]
+            points.append(centroid)
+            points = tuple(points)
 
-        centroid_gdf["geometry"] = centroid_gdf["geometry"].apply(
-            lambda x: np.array(x.coords.xy).astype(np.float64)
-        )
+            ele_results = [None] * 5
 
-        geom_gdf["geometry"] = geom_gdf["geometry"].apply(
-            lambda geom: np.array(x.coords.xy).astype(np.float64)
-        )
+            # Iterate over points, make them to lat and lon
+            for x in range(len(points)):
+                point = points[x]
 
-        # Get centroid, !!reverse!! coordinates and split them to lat and lon
-        centroid_gdf["geometry"] = centroid_gdf["geometry"].apply(
-            lambda x: np.array([x[1], x[0]])
-        )
-        # TODO: Split & reverse also for GEOM GDF!
+                lat, lon = point
 
-        # TODO: Merge centroid and geometry points into one array of points
+                save_threshold = round(len(gdf) * 0.1)
+                # if len(gdf) < 100:
+                #     save_threshold = 50
 
-        # TODO: Iterate over all points in the distinct order so we can create the 2,2 array
+                token_gen_script = open(
+                    "/common/ecap/prospector/stages/stage_6/token_generator_topo.js",
+                    "r",
+                ).read()
 
-        token_gen_script = open(
-            "/common/ecap/prospector/stages/stage_6/token_generator_topo.js", "r"
-        ).read()
-
-        get_token = js2py.eval_js(token_gen_script)
-
-        save_collection = []
-
-        if len(centroid_gdf) == len(gdf):
-            counter = 0
-
-            proxy_server = ProxyRequest()
-
-            save_threshold = round(len(gdf) * 0.1)
-            if len(gdf) < 100:
-                save_threshold = 50
-
-            for i in range(len(centroid_gdf)):
-                print(round((i / len(centroid_gdf)) * 100, 2), "%")
-                geom = centroid_gdf.iloc[i, 0]
-                lat = geom[0][0]
-                lon = geom[1][0]
+                get_token = js2py.eval_js(token_gen_script)
 
                 token = get_token(5)
 
@@ -142,33 +117,15 @@ def f_stage_6(regio, stage="6-added_slope"):
                 # Make API-call, fetch and clean result as int()
                 api_url = f"https://en-gb.topographic-map.com/?_path=api.maps.getElevation&latitude={lat}&longitude={lon}&version=2021013001"
 
-                t = timeit.default_timer()
                 res = proxy_server.get(api_url, headers=headers)
-                print("request: ", timeit.default_timer() - t)
 
                 if res.status_code == 200:
                     counter += 1
                     res_height = res.text.replace("&nbsp;m", "")
 
-                    # gdf["centroid"] = gdf["centroid"].apply(lambda x: wkt.dumps(x))
-
-                    # Store result in GDF in new column "centroid_ele"
-                    gdf.at[i, "centroid_ele"] = res_height
+                    # Store result in list
+                    ele_results[x] = res_height
                     print("HEIGHT: ", res_height)
-
-                    # Sleep to not get us banned
-                    time.sleep(random.uniform(0.267, 0.865))
-
-                    if counter == save_threshold:
-                        # Save gdf to disk after every api call so we don't loose
-                        # data if connection is lost
-                        stage_successfully_saved = util.save_current_stage_to_file(
-                            gdf, regio, stage
-                        )
-                        counter = 0
-
-                        save_collection.append(stage_successfully_saved)
-                        print("saved status")
 
                 else:
                     print("LAT - LON: ", lat, lon)
@@ -177,8 +134,12 @@ def f_stage_6(regio, stage="6-added_slope"):
 
                 print(f"Next!")
 
-            # Save again when finished, irrespective of the counter/save_threshold
-            util.save_current_stage_to_file(gdf, regio, stage)
-            return True
+            print(ele_results)
 
-        return False
+            if i == 10:
+                break
+                sys.exit()
+            """
+            ADD SAVING FUNCTIONS
+            FOR INTERIM (THRESHOLD) SAVINGS & FINAL RESULT
+            """
