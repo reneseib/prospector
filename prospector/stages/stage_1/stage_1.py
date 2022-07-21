@@ -32,6 +32,9 @@ results_dir = os.path.join(main_dir, "results")
 
 
 def f_stage_1(regio, stage="1-filtered_by_size"):
+    """
+    Calculates the area of each polygon in m2 and hectares
+    """
     gdf = util.load_prev_stage_to_gdf(regio, stage)
 
     # Source CRS depends on the state:
