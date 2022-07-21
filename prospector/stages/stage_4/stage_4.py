@@ -57,6 +57,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
         f"{regio}-{stage}.gpkg",
     )
     # Before starting the whole process, check if the output file already exists
+    print("starting now")
     if not os.path.isfile(output_file_gpkg):
         t = timeit.default_timer()
         print(f"Working on {regio} now:")
@@ -76,16 +77,40 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
 
             # Loop over all PA geometries against
             # the non-overlapping geometries
+
+            done_pa = []
+
             for i in range(len(all_overlap_cols)):
                 overlap_col = all_overlap_cols[i]
                 overlap_file_name = prot_areas.prot_area_names[i]
 
+                """
+                Process:
+                - Copy GDF
+                - Drop unnecssary columns = all but ID, overlap_col and GEOMETRY as well as the new distance columns
+                - sjoin_nearest with PA gdf
+                - Add the resulting distance column to the ORIGINAL GDF
+                - Start again at the beginning
+                """
+
                 # Filter GDF for non-overlapping rows at this PA
                 gdf_non_overlapping = gdf[gdf[overlap_col] == False]
 
+                # Drop all the double columns from merge
                 for col in gdf_non_overlapping.columns:
-                    if "_left" in col or "_right" in col or "_x" in col or "_y" in col:
+                    if (
+                        "_left" in col
+                        or "_right" in col
+                        or "_x" in col
+                        or "_y" in col
+                        or col.startswith("np_")
+                    ):
                         gdf_non_overlapping = gdf_non_overlapping.drop(columns=[col])
+
+                # To not oversize the gdf in memory, we need to drop
+                # the done columns in the copy of gdf
+                if len(done_pa) > 0:
+                    gdf_non_overlapping = gdf_non_overlapping.drop(columns=done_pa)
 
                 print("Columns at start of iteration:")
                 print(gdf_non_overlapping.columns)
@@ -112,6 +137,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     "LINK",
                     "SITECODE",
                     "JAHR",
+                    "NAME",
                 ]
 
                 for drop_col in pa_drop_columns:
@@ -128,6 +154,16 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 pd_dist = pd.DataFrame(dist_gdf)
 
                 pd_gdf = pd.DataFrame(gdf)
+
+                """
+                Can't we just add the two new columns to the original GDF
+                via
+
+                gdf[gdf[overlap_col] == False, "lsg_distance"] = dist_gdf["distance"]
+
+                ???
+                """
+
                 try:
                     dist_target_cols = list(pd_dist.columns.difference(pd_gdf.columns))
 
@@ -144,41 +180,13 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                         on="id",
                     )
 
-                # TODO: Find solutions for this
-                # Traceback (most recent call last):
-                #     File 'main.py', line 20, in <module>
-                #     prospector.staging([], stage='stage_2', finput=['input'])
-                #     File '/common/ecap/prospector/prospector.py', line 145, in staging
-                #     #         stage_finished = f(regio, stage=stage_name)
-                #     File '/common/ecap/prospector/stages/stage_4/stage_4.py', line 130, in f_stage_4
-                #     mrgd_gdf = pd.merge(
-                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py', line 122, in merge
-                #     return op.get_result()
-                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py', line 725, in get_result
-                #     result_data = concatenate_managers(
-                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/concat.py', line 202, in concatenate_managers
-                #     return _concat_managers_axis0(mgrs_indexers, axes, copy)
-                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/concat.py', line 264, in _concat_managers_axis0
-                #     mgrs_indexers = _maybe_reindex_columns_na_proxy(axes, mgrs_indexers)
-                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/concat.py', line 306, in _maybe_reindex_columns_na_proxy
-                #     mgr = mgr.reindex_indexer(
-                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/managers.py', line 692, in reindex_indexer
-                #     new_blocks = [
-                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/managers.py', line 693, in <listcomp>
-                #     blk.take_nd(
-                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/internals/blocks.py', line 1137, in take_nd
-                #     new_values = algos.take_nd(
-                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/array_algos/take.py', line 117, in take_nd
-                #     return _take_nd_ndarray(arr, indexer, axis, fill_value, allow_fill)
-                #     File '/home/shellsquid/.local/lib/python3.8/site-packages/pandas/core/array_algos/take.py', line 158, in _take_nd_ndarray
-                #     out = np.empty(out_shape, dtype=dtype)
-                #     numpy.core._exceptions.MemoryError: Unable to allocate 256. GiB for an array with shape (8, 4294979403) and data type object
-
                 except:
                     print("pd_gdf:", pd_gdf.columns)
                     print("pd_dist:", pd_dist.columns)
                     raise
-
+                """
+                TODO: Add additional merge here with the real GDF and the one we produced above
+                """
                 gdf = gpd.GeoDataFrame(mrgd_gdf)
 
                 print(f"{regio} {overlap_col}: Columns after merge")
@@ -197,12 +205,34 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     if "_left" in col or "_right" in col or "_x" in col or "_y" in col:
                         gdf = gdf.drop(columns=[col])
 
+                # Once done, add the current overlap column to the "done" list
+                # Also add the distance column of the overlap column so we can
+                # drop them in the next iteration
+                done_pa.append(overlap_col)
+
+                pos = overlap_col.rfind("_") + 1
+                overlap_dist_col = overlap_col[:pos] + "distance"
+                done_pa.append(overlap_dist_col)
+                print("DONE PA")
+                print(done_pa)
+                print(type(done_pa))
+                print("==================")
+
         # Save processing results to disk
         stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
         if stage_successfully_saved:
+            cols = []
+            for col in gdf.columns:
+                if "overlap" in col or "distance" in col:
+                    cols.append(col)
+            print(gdf[cols].head(20))
             print("Stage successfully saved to file")
             return True
         else:
             return False
 
         print("for all PA:", timeit.default_timer() - t)
+
+    else:
+        # File already exists, return False
+        return False
