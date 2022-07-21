@@ -35,14 +35,18 @@ import requests
 import json
 
 
-def get_solar_data(lat: float, lon: float) -> str:
+def get_solar_data(lat: float, lon: float) -> json:
     """
-    Get request to solaratlas to fetch data, returns them as json
+    Get request to solaratlas to fetch data, returns json
     """
     api_url = f"https://api.globalsolaratlas.info/data/lta?loc={lat},{lon}"
 
     response = requests.get(api_url)
     data = json.loads(response.content)["annual"]["data"]
+    """
+    Returns a dict like this:
+    {'PVOUT_csi': 1036.3988037109375, 'DNI': 905.390625, 'GHI': 1055.328125, 'DIF': 565.359375, 'GTI_opta': 1226.7890625, 'OPTA': 36, 'TEMP': 8.5625, 'ELE': 331}
+    """
     print(data)
 
     return None
