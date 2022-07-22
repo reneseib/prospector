@@ -43,7 +43,7 @@ class ProxyRequest(object):
         self.lastidx = []
         self.range = list(range(0, len(self.ip_list)))
         self.last_update = time.time()
-        self.update = self.update_ip_list()
+        # self.update = self.update_ip_list()
 
     def get_idx(self):
         if len(self.range) == 0:
@@ -53,7 +53,7 @@ class ProxyRequest(object):
             return idx
 
     def get(self, url, headers=None, throttle=None):
-        idx = get_idx()
+        idx = self.get_idx()
         proxies = {"socks": f"socks5://{self.ip_list[idx]}"}
         try:
             response = requests.get(url, headers=headers, proxies=proxies)
@@ -62,6 +62,6 @@ class ProxyRequest(object):
             response.status_code = 403
 
         if throttle:
-            time.sleep(random.uniform(throttle * 0.8), random.uniform(throttle * 1.2))
+            time.sleep(random.uniform(throttle * 0.8, throttle * 1.2))
 
         return response
