@@ -78,6 +78,8 @@ def f_stage_8(regio, stage="8-added_solar_data"):
         if len(gdf) > 0:
             print(regio)
 
+            t0 = time.time()
+
             # Set CRS to local one and transform to 4326
             gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(4326)
 
@@ -103,12 +105,30 @@ def f_stage_8(regio, stage="8-added_solar_data"):
 
                 # Iterage over gdf
                 for i in range(len(gdf)):
-                    print(stage, "\t", regio, "\t", round((i / len(gdf)) * 100, 2), "%")
+                    t = time.time() - t0
+                    hours = round(t / 3600)
+
+                    if (t / 3600) < 1:
+                        hours = 0
+                    mins = round(t / 60)
+                    secs = round(t)
+                    print(
+                        stage,
+                        " " * (22 - len(stage)),
+                        regio,
+                        " " * (22 - len(regio)),
+                        round((i / len(gdf)) * 100, 2),
+                        "%  | ",
+                        f"{hours:02}:{mins:02}:{secs:02}",
+                    )
+                    print(
+                        "-" * 70,
+                    )
 
                     # Get centroid coordinates
                     lat, lon = gdf.loc[i, "centroid"]
 
-                    throttle = 1.0
+                    throttle = 0.45  # in seconds
                     added = add_solar_data(gdf, i, proxy_server, throttle, lat, lon)
 
                 gdf = gdf.drop(columns=["centroid"])
