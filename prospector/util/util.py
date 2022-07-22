@@ -451,3 +451,20 @@ def arrify(input_arrstr: str) -> np.ndarray:
         print(arrstr)
         print("----------")
         raise
+
+
+def get_distance(p1, p2):
+    """
+    Returns the distance between two points
+    """
+    if len(p1) == 2 and len(p2) == 2:
+        x1, y1 = p1
+        x2, y2 = p2
+
+        a = abs(x1 - x2)
+        b = abs(y1 - y2)
+        c = np.sqrt(a ** 2 + b ** 2)
+        return c
+
+    else:
+        errors.TypingError("get_distance: Arguments have to be two points as np.arrays")
