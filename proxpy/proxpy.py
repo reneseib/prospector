@@ -46,11 +46,12 @@ class ProxyRequest(object):
         # self.update = self.update_ip_list()
 
     def get_idx(self):
+        # When list of indices is empty, create a new one
         if len(self.range) == 0:
             self.range = list(range(0, len(self.ip_list)))
-        else:
-            idx = self.range.pop(0)
-            return idx
+        # Pop first element & return it
+        idx = self.range.pop(0)
+        return idx
 
     def get(self, url, headers=None, throttle=None):
         idx = self.get_idx()
