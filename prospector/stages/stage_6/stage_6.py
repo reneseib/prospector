@@ -60,10 +60,6 @@ def f_stage_6(regio, stage="6-added_slope"):
         if not "points_ele" in gdf.columns:
             gdf["points_ele"] = None
 
-        """
-        TODO: Add a filter so we only keep going where we don't have results - in case we get banned/interrupted
-        """
-
         # Set counter to 0 at the beginng
         counter = 0
 
