@@ -36,21 +36,32 @@ def f_stage_6_5(regio, stage="6_5-added_slope_results"):
     Stage 6.5:
     Calculate the actual slopes
     """
-    print(regio)
 
     # Load previous stage data
     gdf = util.load_prev_stage_to_gdf(regio, stage)
 
+    # if len(gdf) > 0 and not os.path.isfile(
+    #     f"/common/ecap/prospector_data/results/stages/6_5-added_slope_results/{regio}/gpkg/{regio}-6_5-added_slope_results.gpkg"
+    # ):
     if len(gdf) > 0:
-        gdf["np_points_ele"] = gdf["points_ele"].apply(lambda x: x.split(", "))
+        print(regio)
+
+        gdf["np_points_ele"] = gdf["points_ele"].apply(lambda x: x.split(","))
 
         gdf["np_slopes_to_centroid"] = None
         gdf["np_slope_abs"] = None
 
         for i in range(len(gdf["np_points_ele"])):
+            # Get points
             ele_points = gdf.loc[i, "np_points_ele"]
-            if not "Unavailable" in ele_points:
-                ele_points = [int(x) for x in ele_points]
+
+            # Verify the points
+            if not "Unavailable" in ele_points and not " Unavailable" in ele_points:
+                try:
+                    ele_points = [int(x) for x in ele_points]
+                except:
+                    print(ele_points)
+                    continue
 
                 _ele_extrema = ele_points[:4]
                 ele_left = _ele_extrema[0]
