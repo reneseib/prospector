@@ -49,7 +49,9 @@ def f_stage_6(regio, stage="6-added_slope"):
     # Create proxyserver instance to use in loop
     proxy_server = ProxyRequest()
 
-    if len(gdf) > 0:
+    if len(gdf) > 0 and not os.path.isfile(
+        f"/common/ecap/prospector_data/results/stages/6-added_slope/{regio}/gpkg/{regio}-6-added_slope.gpkg"
+    ):
         # First we scrape the elevation for all points and
         # store them in the gdf. Once stored, we will calculate the slopes.
 
@@ -68,7 +70,7 @@ def f_stage_6(regio, stage="6-added_slope"):
         # 2. Iterate over the gdf, get all points from extrema and centroid
         # into a tuple of tuples
         for i in range(len(gdf)):
-            print(regio, ":", round((i / len(gdf)) * 100, 2), "%")
+            print(stage, " - ", regio, ":", round((i / len(gdf)) * 100, 2), "%")
             row = gdf.iloc[i]
             extrema = row["np_extrema_4326"]
 
@@ -129,25 +131,28 @@ def f_stage_6(regio, stage="6-added_slope"):
                 # Make API-call, fetch and clean result as int()
                 api_url = f"https://en-gb.topographic-map.com/?_path=api.maps.getElevation&latitude={lat}&longitude={lon}&version=2021013001"
 
-                res = proxy_server.get(api_url, headers=headers)
+                try:
+                    res = proxy_server.get(api_url, headers=headers)
 
-                counter += 1
-
-                if res.status_code == 200:
                     counter += 1
-                    res_height = res.text.replace("&nbsp;m", "")
 
-                    # Store result in list
-                    ele_results[x] = res_height
-                    # print("HEIGHT: ", res_height)
+                    if res.status_code == 200:
+                        counter += 1
+                        res_height = res.text.replace("&nbsp;m", "")
 
-                else:
-                    print("LAT - LON: ", lat, lon)
-                    print("API URL: ", api_url)
-                    print("token: ", token)
+                        # Store result in list
+                        ele_results[x] = res_height
+                        # print("HEIGHT: ", res_height)
+
+                    else:
+                        print("LAT - LON: ", lat, lon)
+                        print("API URL: ", api_url)
+                        print("token: ", token)
+                except:
+                    ele_results[x] = None
 
                 # Add a little sleep
-                sleeper = random.uniform(0.025, 0.25)
+                sleeper = random.uniform(0.025, 0.2)
                 time.sleep(sleeper)
 
             # Add results to gdf
