@@ -149,7 +149,8 @@ class Prospector:
             # TODO: REVERSE TO NORMAL!!!! JUST FOR TESTING PURPOSES - OVERWRITES PREV DATA
 
             if not "4" in stage:
-                proc_count = os.cpu_count() - 1
+                # proc_count = os.cpu_count() - 1
+                proc_count = 2
             else:
                 proc_count = 4
 
@@ -161,7 +162,9 @@ class Prospector:
                 ]
 
                 verify_stage_processing = [
-                    res.get(timeout=7200) for res in multiple_results
+                    # Set timeout to X hours
+                    res.get(timeout=3600 * 24)
+                    for res in multiple_results
                 ]
 
             # for regio in all_subregions:
