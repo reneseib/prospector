@@ -70,57 +70,57 @@ def f_stage_8(regio, stage="8-added_solar_data"):
     Adds lots of solar data of the area
     """
 
-    gdf = util.load_prev_stage_to_gdf(regio, stage)
-
-    print(regio)
-    if len(gdf) > 0 and not os.path.isfile(
+    if not os.path.isfile(
         f"/common/ecap/prospector_data/results/stages/8-added_solar_data/{regio}/gpkg/{regio}-8-added_solar_data.gpkg"
     ):
         # Load previous stage data
-
-        # Set CRS to local one and transform to 4326
-        gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(4326)
-
-        # Get centroid of each geometry, switch coords and convert to tuple
-        gdf["centroid"] = gdf["geometry"].centroid
-        gdf["centroid"] = gdf["centroid"].apply(
-            lambda x: tuple([x.coords.xy[1][0], x.coords.xy[0][0]])
-        )
-
-        # Set up new columns for the solar data
-        gdf["solar_PVOUT_csi"] = None
-        gdf["solar_DNI"] = None
-        gdf["solar_GHI"] = None
-        gdf["solar_DIF"] = None
-        gdf["solar_GTI_opta"] = None
-        gdf["solar_OPTA"] = None
-        gdf["solar_TEMP"] = None
-
-        # Create proxyserver instance to use in loop
-        proxy_server = ProxyRequest()
-
+        gdf = util.load_prev_stage_to_gdf(regio, stage)
         if len(gdf) > 0:
+            print(regio)
 
-            # Iterage over gdf
-            for i in range(len(gdf)):
-                print(stage, " - ", regio, ":", round((i / len(gdf)) * 100, 2), "%")
-                # Get centroid coordinates
-                lat, lon = gdf.loc[i, "centroid"]
+            # Set CRS to local one and transform to 4326
+            gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(4326)
 
-                throttle = 1.0
-                added = add_solar_data(gdf, i, proxy_server, throttle, lat, lon)
+            # Get centroid of each geometry, switch coords and convert to tuple
+            gdf["centroid"] = gdf["geometry"].centroid
+            gdf["centroid"] = gdf["centroid"].apply(
+                lambda x: tuple([x.coords.xy[1][0], x.coords.xy[0][0]])
+            )
 
-                if i == 10:
-                    break
-                    os._exit(3)
+            # Set up new columns for the solar data
+            gdf["solar_PVOUT_csi"] = None
+            gdf["solar_DNI"] = None
+            gdf["solar_GHI"] = None
+            gdf["solar_DIF"] = None
+            gdf["solar_GTI_opta"] = None
+            gdf["solar_OPTA"] = None
+            gdf["solar_TEMP"] = None
 
-            gdf = gdf.drop(columns=["centroid"])
+            # Create proxyserver instance to use in loop
+            proxy_server = ProxyRequest()
 
-            # Save the final result
-            final_save = util.save_current_stage_to_file(gdf, regio, stage)
-            print(f"{regio}: all solar data saved")
+            if len(gdf) > 0:
 
-            if final_save == True:
-                return True
-            else:
-                return False
+                # Iterage over gdf
+                for i in range(len(gdf)):
+                    print(stage, "\t", regio, "\t", round((i / len(gdf)) * 100, 2), "%")
+
+                    # Get centroid coordinates
+                    lat, lon = gdf.loc[i, "centroid"]
+
+                    throttle = 1.0
+                    added = add_solar_data(gdf, i, proxy_server, throttle, lat, lon)
+
+                gdf = gdf.drop(columns=["centroid"])
+
+                # Save the final result
+                final_save = util.save_current_stage_to_file(gdf, regio, stage)
+                print(f"{regio}: all solar data saved")
+
+                if final_save == True:
+                    return True
+                else:
+                    return False
+    else:
+        print(f"For {regio} solar data already exist")
+        return False
