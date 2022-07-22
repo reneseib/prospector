@@ -7,13 +7,8 @@ sys.path.append(parent_dir)
 # Stage 0 Imports
 import geopandas as gpd
 import numpy as np
-import requests
-import time
-import js2py
-import random
 import timeit
-from random_user_agent.user_agent import UserAgent
-from random_user_agent.params import SoftwareName, OperatingSystem
+from ast import literal_eval
 
 # Custom imports
 from pconfig import config
@@ -46,122 +41,96 @@ def f_stage_6_5(regio, stage="6_5-added_slope_results"):
     # Load previous stage data
     gdf = util.load_prev_stage_to_gdf(regio, stage)
 
-    # Create proxyserver instance to use in loop
-    proxy_server = ProxyRequest()
+    if len(gdf) > 0:
+        gdf["np_points_ele"] = gdf["points_ele"].apply(lambda x: x.split(", "))
 
-    if len(gdf) > 0 and not os.path.isfile(
-        f"/common/ecap/prospector_data/results/stages/6-added_slope/{regio}/gpkg/{regio}-6-added_slope.gpkg"
-    ):
-        # First we scrape the elevation for all points and
-        # store them in the gdf. Once stored, we will calculate the slopes.
+        gdf["np_slopes_to_centroid"] = None
+        gdf["np_slope_abs"] = None
 
-        # 1.Create new, empty column for the elevation of the extrema points
-        # and the centroid if it does not exist
-        if not "points_ele" in gdf.columns:
-            gdf["points_ele"] = None
+        for i in range(len(gdf["np_points_ele"])):
+            ele_points = gdf.loc[i, "np_points_ele"]
+            if not "Unavailable" in ele_points:
+                ele_points = [int(x) for x in ele_points]
 
-        # Set counter to 0 at the beginng
-        counter = 0
+                _ele_extrema = ele_points[:4]
+                ele_left = _ele_extrema[0]
+                ele_top = _ele_extrema[1]
+                ele_right = _ele_extrema[2]
+                ele_bottom = _ele_extrema[3]
 
-        # 2. Iterate over the gdf, get all points from extrema and centroid
-        # into a tuple of tuples
-        for i in range(len(gdf)):
-            print(stage, " - ", regio, ":", round((i / len(gdf)) * 100, 2), "%")
-            row = gdf.iloc[i]
-            extrema = row["np_extrema_4326"]
+                ele_centroid = ele_points[4]
 
-            centroid = tuple(row["np_centroid_4326"])
+                _coords_extrema = gdf.loc[i, "np_extrema"]
+                coords_left = _coords_extrema[0]
+                coords_top = _coords_extrema[1]
+                coords_right = _coords_extrema[2]
+                coords_bottom = _coords_extrema[3]
 
-            points = [tuple(x) for x in extrema]
-            points.append(centroid)
-            points = tuple(points)
+                coords_centroid = gdf.loc[i, "np_centroid"]
 
-            ele_results = [None] * 5
+                # L E F T
+                slope_left = 0
+                # Height difference
+                hd = ele_centroid - ele_left
+                if hd != 0:
+                    # Distance
+                    d = util.get_distance(coords_left, coords_centroid)
 
-            # Iterate over points, make them to lat and lon
-            for x in range(len(points)):
-                point = points[x]
+                    slope_left = round(hd / d * 100, 1)
 
-                # try:
-                lat, lon = point
-                # print(lat, lon)
-                # except:
-                #     print("/////////////////")
-                #     print(point)
-                #     raise
+                # R I G H T
+                slope_right = 0
+                # Height difference
+                hd = ele_right - ele_centroid
+                if hd != 0:
+                    # Distance
+                    d = util.get_distance(coords_right, coords_centroid)
 
-                save_threshold = round(len(gdf) * 0.1)
-                # if len(gdf) < 100:
-                #     save_threshold = 50
+                    slope_right = round(hd / d * 100, 1)
 
-                token_gen_script = open(
-                    "/common/ecap/prospector/stages/stage_6/token_generator_topo.js",
-                    "r",
-                ).read()
+                #  T O P
+                slope_top = 0
+                # Height difference
+                hd = ele_centroid - ele_top
+                if hd != 0:
+                    # Distance
+                    d = util.get_distance(coords_top, coords_centroid)
 
-                get_token = js2py.eval_js(token_gen_script)
+                    slope_top = round(hd / d * 100, 1)
 
-                token = get_token(5)
+                #  B O T T O M
+                slope_bottom = 0
+                # Height difference
+                hd = ele_bottom - ele_centroid
+                if hd != 0:
+                    # Distance
+                    d = util.get_distance(coords_bottom, coords_centroid)
 
-                user_agent_rotator = UserAgent(
-                    limit=500,
-                )
+                    slope_bottom = round(hd / d * 100, 1)
 
-                headers = {
-                    "Accept": "*/*",
-                    "Accept-Encoding": "gzip, deflate, br",
-                    "Accept-Language": "de,en-US;q=0.7,en;q=0.3",
-                    "Connection": "keep-alive",
-                    "Cookie": "cookies=%7B%22advertisements%22%3A1%2C%22statistics%22%3A1%7D; _ga_1R1DLNZJ6C=GS1.1.1657720029.1.0.1657720029.0; _ga=GA1.1.1681229070.1657720030; __gads=ID=22e817fc638bf283-22e56e03cdcd00df:T=1657720030:RT=1657720030:S=ALNI_MZ5Sj9e6rSUka93GGGxcdpEL3ZT7Q",
-                    "Host": "en-gb.topographic-map.com",
-                    "map": "d93",
-                    "Referer": "https://en-gb.topographic-map.com/maps/d93/Germany/",
-                    "Sec-Fetch-Dest": "empty",
-                    "Sec-Fetch-Mode": "cors",
-                    "Sec-Fetch-Site": "same-origin",
-                    "TE": "trailers",
-                    "token": token,
-                    "User-Agent": user_agent_rotator.get_random_user_agent(),
-                }
+                slope = np.array(
+                    [[slope_left, slope_right], [slope_top, slope_bottom]]
+                ).astype(np.float16)
 
-                # Make API-call, fetch and clean result as int()
-                api_url = f"https://en-gb.topographic-map.com/?_path=api.maps.getElevation&latitude={lat}&longitude={lon}&version=2021013001"
+                # ALTERNATIVE
+                # Take the absolute height difference as a sum; the lower, the flatter
+                slope_alt = np.array(
+                    [
+                        abs(slope_left)
+                        + abs(slope_right)
+                        + abs(slope_top)
+                        + abs(slope_bottom)
+                    ]
+                ).astype(np.float16)
 
-                try:
-                    res = proxy_server.get(api_url, headers=headers)
+                gdf.at[i, "np_slopes_to_centroid"] = slope
+                gdf.at[i, "np_slope_abs"] = slope_alt
 
-                    counter += 1
+        # Drop object-containing and temporary columns
+        gdf = gdf.drop(columns=["np_points_ele"])
 
-                    if res.status_code == 200:
-                        counter += 1
-                        res_height = res.text.replace("&nbsp;m", "")
-
-                        # Store result in list
-                        ele_results[x] = res_height
-                        # print("HEIGHT: ", res_height)
-
-                    else:
-                        print("LAT - LON: ", lat, lon)
-                        print("API URL: ", api_url)
-                        print("token: ", token)
-                except:
-                    ele_results[x] = None
-
-                # Add a little sleep
-                sleeper = random.uniform(0.025, 0.2)
-                time.sleep(sleeper)
-
-            # Add results to gdf
-            gdf.at[i, "points_ele"] = ", ".join(ele_results)
-
-            """
-            TODO: Figure out what produces the error/malformulation in the "points" after saving
-            """
-            # if counter == save_threshold * 5:
-            #     interim_save = util.save_current_stage_to_file(gdf, regio, stage)
-            #     print("Interim save")
-            #     counter = 0
-
+        print(gdf.loc[10, "np_slopes_to_centroid"])
+        print(gdf.loc[10, "np_slope_abs"])
         # Save the final result
         final_save = util.save_current_stage_to_file(gdf, regio, stage)
         print(f"{regio}: all elevations saved")
