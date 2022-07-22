@@ -29,11 +29,14 @@ class ProxyRequest(object):
 
     def update_ip_list(self):
         while True:
+            # Check if 30mins have passed since last update
             if time.time() - self.last_update > 1800:
                 # Update IP list
                 self.ip_list = ProxyRequest.generate_ip_list()
                 # Update last_update to now
                 self.last_update = time.time()
+                # Go to sleep to not check every microsecond
+                time.sleep(60)
 
     def __init__(self):
         self.ip_list = ProxyRequest.generate_ip_list()
@@ -49,8 +52,16 @@ class ProxyRequest(object):
             idx = self.range.pop(0)
             return idx
 
-    def get(self, url, headers=None):
+    def get(self, url, headers=None, throttle=None):
         idx = get_idx()
         proxies = {"socks": f"socks5://{self.ip_list[idx]}"}
-        response = requests.get(url, headers=headers, proxies=proxies)
+        try:
+            response = requests.get(url, headers=headers, proxies=proxies)
+        except:
+            response = requests.Response()
+            response.status_code = 403
+
+        if throttle:
+            time.sleep(random.uniform(throttle * 0.8), random.uniform(throttle * 1.2))
+
         return response
