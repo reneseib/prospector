@@ -39,7 +39,7 @@ results_dir = os.path.join(main_dir, "results")
 def f_stage_6(regio, stage="6-added_slope"):
     """
     Stage 6:
-    Adds the slope of the 'area'.
+    Collect the height for extrema points and centroid.
     """
     print(regio)
 
