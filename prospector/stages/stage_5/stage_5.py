@@ -34,19 +34,13 @@ geo_data_dir = os.path.join(src_data_dir, "geo_data")
 results_dir = os.path.join(main_dir, "results")
 
 
-def to_tuple(str):
-    l = str.split(", ")
-    l = [float(x) for x in l]
-    t = tuple([l[1], l[0]])
-    return t
-
-
 def f_stage_5(regio, stage="5-added_nearest_substation"):
     """
     Stage 5:
-    Adds the distance from the 'area' to the nearest the following points or areas:
+    Adds the distance from the 'area' to the nearest the following points and areas:
         - substation
         - residential area
+        - commercial
         - industrial area
         - wind park
         - solar park
