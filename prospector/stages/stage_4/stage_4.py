@@ -65,20 +65,14 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
         gdf = util.load_prev_stage_to_gdf(regio, stage)
         print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
 
-        # Super important to convert all GDF to 25832, since we compare against national data which is all in 25832!!!
-        gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
-
         if len(gdf) > 0:
-            # Set to their original CRS, project always to epsg:25832
-            gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
 
             all_overlap_cols = list(prot_areas.overlap_data.keys())
 
-            # Loop over all PA geometries against
-            # the non-overlapping geometries
-
             done_pa = []
 
+            # Loop over all PA geometries against
+            # the non-overlapping geometries
             for i in range(len(all_overlap_cols)):
                 overlap_col = all_overlap_cols[i]
                 overlap_file_name = prot_areas.prot_area_names[i]
@@ -138,6 +132,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 pa_file = f"/common/ecap/prospector_data/src_data/protected_areas/gpkg/{overlap_file_name}.gpkg"
 
                 pa_data = gpd.read_file(pa_file)
+
                 pa_gdf = gpd.GeoDataFrame(pa_data).set_crs(25832, allow_override=True)
 
                 pa_drop_columns = [
@@ -237,21 +232,21 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 overlap_dist_col = overlap_col[:pos] + "distance"
                 done_pa.append(overlap_dist_col)
 
-        # Save processing results to disk
-        stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
-        if stage_successfully_saved:
-            cols = []
-            for col in gdf.columns:
-                if "overlap" in col or "distance" in col:
-                    cols.append(col)
-            print(gdf[cols].head(20))
-            print("Stage successfully saved to file")
-            return True
-        else:
-            return False
-
-        print("for all PA:", timeit.default_timer() - t)
-
-    else:
-        # File already exists, return False
-        return False
+    #     # Save processing results to disk
+    #     stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
+    #     if stage_successfully_saved:
+    #         cols = []
+    #         for col in gdf.columns:
+    #             if "overlap" in col or "distance" in col:
+    #                 cols.append(col)
+    #         print(gdf[cols].head(20))
+    #         print("Stage successfully saved to file")
+    #         return True
+    #     else:
+    #         return False
+    #
+    #     print("for all PA:", timeit.default_timer() - t)
+    #
+    # else:
+    #     # File already exists, return False
+    #     return False
