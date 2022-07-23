@@ -68,10 +68,13 @@ def intersect_wrapper(regio, stage, gdf, overlap_data, i):
     # Append results to dataframe
     gdf[key] = overlap_list
 
+    # Convert back to original CRS
+    gdf = gdf.set_crs(config["epsg"][regio], allow_override=True)
+
     # Save processing results to disk
     stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
     if stage_successfully_saved:
-        print("Stage successfully saved to file")
+        print(f"{protected_area} for {regio} successfully saved to file")
         return True
     else:
         return False
@@ -106,9 +109,6 @@ def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
             # 5. Load previous stage data from file
             gdf = util.load_prev_stage_to_gdf(regio, stage)
 
-            # Super important to convert all GDF to 25832, since we compare against national data which is all in 25832!!!
-            gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
-
             """
             TODO: Redo Stage 3 and 4 for all 25833 states!
             """
@@ -131,7 +131,7 @@ def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
 
                 if all(all_stages_successful) != False:
 
-                    print(f"All intersections added and saved to file")
+                    print(f"All intersections for {regio} added and saved to file")
                     print("")
 
                     return True
