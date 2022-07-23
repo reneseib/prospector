@@ -150,7 +150,7 @@ class Prospector:
 
             if not "4" in stage:
                 # proc_count = os.cpu_count() - 1
-                proc_count = 2
+                proc_count = 4
             else:
                 proc_count = 4
 
