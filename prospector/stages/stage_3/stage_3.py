@@ -34,7 +34,7 @@ geo_data_dir = os.path.join(src_data_dir, "geo_data")
 results_dir = os.path.join(main_dir, "results")
 
 
-def geom_intersects_pa(protected_area, geom, overlap_list):
+def geom_intersects_pa(protected_area, geom):
     overlap_result = False
 
     # Check if any of these conditions are true
@@ -43,51 +43,58 @@ def geom_intersects_pa(protected_area, geom, overlap_list):
     res3 = protected_area["geometry"].overlaps(geom).any()
 
     if res1 == True or res2 == True or res3 == True:
-        overlap_result = True
-
-    overlap_list.append(overlap_result)
-
-    return None
-
-
-def intersect_wrapper(regio, stage, gdf, overlap_data, i):
-    key = list(overlap_data.keys())[i]
-
-    # Add new column
-    gdf[key] = None
-
-    print(f"Working on {key} in {regio}")
-
-    overlap_list = []
-    protected_area = overlap_data[key]["data"]
-
-    protected_area = protected_area
-
-    print(f"Finding intersections for {key} now...")
-
-    # Convert gdf to 25832 if necessary
-    if config["epsg"][regio] != 25832:
-        gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
-
-    # Original function
-    gdf["geometry"].apply(
-        lambda geom: geom_intersects_pa(protected_area, geom, overlap_list)
-    )
-
-    # Append results to dataframe
-    gdf[key] = overlap_list
-
-    # Convert back to original CRS so we don't overwrite
-    # the data with false CRS
-    gdf = gdf.to_crs(config["epsg"][regio])
-
-    # Save processing results to disk
-    stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
-    if stage_successfully_saved:
-        print(f"{protected_area} for {regio} successfully saved to file")
         return True
-    else:
-        return False
+
+    return False
+
+
+# def geom_intersects_pa(protected_area, geom, overlap_list):
+#     overlap_result = False
+#
+#     # Check if any of these conditions are true
+#     res1 = protected_area["geometry"].contains(geom).any()
+#     res2 = protected_area["geometry"].within(geom).any()
+#     res3 = protected_area["geometry"].overlaps(geom).any()
+#
+#     if res1 == True or res2 == True or res3 == True:
+#         overlap_result = True
+#
+#     overlap_list.append(overlap_result)
+#
+#     return None
+
+
+# def intersect_wrapper(regio, stage, gdf, overlap_data, i):
+#     key = list(overlap_data.keys())[i]
+#
+#     print(f"Working on {key} in {regio}")
+#
+#     overlap_list = []
+#     protected_area = overlap_data[key]["data"]
+#
+#     protected_area = protected_area.set_crs(25832).to_crs(25832)
+#
+#     print(f"Finding intersections for {key} now...")
+#
+#     # Check for overlaps
+#     gdf["geometry"].apply(
+#         lambda geom: geom_intersects_pa(protected_area, geom, overlap_list)
+#     )
+#
+#     # Append results to dataframe
+#     gdf[key] = overlap_list
+#
+#     # Convert back to original CRS
+#     gdf = gdf.to_crs(config["epsg"][regio])
+#
+#     print(gdf)
+#     # Save processing results to disk
+#     stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
+#     if stage_successfully_saved:
+#         print("Stage successfully saved to file")
+#         return True
+#     else:
+#         return False
 
 
 def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
@@ -114,37 +121,46 @@ def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
     # if not os.path.isfile(output_file_gpkg):
     if 1 == 1:
         # 4. Check if prot_area_dir exists
-        if os.path.isdir(prot_area_dir_path):
+        # if os.path.isdir(prot_area_dir_path):
+        if 2 == 2:
 
             # 5. Load previous stage data from file
             gdf = util.load_prev_stage_to_gdf(regio, stage)
 
+            # Super important to convert all GDF to 25832, since we compare against national data which is all in 25832!!!
+            if config["epsg"][regio] != 25832:
+                gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(
+                    25832
+                )
+
             if len(gdf) > 0:
                 print(f"Loaded the previous stage data for {regio}")
-                print("Checking for intersections now...")
 
                 # 6. Check for intersections/overlaps and
                 # save all interim results
                 overlap_data = prot_areas.overlap_data
 
-                all_stages_successful = []
+                for key in list(overlap_data.keys()):
+                    print(f"{key} in {regio}: Starting overlaps checks")
+                    protected_area = overlap_data[key]["data"]
+                    protected_area = protected_area.set_crs(25832, allow_override=True)
 
-                for i in range(len(overlap_data.keys())):
-                    stage_successfully_saved = intersect_wrapper(
-                        regio, stage, gdf, overlap_data, i
+                    gdf[key] = gdf["geometry"].apply(
+                        lambda geom: geom_intersects_pa(protected_area, geom)
                     )
-                    all_stages_successful.append(stage_successfully_saved)
 
-                if all(all_stages_successful) != False:
+            # Before saving, transform back to original CRS
+            gdf = gdf.to_crs(config["epsg"][regio])
 
-                    print(f"All intersections for {regio} added and saved to file")
-                    print("")
-
-                    return True
-
-                else:
-                    return False
-
+            # Save the results
+            stage_successfully_saved = util.save_current_stage_to_file(
+                gdf, regio, stage
+            )
+            if stage_successfully_saved:
+                print(
+                    f"\033[91m Stage 3 for {regio} successfully saved to file \033[0m"
+                )
+                return True
             else:
                 return False
         else:
