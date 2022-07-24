@@ -137,7 +137,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 dist_gdf = gpd.sjoin_nearest(
                     gdf_non_overlapping,
                     pa_gdf,
-                    distance_col=f"{overlap_col.replace('_overlap','')}_distance",
+                    distance_col=overlap_col.replace("_overlap", "_distance"),
                     how="left",
                 )
 
