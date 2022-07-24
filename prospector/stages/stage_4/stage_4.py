@@ -138,23 +138,26 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     gdf_non_overlapping,
                     pa_gdf,
                     distance_col=f"{overlap_col.replace('_overlap','')}_distance",
+                    how="left",
                 )
 
-                # Convert to pandas dataframe to make the merge
+                # Convert both GDF to pandas dataframe to make the merge
                 # which isn't possible in geopandas
                 pd_dist = pd.DataFrame(dist_gdf)
-
                 pd_gdf = pd.DataFrame(gdf)
 
                 try:
+                    # Find the unique columns from pd_dist to keep in merge
                     dist_target_cols = list(pd_dist.columns.difference(pd_gdf.columns))
 
                     dist_target_cols.append("id")
 
+                    # Remove duplicate columns with their weird extensions
                     for col in dist_target_cols:
                         if "_left" in col or "_right" in col:
                             dist_target_cols.remove(col)
 
+                    # The actual merge on 'id' = merge rows with same 'id'
                     mrgd_gdf = pd.merge(
                         pd_gdf,
                         pd_dist[dist_target_cols],
@@ -166,21 +169,22 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                     print("pd_gdf:", pd_gdf.columns)
                     print("pd_dist:", pd_dist.columns)
                     raise
-                """
-                TODO: Add additional merge here with the real GDF and the one we produced above
-                """
+
+                # Convert back to geodataframe
                 gdf = gpd.GeoDataFrame(mrgd_gdf)
 
                 # Show results
                 print(f"{regio} {overlap_col}: Columns after merge")
                 showcols = []
+
+                # Just for visual check in terminal
                 for col in gdf.columns:
                     if "distance" in col:
                         showcols.append(col)
                         pos = col.rfind("_") + 1
                         add_col = col[:pos] + "overlap"
                         showcols.append(add_col)
-                print(gdf[showcols].head(20))
+                print(gdf[showcols])
                 print("\n\n")
 
                 # Drop double and unnecssary columns
