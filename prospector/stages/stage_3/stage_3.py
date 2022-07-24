@@ -158,7 +158,9 @@ def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
             )
             if stage_successfully_saved:
                 print(
-                    f"\033[91m Stage 3 for {regio} successfully saved to file \033[0m"
+                    "\033[91m",
+                    f"Stage 3 for {regio} successfully saved to file",
+                    "\033[0m",
                 )
                 return True
             else:
