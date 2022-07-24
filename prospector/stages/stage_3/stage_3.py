@@ -53,12 +53,21 @@ def geom_intersects_pa(protected_area, geom, overlap_list):
 def intersect_wrapper(regio, stage, gdf, overlap_data, i):
     key = list(overlap_data.keys())[i]
 
+    # Add new column
+    gdf[key] = None
+
     print(f"Working on {key} in {regio}")
 
     overlap_list = []
     protected_area = overlap_data[key]["data"]
 
+    protected_area = protected_area
+
     print(f"Finding intersections for {key} now...")
+
+    # Convert gdf to 25832 if necessary
+    if config["epsg"][regio] != 25832:
+        gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
 
     # Original function
     gdf["geometry"].apply(
@@ -68,7 +77,8 @@ def intersect_wrapper(regio, stage, gdf, overlap_data, i):
     # Append results to dataframe
     gdf[key] = overlap_list
 
-    # Convert back to original CRS
+    # Convert back to original CRS so we don't overwrite
+    # the data with false CRS
     gdf = gdf.set_crs(config["epsg"][regio], allow_override=True)
 
     # Save processing results to disk
@@ -108,10 +118,6 @@ def f_stage_3(regio, stage="3-filtered_by_intersection_protected_area"):
 
             # 5. Load previous stage data from file
             gdf = util.load_prev_stage_to_gdf(regio, stage)
-
-            """
-            TODO: Redo Stage 3 and 4 for all 25833 states!
-            """
 
             if len(gdf) > 0:
                 print(f"Loaded the previous stage data for {regio}")
