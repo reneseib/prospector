@@ -65,6 +65,10 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
         gdf = util.load_prev_stage_to_gdf(regio, stage)
         print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
 
+        # Convert gdf to 25832 if necessary
+        if config["epsg"][regio] != 25832:
+            gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
+
         if len(gdf) > 0:
 
             all_overlap_cols = list(prot_areas.overlap_data.keys())
@@ -171,15 +175,6 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
 
                 pd_gdf = pd.DataFrame(gdf)
 
-                """
-                Can't we just add the two new columns to the original GDF
-                via
-
-                gdf[gdf[overlap_col] == False, "lsg_distance"] = dist_gdf["distance"]
-
-                ???
-                """
-
                 try:
                     dist_target_cols = list(pd_dist.columns.difference(pd_gdf.columns))
 
@@ -216,7 +211,6 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                         showcols.append(add_col)
                 print(gdf[showcols].head(20))
                 print("\n\n")
-                # print(gdf["lsg_overlap", "lsg_distance"].head(10))
 
                 # Drop double and unnecssary columns
                 for col in gdf.columns:
@@ -232,21 +226,25 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 overlap_dist_col = overlap_col[:pos] + "distance"
                 done_pa.append(overlap_dist_col)
 
-    #     # Save processing results to disk
-    #     stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
-    #     if stage_successfully_saved:
-    #         cols = []
-    #         for col in gdf.columns:
-    #             if "overlap" in col or "distance" in col:
-    #                 cols.append(col)
-    #         print(gdf[cols].head(20))
-    #         print("Stage successfully saved to file")
-    #         return True
-    #     else:
-    #         return False
-    #
-    #     print("for all PA:", timeit.default_timer() - t)
-    #
-    # else:
-    #     # File already exists, return False
-    #     return False
+        # Convert back to original CRS
+        if gdf.crs == 25832 and 25832 != config["epsg"][regio]:
+            gdf = gdf.set_crs(25832).to_crs(config["epsg"][regio])
+
+        # Save processing results to disk
+        stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
+        if stage_successfully_saved:
+            cols = []
+            for col in gdf.columns:
+                if "overlap" in col or "distance" in col:
+                    cols.append(col)
+            print(gdf[cols].head(20))
+            print("Stage successfully saved to file")
+            return True
+        else:
+            return False
+
+        print("for all PA:", timeit.default_timer() - t)
+
+    else:
+        # File already exists, return False
+        return False
