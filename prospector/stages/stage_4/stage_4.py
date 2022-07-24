@@ -81,37 +81,8 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 overlap_col = all_overlap_cols[i]
                 overlap_file_name = prot_areas.prot_area_names[i]
 
-                """
-                Process:
-                - Copy GDF
-                gdf_non_overlapping = gdf.copy()
-                gdf_non_overlapping = gdf_non_overlapping[gdf_non_overlapping[overlap_col] == False]
-
-
-                - Drop unnecssary columns = all but ID, overlap_col and GEOMETRY as well as the new distance columns
-                # Drop all the double columns from merge
-                for col in gdf_non_overlapping.columns:
-                    if (
-                        "_left" in col
-                        or "_right" in col
-                        or "_x" in col
-                        or "_y" in col
-                        or col.startswith("np_")
-                    ):
-                        gdf_non_overlapping = gdf_non_overlapping.drop(columns=[col])
-
-                # To not oversize the gdf in memory, we need to drop
-                # the done columns in the copy of gdf
-                if len(done_pa) > 0:
-                    gdf_non_overlapping = gdf_non_overlapping.drop(columns=done_pa)
-
-                - sjoin_nearest with PA gdf
-                - Add the resulting distance column to the ORIGINAL GDF
-                - Start again at the beginning
-                """
-
                 # Filter GDF for non-overlapping rows at this PA
-                gdf_non_overlapping = gdf[gdf[overlap_col] == False]
+                gdf_non_overlapping = gdf[gdf[overlap_col] != True]
 
                 # Drop all the double columns from merge
                 for col in gdf_non_overlapping.columns:
@@ -227,8 +198,8 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 done_pa.append(overlap_dist_col)
 
         # Convert back to original CRS
-        if gdf.crs == 25832 and 25832 != config["epsg"][regio]:
-            gdf = gdf.set_crs(25832).to_crs(config["epsg"][regio])
+        # if gdf.crs == 25832 and 25832 != config["epsg"][regio]:
+        gdf = gdf.set_crs(25832).to_crs(config["epsg"][regio])
 
         # Save processing results to disk
         stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
