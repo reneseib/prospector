@@ -79,7 +79,7 @@ def intersect_wrapper(regio, stage, gdf, overlap_data, i):
 
     # Convert back to original CRS so we don't overwrite
     # the data with false CRS
-    gdf = gdf.set_crs(config["epsg"][regio], allow_override=True)
+    gdf = gdf.to_crs(config["epsg"][regio])
 
     # Save processing results to disk
     stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
