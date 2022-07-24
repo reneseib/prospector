@@ -45,74 +45,84 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
         - wind park
         - solar park
     """
-    print("")
-    print(f">> {regio}: nearest substation")
-    t0 = timeit.default_timer()
-
-    gdf = util.load_prev_stage_to_gdf(regio, stage)
-
-    power_file = "/common/ecap/resources/power/substations-germany.csv"
-
-    power_df = pd.read_csv(power_file, delimiter=";", encoding="utf8")
-    power_df["Koordinaten"] = power_df["Koordinaten"].apply(
-        lambda x: Point(to_tuple(x))
+    output_file_gpkg = os.path.join(
+        results_dir,
+        "stages",
+        stage,
+        regio,
+        "gpkg",
+        f"{regio}-{stage}.gpkg",
     )
-    # print(df["Koordinaten"])
-    power_gdf = gpd.GeoDataFrame(power_df, geometry="Koordinaten")
-    power_gdf["geometry"] = power_gdf["Koordinaten"]
-    power_gdf = power_gdf.drop(columns=["Koordinaten"])
-    power_gdf = power_gdf.set_crs(4326).to_crs(25832)
+    # Before starting the whole process, check if the output file already exists
+    print(f"Starting stage 5 now")
 
-    print("")
-    print("")
+    # if not os.path.isfile(output_file_gpkg):
+    # TODO: Reverse - Just for testing purposes
 
-    gdf["nearest_subst_distance_km"] = None
-    gdf["nearest_subst_info"] = None
+    """
+    Actually we would need to add another loop here, to iterate over the different directories in the "others" dir, such as 'residential', 'commercial', 'wind' etc.
 
-    for i in range(len(gdf)):
-        print(i, "/", len(gdf))
-        # Iterate through all geometries/rows of gdf,
-        # make a new gdf from the single geometries
-        # and sjoin it with the power_gdf to get the
-        # nearest station to that geomertry.
-        geom = gdf.iloc[i, gdf.columns.get_loc("geometry")]
-        geom_gdf = gpd.GeoDataFrame(
-            [Point((0.0, 0.0))], columns=["geometry"], geometry="geometry"
-        )
-        geom_gdf.iat[0, 0] = geom
+    For now, we just try it with a single target_osm file to check how that works
+    """
+    if 1 == 1:
+        t = timeit.default_timer()
+        print(f"Working on {regio} now:")
 
-        distances = gpd.sjoin_nearest(geom_gdf, power_gdf, distance_col="distance")
+        # Load file from previous stage to a GDF
+        gdf = util.load_prev_stage_to_gdf(regio, stage)
+        print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
 
-        int_dict = {}
+        targets = {
+            "solar": f"{regio}-solar_power",
+            "wind": f"{regio}-wind_power",
+            "hydro": f"{regio}hydro_power",
+            "residential": f"{regio}-residential_area",
+            "commercial": f"{regio}-commercial_area",
+            "industrial": f"{regio}-industrial_area",
+            "raildways": f"{regio}-railways",
+            "roads": f"{regio}-roads",
+        }
 
-        gdfdict = distances[
-            distances["distance"] == distances["distance"].min()
-        ].to_dict()
+        for target, file_name in targets.items():
 
-        for k, v in gdfdict.items():
-            for key, val in v.items():
-                if "right" in str(k) or "left" in str(k):
-                    continue
-                else:
-                    int_dict[k] = val
+            target_osm = f"/common/ecap/prospector_data/src_data/others/{target}/{regio}/{file_name}.gpkg"
 
-        gdf.at[i, "nearest_subst_info"] = json.dumps(int_dict)
+            target_gdf = gpd.read_file(target_osm)
 
-        distances["nearest_subst_distance_km"] = distances["distance"].apply(
-            lambda x: x / 1000
-        )
+            if len(gdf) > 0 and len(target_gdf) > 0:
+                # Set to their original CRS, project always to epsg:25832 in case we run against something on national level which is always in 25832
+                if config["epsg"][regio] != 25832:
+                    print("need to convert those gdfs")
+                    gdf = gdf.set_crs(
+                        config["epsg"][regio], allow_override=True
+                    ).to_crs(25832)
+                    target_gdf = target_gdf.set_crs(
+                        config["epsg"][regio], allow_override=True
+                    ).to_crs(25832)
 
-        gdf.at[i, "nearest_subst_distance_km"] = distances[
-            "nearest_subst_distance_km"
-        ].min()
+                print("starting sjoin now")
 
-    stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
+                dist_gdf = gpd.sjoin_nearest(gdf, target_gdf, distance_col="distance")
 
-    if stage_successfully_saved != False:
+                print(dist_gdf["distance"])
 
-        print("Nearest substation & info added and GDF saved to file")
-        print("")
-
-        return True
-    else:
-        return False
+            #     # Save processing results to disk
+            #     stage_successfully_saved = util.save_current_stage_to_file(
+            #         gdf, regio, stage
+            #     )
+            #     if stage_successfully_saved:
+            #         cols = []
+            #         for col in gdf.columns:
+            #             if "distance" in col:
+            #                 cols.append(col)
+            #         print(gdf[cols].head(20))
+            #         print("Stage successfully saved to file")
+            #         return True
+            #     else:
+            #         return False
+            #
+            #     print("for all PA:", timeit.default_timer() - t)
+            #
+            # else:
+            #     # File already exists, return False
+            #     return False
