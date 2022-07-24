@@ -17,7 +17,7 @@ config = {
         "bremen": 25832,
         "hamburg": 25832,
         "hessen": 25832,
-        "mecklenburg_vorpommern": 25832,
+        "mecklenburg_vorpommern": 25833,
         "niedersachsen": 25832,
         "nordrhein_westfalen": 25832,
         "rheinland_pfalz": 25832,
