@@ -52,7 +52,7 @@ prot_area_names = [
     "nationalparks_gesamt_de",
     "naturmonumente_gesamt_de",
     "vogelschutz_gesamt_de",
-    "naturparks_gesamt_de",
+    "naturparks_gesamt_de",  # unimportant
 ]
 
 # Load prot area files to GDF and store the GDFs in a dict
