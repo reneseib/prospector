@@ -58,12 +58,6 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
 
     # if not os.path.isfile(output_file_gpkg):
     # TODO: Reverse - Just for testing purposes
-
-    """
-    Actually we would need to add another loop here, to iterate over the different directories in the "others" dir, such as 'residential', 'commercial', 'wind' etc.
-
-    For now, we just try it with a single target_osm file to check how that works
-    """
     if 1 == 1:
         t = timeit.default_timer()
         print(f"Working on {regio} now:")
@@ -256,24 +250,15 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
             cols_to_drop.append(dcol)
     gdf = gdf.drop(columns=cols_to_drop)
 
-    print(gdf.columns)
-    #     # Save processing results to disk
-    #     stage_successfully_saved = util.save_current_stage_to_file(
-    #         gdf, regio, stage
-    #     )
-    #     if stage_successfully_saved:
-    #         cols = []
-    #         for col in gdf.columns:
-    #             if "distance" in col:
-    #                 cols.append(col)
-    #         print(gdf[cols].head(20))
-    #         print("Stage successfully saved to file")
-    #         return True
-    #     else:
-    #         return False
-    #
-    #     print("for all PA:", timeit.default_timer() - t)
-    #
-    # else:
-    #     # File already exists, return False
-    #     return False
+    # Save processing results to disk
+    stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
+    if stage_successfully_saved:
+        cols = []
+        for col in gdf.columns:
+            if "nearest" in col:
+                cols.append(col)
+        print(gdf[cols].head(20))
+        print("Stage successfully saved to file")
+        return True
+    else:
+        return False
