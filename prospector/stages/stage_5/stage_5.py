@@ -69,10 +69,13 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
         print(f"Working on {regio} now:")
 
         # Load file from previous stage to a GDF
-        gdf = util.load_prev_stage_to_gdf(regio, stage)
-        print("LEN GDF")
-        print(len(gdf))
-        print(f"{regio}'s previous stage loaded - starting to iterate over GDF")
+        orig_gdf = util.load_prev_stage_to_gdf(regio, stage)
+
+        gdf = orig_gdf.copy()
+
+        # In case we run against national data (in 25832)
+        # we would need to transform the geometries to 25832
+        gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
 
         targets = {
             "solar": f"{regio}-solar_power",
@@ -105,22 +108,34 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
                         gdf = gdf.drop(columns=[col])
 
                 if config["epsg"][regio] != 25832:
-                    print("need to convert those gdfs")
-                    gdf = gdf.set_crs(
-                        config["epsg"][regio], allow_override=True
-                    ).to_crs(25832)
-
+                    # In case we run against national data (in 25832)
+                    # we would need to transform the geometries to 25832
                     target_gdf = target_gdf.set_crs(
                         config["epsg"][regio], allow_override=True
                     ).to_crs(25832)
 
-                print("starting sjoin now")
+                gdf["idx"] = gdf["id"]
 
-                dist_gdf = gpd.sjoin_nearest(gdf, target_gdf, distance_col="distance")
+                dist_gdf = gpd.sjoin_nearest(
+                    gdf, target_gdf, distance_col="distance", how="left"
+                )
+
+                # Remove duplicates
+                dist_gdf = dist_gdf.drop_duplicates(subset=["area_m2"])
+
+                # for i in range(len(gdf)):
+                #     idx = dist_gdf.loc[i, "idx"]
+                #     id = gdf.loc[i, "id"]
+                #     print(id)
+                #     if not str(idx) == str(id):
+                #         print(dist_gdf.loc[i])
+                #         print(gdf.loc[i])
+                #         os._exit(0)
 
                 # Get back the normal id column
-                dist_gdf["id"] = dist_gdf["id_left"]
-                dist_gdf = dist_gdf.drop(columns=["id_left"])
+                dist_gdf["id"] = dist_gdf["idx"]
+                dist_gdf = dist_gdf.drop(columns=["idx"])
+                gdf = gdf.drop(columns=["idx"])
 
                 # Convert to pandas dataframe to make the merge
                 # which isn't possible in geopandas
@@ -135,10 +150,18 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
 
                     dist_target_cols.append("id")
 
+                    # Remove duplicate columns
                     for col in dist_target_cols:
-                        if "_left" in col or "_right" in col:
+                        if (
+                            "_left" in col
+                            or "_right" in col
+                            or "_x" in col
+                            or "_y" in col
+                            or col.startswith("np_")
+                        ):
                             dist_target_cols.remove(col)
 
+                    # Do the actual merge
                     mrgd_gdf = pd.merge(
                         pd_gdf,
                         pd_dist[dist_target_cols],
@@ -156,13 +179,16 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
                 gdf[f"nearest_{target}"] = gdf["distance"]
                 gdf = gdf.drop(columns=["distance"])
 
-                print(gdf.columns)
-                print(gdf[["id", f"nearest_{target}"]])
+                #
+                # print(gdf.columns)
+                # print(gdf[["id", f"nearest_{target}"]])
                 gdf = gdf.drop_duplicates(
                     subset=["id", f"nearest_{target}", "geometry"]
                 )
+
                 print(gdf[["id", f"nearest_{target}"]])
 
+                # Remove duplicate columns
                 for col in gdf.columns:
                     if (
                         "_left" in col
@@ -189,6 +215,7 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
         "foot",
         "highway",
         "int_ref",
+        "port",
         "junction",
         "lanes",
         "lit",
