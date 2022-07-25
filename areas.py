@@ -23,22 +23,22 @@ for dir in config["init"]["proj_path"]:
 
 
 regios = [
-    "baden_wuerttemberg",
-    "berlin",
-    "bremen",
-    "hamburg",
-    "hessen",
+    # "baden_wuerttemberg",
+    # "berlin",
+    # "bremen",
+    # "hamburg",
+    # "hessen",
     "mecklenburg_vorpommern",
-    "niedersachsen",
-    "nordrhein_westfalen",
-    "rheinland_pfalz",
-    "saarland",
-    "bayern",
-    "sachsen_anhalt",
-    "sachsen",
-    "schleswig_holstein",
-    "thueringen",
-    "brandenburg",
+    # "niedersachsen",
+    # "nordrhein_westfalen",
+    # "rheinland_pfalz",
+    # "saarland",
+    # "bayern",
+    # "sachsen_anhalt",
+    # "sachsen",
+    # "schleswig_holstein",
+    # "thueringen",
+    # "brandenburg",
 ]
 
 
@@ -57,7 +57,7 @@ def filter_osm_by_roads(
 
 
 def save_roads(regio, gdf):
-    trgt_dir = "/common/ecap/prospector_data/src_data/areas"
+    trgt_dir = "/common/ecap/prospector_data/src_data/others"
 
     output_path_gpkg = os.path.join(trgt_dir, "roads", regio)
 
