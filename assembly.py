@@ -69,32 +69,31 @@ all_columns = []
 
 if __name__ == "__main__":
     for stage in stages:
-        print("STAGE:", stage)
         stage_dir = os.path.join(src_dir, stage)
 
-        if os.path.exists(stage_dir):
-            for regio in regios:
-                regio_dir = os.path.join(stage_dir, regio)
+        for regio in regios:
+            regio_dir = os.path.join(stage_dir, regio)
 
-                if os.path.exists(regio_dir):
-                    gpkg_regio_dir = os.path.join(regio_dir, "gpkg")
+            gpkg_regio_dir = os.path.join(regio_dir, "gpkg")
 
-                    if os.path.exists(gpkg_regio_dir):
-                        for file in os.listdir(gpkg_regio_dir):
-                            if file.endswith(".gpkg"):
-                                file_path = os.path.join(gpkg_regio_dir, file)
-                                data = gpd.read_file(file_path)
-                                gdf = gpd.GeoDataFrame(data)
+            for file in os.listdir(gpkg_regio_dir):
+                if file.endswith(".gpkg"):
+                    file_path = os.path.join(gpkg_regio_dir, file)
+                    data = gpd.read_file(file_path)
+                    gdf = gpd.GeoDataFrame(data)
 
-                                # Drop all unnecssary columns from gdf
-                                cols_to_drop = []
-                                for col in gdf.columns:
-                                    if col in drop_cols:
-                                        cols_to_drop.append(col)
-                                gdf = gdf.drop(columns=cols_to_drop)
+                    # Drop all unnecssary columns from gdf
+                    cols_to_drop = []
+                    for col in gdf.columns:
+                        if col in drop_cols:
+                            cols_to_drop.append(col)
+                    gdf = gdf.drop(columns=cols_to_drop)
 
-        print("================================")
-
-print("")
-print("")
-print(all_columns)
+                    # Load existing final file is it exists.
+                    # If not, create new final file
+                    final_file = os.path.join(target_dir, regio, f"{regio}_final.gpkg")
+                    if os.path.exists(final_file):
+                        final_data = gpd.read_file(final_file)
+                        final_gdf = gpd.GeoDataFrame(final_data)
+                    else:
+                        gdf.to_file(final_file, driver="GPKG")
