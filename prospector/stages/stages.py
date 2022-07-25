@@ -31,6 +31,7 @@ from stage_6.stage_6 import f_stage_6
 from stage_6_5.stage_6_5 import f_stage_6_5
 from stage_7.stage_7 import f_stage_7
 from stage_8.stage_8 import f_stage_8
+from stage_8_5.stage_8_5 import f_stage_8_5
 
 
 stage_funcs = {
@@ -45,6 +46,7 @@ stage_funcs = {
     "stage_6_5": f_stage_6_5,
     "stage_7": f_stage_7,
     "stage_8": f_stage_8,
+    "stage_8_5": f_stage_8_5,
 }
 
 stage_names = {
@@ -59,4 +61,5 @@ stage_names = {
     "stage_6_5": "6_5-added_slope_results",
     "stage_7": "7-added_nearest_agrargen",
     "stage_8": "8-added_solar_data",
+    "stage_8_5": "8_5-added_geportal_data",
 }
