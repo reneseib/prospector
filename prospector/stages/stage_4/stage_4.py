@@ -23,7 +23,7 @@ for dir in config["init"]["prospector_package_path"]:
 
 from util import util
 
-import prot_areas
+# import prot_areas
 
 from display.display import Display
 
@@ -84,7 +84,7 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
                 # Filter GDF for non-overlapping rows at this PA
                 gdf_non_overlapping = gdf[gdf[overlap_col] != True]
 
-                # Drop all the double columns from merge
+                # Drop all unnecssary columns at the beginning
                 for col in gdf_non_overlapping.columns:
                     if (
                         "_left" in col
@@ -154,7 +154,13 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
 
                     # Remove duplicate columns with their weird extensions
                     for col in dist_target_cols:
-                        if "_left" in col or "_right" in col:
+                        if (
+                            "_left" in col
+                            or "_right" in col
+                            or "_x" in col
+                            or "_y" in col
+                            or col.startswith("np_")
+                        ):
                             dist_target_cols.remove(col)
 
                     # The actual merge on 'id' = merge rows with same 'id'
@@ -172,6 +178,8 @@ def f_stage_4(regio, stage="4-added_nearest_protected_area"):
 
                 # Convert back to geodataframe
                 gdf = gpd.GeoDataFrame(mrgd_gdf)
+
+                gdf = gdf.drop_duplicates(subset=["geometry"])
 
                 # Show results
                 print(f"{regio} {overlap_col}: Columns after merge")
