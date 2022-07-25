@@ -9,6 +9,8 @@ import numpy as np
 import json
 import random
 import time
+import re
+from numba import prange
 from random_user_agent.user_agent import UserAgent
 from random_user_agent.params import SoftwareName, OperatingSystem
 
@@ -40,11 +42,12 @@ def build_bbox(lon, lat):
     latMax = latMin * 1.0000001
 
     BBOX = f"{lonMin},{latMin},{lonMax},{latMax}"
+
     return BBOX
 
 
 def add_geoportal_data(
-    gdf, i, proxy_server: ProxyRequest, throttle: float, lat: float, lon: float
+    regio: str, proxy_server: ProxyRequest, throttle: float, coords: tuple
 ) -> bool:
     """
     Get request to solaratlas to fetch data, returns json
@@ -54,8 +57,8 @@ def add_geoportal_data(
     # proxy_request.get method so it returns a status code 403
     # if an error happens. In this case we just return false since
     # the cells in GDF are already NaN.
-
-    BBOX = build_bbox(coordinates)
+    lon, lat = coords
+    BBOX = build_bbox(lon, lat)
 
     api_url = f"""https://www.geoportal.de/openurl/https/services.bgr.de/wms/boden/sqr1000/?SERVICE=WMS&\
     VERSION=1.3.0&\
@@ -75,6 +78,12 @@ def add_geoportal_data(
     CRS=EPSG:25832&\
     STYLES=&\
     BBOX={BBOX}"""
+
+    api_url = api_url.replace(" ", "")
+
+    user_agent_rotator = UserAgent(
+        limit=500,
+    )
 
     headers = {
         "Accept": "application/json, text/plain, */*",
@@ -107,22 +116,20 @@ def add_geoportal_data(
 
     if response.status_code == 200:
         re_pv = re.compile(r'PixelValue="(.*?)"')
-        pixel_value = re.findall(re_pv, response)
+        pixel_value = re.findall(re_pv, response.text)
 
-        soil_score = 0
+        soil_score = None
 
         if pixel_value and len(pixel_value) != 0:
             if "nodata" not in str(pixel_value).lower():
                 soil_score = float(pixel_value[0].replace(",", "."))
-            else:
-                soil_score = 0
 
         return soil_score
     else:
         return False
 
 
-def f_stage_8(regio, stage="8_5-added_geportal_data"):
+def f_stage_8_5(regio, stage="8_5-added_geportal_data"):
     """
     Stage 8.5:
     Adds several data from https://geoportal.de
@@ -136,8 +143,17 @@ def f_stage_8(regio, stage="8_5-added_geportal_data"):
     if 1 == 1:
         # Load previous stage data
         gdf = util.load_prev_stage_to_gdf(regio, stage)
+
         if len(gdf) > 0:
-            print(regio)
+            print("Starting", regio, "-", len(gdf))
+            print("--------")
+
+            # If necessary, transform CRS to 'global' 25832 as geopoartal.de
+            # is fully in 25832
+            if config["epsg"][regio] != 25832:
+                gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(
+                    25832
+                )
 
             t0 = time.time()
 
@@ -153,28 +169,37 @@ def f_stage_8(regio, stage="8_5-added_geportal_data"):
             # Create proxyserver instance to use in loop
             proxy_server = ProxyRequest()
 
-            if len(gdf) > 0:
+            throttle = 0.125
 
-                gdf["soil_score"] = gdf["centroid"].apply(lambda x: add_geoportal_data)
+            # gdf["soil_score"] = gdf["centroid"].apply(
+            #     lambda coords: add_geoportal_data(regio, proxy_server, throttle, coords)
+            # )
 
-                # Iterage over gdf
-                for i in range(len(gdf)):
-                    # Get centroid coordinates
-                    lat, lon = gdf.loc[i, "centroid"]
+            gdf["soil_score"] = None
 
-                    throttle = 0.45  # in seconds
-                    added = add_geoportal_data(gdf, i, proxy_server, throttle, lat, lon)
+            # For Loop instead of .apply()
+            for i in prange(len(gdf)):
+                coords = gdf.loc[i, "centroid"]
 
-                gdf = gdf.drop(columns=["centroid"])
+                soil_score = add_geoportal_data(regio, proxy_server, throttle, coords)
 
-                # Save the final result
-                final_save = util.save_current_stage_to_file(gdf, regio, stage)
-                print(f"{regio}: all solar data saved")
+                print(regio, " - ", round((i / len(gdf)) * 100, 2), "%")
 
-                if final_save == True:
-                    return True
-                else:
-                    return False
+            # Drop centroid containing tuples
+            gdf = gdf.drop(columns=["centroid"])
+
+            # Transform back to original CRS
+            if config["epsg"][regio] != 25832:
+                gdf = gdf.set_crs(25832).to_crs(config["epsg"][regio])
+
+            # Save the final result
+            final_save = util.save_current_stage_to_file(gdf, regio, stage)
+            print(f"{regio}: all soil scores added and saved")
+
+            if final_save == True:
+                return True
+            else:
+                return False
     else:
         print(f"For {regio} solar data already exist")
         return False
