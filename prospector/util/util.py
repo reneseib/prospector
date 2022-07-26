@@ -407,31 +407,38 @@ def get_extrema(geom: Geometry) -> np.array:
 
 
 def stringify(arr: Union[np.ndarray, list]) -> str:
-    arrstr = str(arr).strip()
-    arrstr = re.sub(r"(\d)(\s|\s\s+)(\d)", r"\1, \3", arrstr)
-    arrstr = arrstr.split("\n")
-    arrstr = [x.strip() for x in arrstr]
-    arrstr = ",".join(arrstr)
-    arrstr = re.sub(r"\s\s+", " ", arrstr)
-    arrstr = arrstr.replace(". ", ".0000001, ")
-    arrstr = arrstr.replace(",,", ",")
-    arrstr = arrstr.replace(" ", "")
-    if arrstr.startswith(","):
-        arrstr = arr[1:]
-    if arrstr.endswith(","):
-        arrstr = arr[:-1]
+    if type(arr) == np.ndarray or type(arr) == list:
+        arrstr = str(arr).strip()
+        arrstr = re.sub(r"(\d)(\s|\s\s+)(\d)", r"\1, \3", arrstr)
+        arrstr = arrstr.split("\n")
+        arrstr = [x.strip() for x in arrstr]
+        arrstr = ",".join(arrstr)
+        arrstr = re.sub(r"\s\s+", " ", arrstr)
+        arrstr = arrstr.replace(". ", ".0000001, ")
+        arrstr = arrstr.replace(",,", ",")
+        arrstr = arrstr.replace(" ", "")
+        if arrstr.startswith(","):
+            arrstr = arr[1:]
+        if arrstr.endswith(","):
+            arrstr = arr[:-1]
 
-    arrstr = arrstr.replace("array(", "").replace(")", "")
-    arrstr = arrstr.replace("list(", "").replace(")", "")
-    arrstr = arrstr.replace("Ellipsis", "")
-    arrstr = arrstr.replace(",,", ",").replace("][", "],[")
+        arrstr = arrstr.replace("array(", "").replace(")", "")
+        arrstr = arrstr.replace("list(", "").replace(")", "")
+        arrstr = arrstr.replace("Ellipsis", "")
+        arrstr = arrstr.replace(",,", ",").replace("][", "],[")
+    else:
+        arrstr = arr
     return arrstr
 
 
 def arrify(input_arrstr: str) -> np.ndarray:
     # input_arrstr = input_arrstr.replace("Ellipsis", "")
     # input_arrstr = input_arrstr.replace("list(", "").replace(")", "")
-    # input_arrstr = input_arrstr.replace(",,", ",").replace("][", "],[")
+
+    # Enable loading of malformed input
+    re_malformation = re.compile(r"(\d)\-(\d)")
+    input_arrstr = re.sub(re_malformation, r"\1, -\2", input_arrstr)
+
     try:
         if input_arrstr.startswith("[array"):
             # It is a multipolygon wrapped in a list
