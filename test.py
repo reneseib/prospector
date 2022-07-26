@@ -1,65 +1,39 @@
-import os, sys
-import pandas as pd
+import os
+import re
 import geopandas as gpd
+import pandas as pd
+from shapely import wkt
 from shapely.geometry import Point
+from multiprocessing import Pool
+from pconfig import config
 
-csv_file = "/common/ecap/prospector_data/src_data/power/csv/substations-germany.csv"
+f = "/common/ecap/prospector_data/results/stages/7-added_nearest_agrargen/baden_wuerttemberg/gpkg/baden_wuerttemberg-7-added_nearest_agrargen.gpkg"
 
-gpkg_file = "/common/ecap/prospector_data/src_data/power/gpkg/substations-germany.gpkg"
+fa = "/common/ecap/prospector_data/results/stages/2-added_centroids/baden_wuerttemberg/gpkg/baden_wuerttemberg-2-added_centroids.gpkg"
 
-df = pd.read_csv(csv_file, header=0, sep=";")
+regios = config["area"]["subregions"]
+stages = [
+    # "4-added_nearest_protected_area",
+    "5-added_nearest_substation",
+    # "6-added_slope",
+    # "6_5-added_slope_results",
+    # "7-added_nearest_agrargen",
+    # "8-added_solar_data",
+    # "8_5-added_geportal_data",
+]
 
 
-def to_tuple(str):
-    l = str.split(", ")
-    l = [float(x) for x in l]
-    t = tuple([l[1], l[0]])
-    return t
+for regio in regios:
 
+    file = f"/common/ecap/prospector_data/results/final/{regio}/gpkg/{regio}_final.gpkg"
 
-df["geometry"] = df["Koordinaten"].apply(lambda x: Point(to_tuple(x)))
+    data = gpd.read_file(file)
+    gdf = gpd.GeoDataFrame(data)
 
-for i in range(len(df)):
-    row = df.loc[i]
-    if row["380 kV"] == "x":
-        df.at[i, "380 kV"] = True
-    else:
-        df.at[i, "380 kV"] = False
-    if row["220 kV"] == "x":
-        df.at[i, "220 kV"] = True
-    else:
-        df.at[i, "220 kV"] = False
+    df = pd.DataFrame(gdf)
 
-gdf = gpd.GeoDataFrame(df, geometry="geometry")
-gdf = gdf.set_crs(4326).to_crs(25832)
+    dir = f"/common/ecap/prospector_data/results/final/{regio}/gpkg"
+    if not os.path.exists(dir):
+        os.mkdir(dir)
 
-print(gdf)
-gdf.to_file(gpkg_file, driver="GPKG")
-
-#
-# regios = [
-#     "baden_wuerttemberg",
-#     "bayern",
-#     "brandenburg",
-#     "berlin",
-#     "bremen",
-#     "hamburg",
-#     "hessen",
-#     "bayern",
-#     "niedersachsen",
-#     "nordrhein_westfalen",
-#     "rheinland_pfalz",
-#     "saarland",
-#     "sachsen_anhalt",
-#     "sachsen",
-#     "schleswig_holstein",
-#     "thueringen",
-# ]
-#
-# if not os.path.isdir(base_dir):
-#     os.mkdir(base_dir)
-#
-# for regio in regios:
-#     regio_dir = os.path.join(base_dir, regio)
-#     if not os.path.isdir(regio_dir):
-#         os.mkdir(regio_dir)
+    df.to_csv(file.replace("gpkg", "csv"))

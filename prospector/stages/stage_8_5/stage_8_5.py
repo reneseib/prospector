@@ -183,6 +183,8 @@ def f_stage_8_5(regio, stage="8_5-added_geportal_data"):
 
                 soil_score = add_geoportal_data(regio, proxy_server, throttle, coords)
 
+                gdf.at[i, "soil_score"] = soil_score
+
                 print(regio, " - ", round((i / len(gdf)) * 100, 2), "%")
 
             # Drop centroid containing tuples

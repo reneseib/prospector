@@ -80,6 +80,7 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
             "industrial": f"{regio}-industrial_areas",
             "railways": f"{regio}-railways",
             "roads": f"{regio}-roads",
+            "substations": "substations-germany",
         }
 
         for target, file_name in targets.items():
@@ -171,6 +172,24 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
                 # Back to GDF & rename distance column
                 gdf = gpd.GeoDataFrame(mrgd_gdf)
                 gdf[f"nearest_{target}"] = gdf["distance"]
+
+                if target == "substations":
+                    gdf["nearest_substation_info"] = None
+
+                    for i in range(len(gdf)):
+                        row = gdf.loc[
+                            i,
+                            [
+                                "220 kV",
+                                "380 kV",
+                                "Anlage",
+                                "Baujahr",
+                                "Bemerkungen",
+                                "Betreiber",
+                            ],
+                        ]
+                        gdf.at[i, "nearest_substation_info"] = row.to_json()
+
                 gdf = gdf.drop(columns=["distance"])
 
                 #
@@ -193,71 +212,92 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
                     ):
                         gdf = gdf.drop(columns=[col])
 
-    drop_cols = [
-        "disused",
-        "osm_type",
-        "railway",
-        "tags",
-        "timestamp",
-        "version",
-        "nearest_railways",
-        "access",
-        "area",
-        "bicycle",
-        "bridge",
-        "cycleway",
-        "foot",
-        "highway",
-        "int_ref",
-        "port",
-        "junction",
-        "lanes",
-        "lit",
-        "maxspeed",
-        "motorcar",
-        "motorroad",
-        "name",
-        "oneway",
-        "overtaking",
-        "psv",
-        "ref",
-        "segregated",
-        "sidewalk",
-        "smoothness",
-        "surface",
-        "tunnel",
-        "turn",
-        "width",
-        "farmland",
-        "meadow",
-        "changeset",
-        "power",
-        "construction",
-        "landuse",
-        "residential",
-        "commercial",
-        "depot",
-        "industrial",
-        "busway",
-        "footway",
-        "motor_vehicle",
-        "service",
-        "tracktype",
-    ]
-    cols_to_drop = []
-    for dcol in drop_cols:
-        if dcol in gdf.columns:
-            cols_to_drop.append(dcol)
-    gdf = gdf.drop(columns=cols_to_drop)
+                drop_cols = [
+                    "disused",
+                    "osm_type",
+                    "railway",
+                    "tags",
+                    "timestamp",
+                    "version",
+                    "access",
+                    "area",
+                    "bicycle",
+                    "bridge",
+                    "cycleway",
+                    "foot",
+                    "highway",
+                    "int_ref",
+                    "port",
+                    "junction",
+                    "lanes",
+                    "lit",
+                    "maxspeed",
+                    "motorcar",
+                    "motorroad",
+                    "name",
+                    "oneway",
+                    "overtaking",
+                    "psv",
+                    "ref",
+                    "segregated",
+                    "sidewalk",
+                    "smoothness",
+                    "surface",
+                    "tunnel",
+                    "turn",
+                    "width",
+                    "farmland",
+                    "meadow",
+                    "changeset",
+                    "power",
+                    "construction",
+                    "landuse",
+                    "preserved",
+                    "rail",
+                    "bicycle_road",
+                    "est_width",
+                    "passing_places",
+                    "path",
+                    "residential",
+                    "commercial",
+                    "depot",
+                    "industrial",
+                    "busway",
+                    "footway",
+                    "motor_vehicle",
+                    "Bundesland",
+                    "service",
+                    "tracktype",
+                    "220 kV",
+                    "380 kV",
+                    "Anlage",
+                    "Baujahr",
+                    "Bemerkungen",
+                    "Betreiber",
+                    "Bundesland",
+                    "Koordinaten",
+                ]
+                cols_to_drop = []
+                for dcol in drop_cols:
+                    if dcol in gdf.columns:
+                        cols_to_drop.append(dcol)
+                gdf = gdf.drop(columns=cols_to_drop)
 
-    # Save processing results to disk
-    stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
+                print(gdf)
+
+                # Save processing results to disk
+                stage_successfully_saved = util.save_current_stage_to_file(
+                    gdf, regio, stage
+                )
+
     if stage_successfully_saved:
         cols = []
         for col in gdf.columns:
             if "nearest" in col:
                 cols.append(col)
         print(gdf[cols].head(20))
+        print("FINALLY DONE")
+        stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
         print("Stage successfully saved to file")
         return True
     else:

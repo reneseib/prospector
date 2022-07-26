@@ -22,24 +22,24 @@ if __name__ == "__main__":
     prospector = Prospector(proj_path, preload=False)
     prospector.staging(
         [
-            # "rheinland_pfalz",  # solar_done
-            # "saarland",  # solar_done
-            # "berlin",  # solar_done
-            "bremen",  # solar_done
-            # "hamburg",  # solar_done
-            # "hessen",  # solar_done
-            # "schleswig_holstein",  # solar_done
-            # "brandenburg",  # solar_done
-            # "bayern",  # todo
-            # "nordrhein_westfalen",  # todo
-            # "thueringen",  # todo
-            # "niedersachsen",  # todo
-            # "sachsen_anhalt",  # todo
-            # "sachsen",  # todo
-            # "baden_wuerttemberg",  # todo
-            # "mecklenburg_vorpommern",  # todo
+            # "saarland",
+            # "berlin",
+            "bremen",
+            # "hamburg",
+            # "hessen",
+            # "rheinland_pfalz",
+            # "sachsen",
+            # "schleswig_holstein",
+            # "brandenburg",
+            # "bayern",
+            # "nordrhein_westfalen",
+            # "thueringen",
+            # "niedersachsen",
+            # "sachsen_anhalt",
+            # "baden_wuerttemberg",
+            # "mecklenburg_vorpommern",
         ],
-        stage="stage_6_5",
+        stage="stage_5",
         finput=["input"],
     )
 

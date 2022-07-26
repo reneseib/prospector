@@ -72,10 +72,17 @@ def f_stage_7(regio, stage="7-added_nearest_agrargen"):
     gdf["nearest_agrargen"] = None
     gdf["nearest_agrargen_info"] = None
 
-    agro_dist = agro_dist.drop_duplicates(subset=["area_m2"])
+    gdf = gdf.drop_duplicates(subset=["id"])
+    agro_dist = agro_dist.drop_duplicates(subset=["id"])
 
+    gdf = gdf.reset_index()
+    agro_dist = agro_dist.reset_index()
+    print(len(gdf))
+    print(len(agro_dist))
+    print("-----------------")
     if len(agro_dist) == len(gdf):
         for i in range(len(agro_dist)):
+            print(i, "/", len(agro_dist), " - ", round((i / len(gdf)) * 100, 2), "%")
             distance = agro_dist.loc[i, "distance"]
             agro_row = agro_dist.loc[
                 i,
