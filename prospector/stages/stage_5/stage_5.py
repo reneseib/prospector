@@ -118,15 +118,6 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
                 # Remove duplicates
                 dist_gdf = dist_gdf.drop_duplicates(subset=["area_m2"])
 
-                # for i in range(len(gdf)):
-                #     idx = dist_gdf.loc[i, "idx"]
-                #     id = gdf.loc[i, "id"]
-                #     print(id)
-                #     if not str(idx) == str(id):
-                #         print(dist_gdf.loc[i])
-                #         print(gdf.loc[i])
-                #         os._exit(0)
-
                 # Get back the normal id column
                 dist_gdf["id"] = dist_gdf["idx"]
                 dist_gdf = dist_gdf.drop(columns=["idx"])
@@ -290,7 +281,6 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
                     gdf, regio, stage
                 )
 
-    if stage_successfully_saved:
         cols = []
         for col in gdf.columns:
             if "nearest" in col:

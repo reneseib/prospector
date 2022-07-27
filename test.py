@@ -1,3 +1,48 @@
+bla = [
+    "id",
+    "area_m2",
+    "area_ha",
+    "lsg_overlap",
+    "nsg_overlap",
+    "biosphaere_overlap",
+    "fauna_flora_overlap",
+    "nationalparks_overlap",
+    "naturmonumente_overlap",
+    "vogelschutz_overlap",
+    "lsg_distance",
+    "nsg_distance",
+    "biosphaere_distance",
+    "fauna_flora_distance",
+    "nationalparks_distance",
+    "naturmonumente_distance",
+    "vogelschutz_distance",
+    "nearest_solar",
+    "nearest_wind",
+    "nearest_hydro",
+    "nearest_residential",
+    "nearest_commercial",
+    "nearest_industrial",
+    "platform",
+    "nearest_railways",
+    "nearest_roads",
+    "nearest_substations",
+    "nearest_substation_info",
+    "np_slope_abs",
+    "np_slopes_to_centroid",
+    "nearest_agrargen",
+    "nearest_agrargen_info",
+    "solar_DNI",
+    "solar_GHI",
+    "solar_DIF",
+    "solar_PVOUT_csi",
+    "solar_GTI_opta",
+    "solar_OPTA",
+    "solar_TEMP",
+    "soil_score",
+    "geometry",
+]
+
+
 import os
 import re
 import geopandas as gpd
@@ -23,17 +68,49 @@ stages = [
 ]
 
 
+regios = [
+    # "saarland",  # final stage - done
+    # "berlin",  # final stage - done
+    "bremen",  # final stage - done
+    "hamburg",  # final stage - done
+    "hessen",  # final stage - done
+    "rheinland_pfalz",  # final stage - done
+    "sachsen",  # final stage - done
+    "schleswig_holstein",  # final stage - done
+    "brandenburg",  # done
+    "bayern",  # final stage - done
+    "nordrhein_westfalen",  # final stage - done
+    "thueringen",  # final stage - done
+    "niedersachsen",  # final stage - done
+    "sachsen_anhalt",  # final stage - done
+    "baden_wuerttemberg",  # final stage - done
+    "mecklenburg_vorpommern",
+]
+
 for regio in regios:
 
     file = f"/common/ecap/prospector_data/results/final/{regio}/gpkg/{regio}_final.gpkg"
 
-    data = gpd.read_file(file)
-    gdf = gpd.GeoDataFrame(data)
+    # if os.path.exists(file):
+    #     os.remove(file)
 
-    df = pd.DataFrame(gdf)
+    # data = gpd.read_file(file)
+    # gdf = gpd.GeoDataFrame(data)
+    #
+    # print(gdf.columns)
 
-    dir = f"/common/ecap/prospector_data/results/final/{regio}/gpkg"
-    if not os.path.exists(dir):
-        os.mkdir(dir)
-
-    df.to_csv(file.replace("gpkg", "csv"))
+    # drop_cols = []
+    # for col in gdf.columns:
+    #     if "np_" in col and not "slope" in col:
+    #         drop_cols.append(col)
+    #
+    # gdf = gdf.drop(columns=drop_cols)
+    #
+    # df = pd.DataFrame(gdf)
+    #
+    # dir = f"/common/ecap/prospector_data/results/final/{regio}/csv"
+    # if not os.path.exists(dir):
+    #     os.mkdir(dir)
+    #
+    # df.to_csv(file.replace("gpkg", "csv"))
+    # print(regio, "saved as csv")

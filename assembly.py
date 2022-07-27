@@ -17,10 +17,35 @@ target_dir = "/common/ecap/prospector_data/results/final"
 
 stages = list(config["directories"]["prospector_data"]["results"]["stages"].keys())
 
+keep_columns = {
+    "5-added_nearest_substation": [],
+    "6_5-added_slope_results": [
+        "id",
+        "np_slope_abs",
+        "np_slopes_to_centroid",
+    ],
+    "7-added_nearest_agrargen": [
+        "id",
+        "nearest_agrargen",
+        "nearest_agrargen_info",
+    ],
+    "8-added_solar_data": [
+        "id",
+        "solar_DNI",
+        "solar_GHI",
+        "solar_DIF",
+        "solar_PVOUT_csi",
+        "solar_GTI_opta",
+        "solar_OPTA",
+        "solar_TEMP",
+    ],
+    "8_5-added_geportal_data": ["id", "soil_score"],
+}
+
+
 stages = [
     # "4-added_nearest_protected_area",
     "5-added_nearest_substation",
-    # "6-added_slope",
     "6_5-added_slope_results",
     "7-added_nearest_agrargen",
     "8-added_solar_data",
@@ -49,6 +74,24 @@ all_columns = []
 
 if __name__ == "__main__":
 
+    regios = [
+        # "saarland",  # final stage - done
+        # "berlin",  # final stage - done
+        # "bremen",  # final stage - done
+        # "hamburg",  # final stage - done
+        # "hessen",  # final stage - done
+        # "rheinland_pfalz",  # final stage - done
+        # "sachsen",  # final stage - done
+        # "schleswig_holstein",  # final stage - done
+        # "brandenburg",  # done
+        # "bayern",  # final stage - done
+        # "nordrhein_westfalen",  # final stage - done
+        # "thueringen",  # final stage - done
+        # "niedersachsen",  # final stage - done
+        # "sachsen_anhalt",  # final stage - done
+        # "baden_wuerttemberg",  # final stage - done
+        "mecklenburg_vorpommern",
+    ]
     # with Pool(processes=6) as pool:
 
     for stage in stages:
@@ -65,46 +108,46 @@ if __name__ == "__main__":
                     data = gpd.read_file(file_path)
                     gdf = gpd.GeoDataFrame(data)
 
-                    # Drop all unnecssary columns from gdf
-                    cols_to_drop = []
-                    for col in gdf.columns:
-                        if col in drop_cols:
-                            cols_to_drop.append(col)
-                    gdf = gdf.drop(columns=cols_to_drop)
+                    gdf = gdf.drop_duplicates(subset=["area_m2"])
 
                     # Load existing final file is it exists.
                     # If not, create new final file
                     final_file = os.path.join(
                         target_dir, regio, "gpkg", f"{regio}_final.gpkg"
                     )
+                    print("file exists")
+                    print(os.path.exists(final_file))
+
                     if os.path.exists(final_file):
+
                         final_data = gpd.read_file(final_file)
                         final_gdf = gpd.GeoDataFrame(final_data)
 
                         final_df = pd.DataFrame(final_gdf)
                         gdf_df = pd.DataFrame(gdf)
+                        print("HERE")
+                        print(final_df.columns)
+                        print(gdf_df.columns)
 
-                        gdf = gdf.drop_duplicates(subset=["area_m2"])
-
-                        gdf_keep_cols = list(
-                            gdf_df.columns.difference(final_df.columns)
-                        )
-
-                        # Remove duplicate columns
-                        for col in gdf_keep_cols:
-                            if (
-                                "_left" in col
-                                or "_right" in col
-                                or "_x" in col
-                                or "_y" in col
-                            ):
-                                gdf_keep_cols.remove(col)
-
-                        gdf_keep_cols.append("id")
+                        # # Remove duplicate columns
+                        # for col in gdf_keep_cols:
+                        #     if (
+                        #         "_left" in col
+                        #         or "_right" in col
+                        #         or "_x" in col
+                        #         or "_y" in col
+                        #     ):
+                        #         gdf_keep_cols.remove(col)
 
                         mrgd = pd.merge(
-                            final_gdf, gdf[gdf_keep_cols], on="id", how="left"
+                            final_gdf,
+                            gdf_df[keep_columns[stage]],
+                            on="id",
+                            how="left",
                         )
+
+                        print("AFTER MERGE")
+                        print(mrgd.columns)
 
                         gdf = gpd.GeoDataFrame(mrgd)
 
@@ -115,18 +158,20 @@ if __name__ == "__main__":
                                 or "_right" in col
                                 or "_x" in col
                                 or "_y" in col
+                                or col.startswith("np_")
+                                and not "slope" in col
                             ):
                                 gdf = gdf.drop(columns=[col])
-
-                        # print(gdf.columns)
+                        print("AFTER MERGE")
+                        print(gdf.columns)
 
                         gdf.to_file(final_file, driver="GPKG")
 
                     else:
+
+                        print("STARTING FRESH")
                         gdf.to_file(final_file, driver="GPKG")
                     print(f">> {regio} {stage}: FINAL FILE CREATED")
-
-                    # os._exit(0)
 
 
 r = [
