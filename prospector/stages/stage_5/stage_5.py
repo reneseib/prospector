@@ -68,7 +68,7 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
         gdf = orig_gdf.copy()
 
         # In case we run against national data (in 25832)
-        # we would need to transform the geometries to 25832
+        # we need to transform the geometries to 25832
         gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
 
         targets = {
@@ -274,19 +274,24 @@ def f_stage_5(regio, stage="5-added_nearest_substation"):
                         cols_to_drop.append(dcol)
                 gdf = gdf.drop(columns=cols_to_drop)
 
-                print(gdf)
+                print(gdf["geometry"])
 
                 # Save processing results to disk
                 stage_successfully_saved = util.save_current_stage_to_file(
                     gdf, regio, stage
                 )
 
-        cols = []
-        for col in gdf.columns:
-            if "nearest" in col:
-                cols.append(col)
-        print(gdf[cols].head(20))
+        # Convert back to original CRS
+        if config["epsg"][regio] != 25832:
+            gdf = gdf.to_crs(config["epsg"][regio])
+
+        # cols = []
+        # for col in gdf.columns:
+        #     if "nearest" in col:
+        #         cols.append(col)
+        print(gdf["geometry"].head(20))
         print("FINALLY DONE")
+
         stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
         print("Stage successfully saved to file")
         return True
