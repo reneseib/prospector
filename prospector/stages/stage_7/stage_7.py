@@ -67,6 +67,12 @@ def f_stage_7(regio, stage="7-added_nearest_agrargen"):
     # Load previous stage data
     gdf = util.load_prev_stage_to_gdf(regio, stage)
 
+    data = gpd.read_file(file)
+    gdf = gpd.GeoDataFrame(data)
+
+    # Transform to 25832 if necessary
+    gdf = gdf.set_crs(config["epsg"][regio], allow_override=True).to_crs(25832)
+
     agro_dist = gpd.sjoin_nearest(gdf, agro_gdf, distance_col="distance", how="inner")
 
     gdf["nearest_agrargen"] = None
@@ -106,6 +112,10 @@ def f_stage_7(regio, stage="7-added_nearest_agrargen"):
             ]
             gdf.at[i, "nearest_agrargen_info"] = agro_row.to_json()
             gdf.at[i, "nearest_agrargen"] = distance
+
+        # Transform back if necessary
+        if config["epsg"][regio] != 25832:
+            gdf = gdf.set_crs(25832).to_crs(config["epsg"][regio])
 
         print(f"{regio}: saving now")
         stage_successfully_saved = util.save_current_stage_to_file(gdf, regio, stage)
