@@ -1,21 +1,21 @@
 import os, sys
 
 regios = [
-    "saarland",
+    # "saarland",
     "berlin",
-    "bremen",
-    "hamburg",
-    "hessen",
-    "rheinland_pfalz",
+    # "bremen",
+    # "hamburg",
+    # "hessen",
+    # "rheinland_pfalz",
     "sachsen",
-    "schleswig_holstein",
+    # "schleswig_holstein",
     "brandenburg",
-    "bayern",
-    "nordrhein_westfalen",
+    # "bayern",
+    # "nordrhein_westfalen",
     "thueringen",
-    "niedersachsen",
+    # "niedersachsen",
     "sachsen_anhalt",
-    "baden_wuerttemberg",
+    # "baden_wuerttemberg",
     "mecklenburg_vorpommern",
 ]
 

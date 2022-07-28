@@ -59,8 +59,8 @@ fa = "/common/ecap/prospector_data/results/stages/2-added_centroids/baden_wuertt
 regios = config["area"]["subregions"]
 stages = [
     # "4-added_nearest_protected_area",
-    "5-added_nearest_substation",
-    # "6-added_slope",
+    # "5-added_nearest_substation",
+    "6-added_slope",
     # "6_5-added_slope_results",
     # "7-added_nearest_agrargen",
     # "8-added_solar_data",
@@ -71,33 +71,36 @@ stages = [
 regios = [
     # "saarland",  # final stage - done
     # "berlin",  # final stage - done
-    "bremen",  # final stage - done
-    "hamburg",  # final stage - done
-    "hessen",  # final stage - done
-    "rheinland_pfalz",  # final stage - done
+    # "bremen",  # final stage - done
+    # "hamburg",  # final stage - done
+    # "hessen",  # final stage - done
+    # "rheinland_pfalz",  # final stage - done
     "sachsen",  # final stage - done
-    "schleswig_holstein",  # final stage - done
+    # "schleswig_holstein",  # final stage - done
     "brandenburg",  # done
-    "bayern",  # final stage - done
-    "nordrhein_westfalen",  # final stage - done
+    # "bayern",  # final stage - done
+    # "nordrhein_westfalen",  # final stage - done
     "thueringen",  # final stage - done
-    "niedersachsen",  # final stage - done
+    # "niedersachsen",  # final stage - done
     "sachsen_anhalt",  # final stage - done
-    "baden_wuerttemberg",  # final stage - done
+    # "baden_wuerttemberg",  # final stage - done
     "mecklenburg_vorpommern",
 ]
-
+# for stage in stages:
 for regio in regios:
 
     file = f"/common/ecap/prospector_data/results/final/{regio}/gpkg/{regio}_final.gpkg"
 
-    # if os.path.exists(file):
-    #     os.remove(file)
-
-    # data = gpd.read_file(file)
-    # gdf = gpd.GeoDataFrame(data)
-    #
-    # print(gdf.columns)
+    if os.path.exists(file):
+        os.remove(file)
+    if os.path.exists(file.replace("_final", "_final2")):
+        os.remove(file.replace("_final", "_final2"))
+        #
+        # data = gpd.read_file(file)
+        # gdf = gpd.GeoDataFrame(data).set_crs(25833, allow_override=True).to_crs(4326)
+        #
+        # print(gdf.loc[0, "geometry"])
+        # print(gdf.loc[0, "points_ele"])
 
     # drop_cols = []
     # for col in gdf.columns:

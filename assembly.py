@@ -75,21 +75,21 @@ all_columns = []
 if __name__ == "__main__":
 
     regios = [
-        # "saarland",  # final stage - done
-        # "berlin",  # final stage - done
-        # "bremen",  # final stage - done
-        # "hamburg",  # final stage - done
-        # "hessen",  # final stage - done
-        # "rheinland_pfalz",  # final stage - done
-        # "sachsen",  # final stage - done
-        # "schleswig_holstein",  # final stage - done
-        # "brandenburg",  # done
-        # "bayern",  # final stage - done
-        # "nordrhein_westfalen",  # final stage - done
-        # "thueringen",  # final stage - done
-        # "niedersachsen",  # final stage - done
-        # "sachsen_anhalt",  # final stage - done
-        # "baden_wuerttemberg",  # final stage - done
+        # "saarland",
+        # "berlin",
+        # "bremen",
+        # "hamburg",
+        # "hessen",
+        # "rheinland_pfalz",
+        # "sachsen",
+        # "schleswig_holstein",
+        # "brandenburg",
+        # "bayern",
+        # "nordrhein_westfalen",
+        # "thueringen",
+        # "niedersachsen",
+        # "sachsen_anhalt",
+        # "baden_wuerttemberg",
         "mecklenburg_vorpommern",
     ]
     # with Pool(processes=6) as pool:
