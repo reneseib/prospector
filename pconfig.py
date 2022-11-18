@@ -2,11 +2,9 @@ config = {
     "init": {
         "prospector_package_path": [
             "/common/ecap/prospector",
-            "/Users/shellsquid/dev/osm/prospector/",
         ],
         "proj_path": [
             "/common/ecap",
-            "/Users/shellsquid/dev/osm",
         ],
     },
     "epsg": {
